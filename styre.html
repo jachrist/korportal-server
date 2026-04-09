@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kammerkoret Utsikten">
+    <meta name="description" content="Styresider - Kammerkoret Utsikten">
+    <title>Styresider - Kammerkoret Utsikten</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Favicon og ikoner -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/icon-16.png">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/styre.css">
+</head>
+<body>
+    <div class="wrap">
+        <!-- Header -->
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <span class="uts-brandMiniText">Kammerkoret Utsikten</span>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">🌙</button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">☰</button>
+            </div>
+        </header>
+
+        <!-- Menu overlay -->
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader">
+                    <h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+                </div>
+                <nav class="uts-menuList" id="menuList"></nav>
+            </div>
+        </div>
+
+        <!-- Page header -->
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>Styresider</h1>
+                    <p class="sub">Medlemsadministrasjon og kommunikasjon</p>
+                </div>
+                <div class="logoWrap">
+                    <span style="font-size: 32px;">📋</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="card content">
+            <div class="styre-stats" id="styreStats">
+                <div class="stat-box">
+                    <span class="stat-box__value" id="statTotal">0</span>
+                    <span class="stat-box__label">Totalt medlemmer</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box__value" id="statActive">0</span>
+                    <span class="stat-box__label">Aktive</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box__value" id="statVoiceGroups">0</span>
+                    <span class="stat-box__label">Stemmegrupper</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Actions bar -->
+        <section class="card content">
+            <div class="styre-actions">
+                <button class="styre-btn styre-btn--primary" id="addMemberBtn">+ Registrer nytt medlem</button>
+                <button class="styre-btn styre-btn--secondary" id="sendEmailBtn">Send e-post</button>
+            </div>
+        </section>
+
+        <!-- Members table -->
+        <section class="card content">
+            <div class="styre-filter-bar">
+                <input type="text" class="styre-search" id="memberSearch" placeholder="Søk etter navn eller e-post...">
+                <select class="styre-select" id="voiceFilter">
+                    <option value="">Alle stemmegrupper</option>
+                </select>
+                <select class="styre-select" id="roleFilter">
+                    <option value="">Alle roller</option>
+                    <option value="admin">Admin</option>
+                    <option value="styre">Styre</option>
+                    <option value="medlem">Medlem</option>
+                </select>
+            </div>
+            <div id="membersTableContainer">
+                <table class="members-table" id="membersTable">
+                    <thead>
+                        <tr>
+                            <th>Navn</th>
+                            <th>E-post</th>
+                            <th>Telefon</th>
+                            <th>Stemmegruppe</th>
+                            <th>Rolle</th>
+                            <th>Medlem siden</th>
+                            <th class="th-kontingent">Kontingent<br>betalt</th>
+                            <th>Handlinger</th>
+                        </tr>
+                    </thead>
+                    <tbody id="membersTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="card footer">
+            <div class="footer__content">
+                <p class="footer__copyright">&copy; <span id="currentYear"></span> Kammerkoret Utsikten</p>
+                <p class="footer__link"><a href="https://www.kammerkoretutsikten.no" target="_blank" rel="noopener">kammerkoretutsikten.no</a></p>
+                <p class="footer__link"><a href="mailto:admin@kammerkoretutsikten.no">admin@kammerkoretutsikten.no</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Member modal -->
+    <div class="styre-modal-overlay" id="memberModalOverlay" aria-hidden="true">
+        <div class="styre-modal" role="dialog" aria-labelledby="memberModalTitle">
+            <div class="styre-modal__header">
+                <h2 id="memberModalTitle">Registrer nytt medlem</h2>
+                <button class="uts-closeBtn" id="memberModalClose" type="button" title="Lukk">✕</button>
+            </div>
+            <form id="memberForm" class="styre-modal__body">
+                <input type="hidden" id="memberFormId">
+                <div class="styre-form-group">
+                    <label for="memberName">Navn *</label>
+                    <input type="text" id="memberName" required>
+                </div>
+                <div class="styre-form-group">
+                    <label for="memberEmail">E-post *</label>
+                    <input type="email" id="memberEmail" required>
+                </div>
+                <div class="styre-form-group">
+                    <label for="memberPhone">Telefon</label>
+                    <input type="tel" id="memberPhone">
+                </div>
+                <div class="styre-form-group">
+                    <label for="memberVoice">Stemmegruppe *</label>
+                    <select id="memberVoice" required>
+                        <option value="">Velg stemmegruppe</option>
+                        <option value="sopran 1">Sopran 1</option>
+                        <option value="sopran 2">Sopran 2</option>
+                        <option value="alt 1">Alt 1</option>
+                        <option value="alt 2">Alt 2</option>
+                        <option value="tenor 1">Tenor 1</option>
+                        <option value="tenor 2">Tenor 2</option>
+                        <option value="bass 1">Bass 1</option>
+                        <option value="bass 2">Bass 2</option>
+                    </select>
+                </div>
+                <div class="styre-form-group">
+                    <label for="memberRole">Rolle *</label>
+                    <select id="memberRole" required>
+                        <option value="medlem">Medlem</option>
+                        <option value="styre">Styre</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="styre-form-group styre-form-group--checkbox">
+                    <label>
+                        <input type="checkbox" id="memberKontingent">
+                        Kontingent betalt
+                    </label>
+                </div>
+                <div class="styre-modal__footer">
+                    <button type="button" class="styre-btn styre-btn--ghost" id="memberFormCancel">Avbryt</button>
+                    <button type="submit" class="styre-btn styre-btn--primary" id="memberFormSubmit">Lagre</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Email modal -->
+    <div class="styre-modal-overlay" id="emailModalOverlay" aria-hidden="true">
+        <div class="styre-modal" role="dialog" aria-labelledby="emailModalTitle">
+            <div class="styre-modal__header">
+                <h2 id="emailModalTitle">Send e-post</h2>
+                <button class="uts-closeBtn" id="emailModalClose" type="button" title="Lukk">✕</button>
+            </div>
+            <div class="styre-modal__body">
+                <div class="styre-form-group">
+                    <label for="emailRecipientType">Mottakere</label>
+                    <select id="emailRecipientType">
+                        <option value="all">Alle medlemmer</option>
+                        <option value="unpaid">Ikke betalt kontingent</option>
+                        <option value="voice">Per stemmegruppe</option>
+                        <option value="individual">Individuelt</option>
+                    </select>
+                </div>
+                <div class="styre-form-group" id="emailVoiceGroup" style="display:none;">
+                    <label for="emailVoiceSelect">Stemmegruppe</label>
+                    <select id="emailVoiceSelect">
+                        <option value="">Velg stemmegruppe</option>
+                    </select>
+                </div>
+                <div class="styre-form-group" id="emailIndividualGroup" style="display:none;">
+                    <label>Velg medlemmer</label>
+                    <div class="styre-checkbox-list" id="emailMemberList"></div>
+                </div>
+                <div class="styre-form-group">
+                    <label for="emailSubject">Emne *</label>
+                    <input type="text" id="emailSubject" required>
+                </div>
+                <div class="styre-form-group">
+                    <label for="emailMessage">Melding *</label>
+                    <textarea id="emailMessage" rows="6" required></textarea>
+                </div>
+                <div class="styre-modal__footer">
+                    <button type="button" class="styre-btn styre-btn--ghost" id="emailFormCancel">Avbryt</button>
+                    <button type="button" class="styre-btn styre-btn--primary" id="emailFormSubmit">Send e-post</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loader" id="loader">
+        <div class="loader__content">
+            <div class="loader__spinner"></div>
+            <p class="loader__text">Laster...</p>
+        </div>
+    </div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/styre.js"></script>
+
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

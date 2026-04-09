@@ -1,0 +1,169 @@
+{
+    "statusCode": "200",
+    "headers": {
+        "Content-type": "Application/JSON"
+    },
+    "body": {
+        "Navigering": [
+            {
+                "Tekst": "Forside",
+                "Publikum": "Alle",
+                "Adresse": "index.html"
+            }
+        ],
+        "Data": {
+            "voice": "tutti",
+            "title": "Vårprogram 2026",
+            "baseUrls": {
+                "pdf": "https://utsiktenblob.blob.core.windows.net/sanger/",
+                "audio": "https://utsiktenblob.blob.core.windows.net/sanger/"
+            },
+            "notes": [
+                {
+                    "id": "Ubi Caritas",
+                    "noteTitle": "Ubi Caritas",
+                    "pdfFilename": "Ubi Caritas - Ola Gjeilo.pdf",
+                    "audio": {
+                        "sopran 1": "Ubi Caritas Geilo SATB - sopr 1.mp3",
+                        "sopran 2": "Ubi Caritas Geilo SATB - sopr 2.mp3",
+                        "alt 1": "Ubi Caritas Geilo SATB - alt.mp3",
+                        "alt 2": "Ubi Caritas Geilo SATB - alt.mp3",
+                        "tenor 1": "Ubi Caritas Geilo SATB - ten.mp3",
+                        "tenor 2": "Ubi Caritas Geilo SATB - ten.mp3",
+                        "bass 1": "Ubi Caritas Geilo SATB - bass.mp3",
+                        "bass 2": "Ubi Caritas Geilo SATB - bass.mp3",
+                        "tutti": "Ubi Caritas Geilo SATB - tutti.mp3"
+                    }
+                },
+                {
+                    "id": "Lift me up",
+                    "noteTitle": "Lift me up",
+                    "pdfFilename": "Lift Me Up EPRINT-Choral.pdf",
+                    "audio": {
+                        "sopran 1": "Lift me up - Sopran 1.mp3",
+                        "sopran 2": "Lift me up - Sopran 2.mp3",
+                        "alt 1": "Lift me up - Alt 1.mp3",
+                        "alt 2": "Lift me up - Alt 2.mp3",
+                        "tenor 1": "Lift me up - Tenor.mp3",
+                        "tenor 2": "Lift me up - Tenor.mp3",
+                        "bass 1": "Lift me up - Bass.mp3",
+                        "bass 2": "Lift me up - Bass.mp3",
+                        "tutti": "Lift me up - Tutti.mp3"
+                    }
+                },
+                {
+                    "id": "Northern Lights",
+                    "noteTitle": "Northern Lights",
+                    "pdfFilename": "Northern Lights SATB.pdf",
+                    "audio": {
+                        "sopran 1": "Northern Lights SATB - sopr.mp3",
+                        "sopran 2": "Northern Lights SATB - sopr.mp3",
+                        "alt 1": "Northern Lights SATB - alt 1.mp3",
+                        "alt 2": "Northern Lights SATB - alt 2.mp3",
+                        "tenor 1": "Northern Lights SATB - ten 1.mp3",
+                        "tenor 2": "Northern Lights SATB - ten 2.mp3",
+                        "bass 1": "Northern Lights SATB - bass.mp3",
+                        "bass 2": "Northern Lights SATB - bass.mp3",
+                        "tutti": "Northern Lights SATB - tutti.mp3"
+                    }
+                },
+                {
+                    "id": "Bruremarsj fra Valsøyfjord Aure",
+                    "noteTitle": "Bruremarsj fra Valsøyfjord Aure",
+                    "pdfFilename": "Bruremarsj-fra-Valsøyfjord-Aure.pdf",
+                    "audio": {
+                        "sopran 1": "Bruremarsj-fra-Valsøyfjord-Aure - Sopran.mp3",
+                        "sopran 2": "Bruremarsj-fra-Valsøyfjord-Aure - Sopran.mp3",
+                        "alt 1": "Bruremarsj-fra-Valsøyfjord-Aure - Alt1.mp3",
+                        "alt 2": "Bruremarsj-fra-Valsøyfjord-Aure - Alt 2.mp3",
+                        "tenor 1": "Bruremarsj-fra-Valsøyfjord-Aure - Tenor.mp3",
+                        "tenor 2": "Bruremarsj-fra-Valsøyfjord-Aure - Tenor.mp3",
+                        "bass 1": "Bruremarsj-fra-Valsøyfjord-Aure - Bass.mp3",
+                        "bass 2": "Bruremarsj-fra-Valsøyfjord-Aure - Bass.mp3",
+                        "tutti": "Bruremarsj-fra-Valsøyfjord-Aure - Tutti.mp3"
+                    }
+                },
+                {
+                    "id": "A Light of Hope",
+                    "noteTitle": "A Light of Hope",
+                    "pdfFilename": "A Light of Hope.pdf",
+                    "audio": {
+                        "sopran 1": "A Light of Hope - Sopran.mp3",
+                        "sopran 2": "A Light of Hope - Sopran.mp3",
+                        "alt 1": "A Light of Hope - Alt.mp3",
+                        "alt 2": "A Light of Hope - Alt.mp3",
+                        "tenor 1": "A Light of Hope - Tenor.mp3",
+                        "tenor 2": "A Light of Hope - Tenor.mp3",
+                        "bass 1": "A Light of Hope - Bass.mp3",
+                        "bass 2": "A Light of Hope - Bass.mp3",
+                        "tutti": "A Light of Hope - Tutti.mp3"
+                    }
+                },
+                {
+                    "id": "Stein på stein",
+                    "noteTitle": "Stein på stein",
+                    "pdfFilename": "Stein på Stein Utsikten.pdf",
+                    "audio": {
+                        "sopran 1": "Stein på Stein Utsikten-Soprano.mp3",
+                        "sopran 2": "Stein på Stein Utsikten-Soprano.mp3",
+                        "alt 1": "Stein på Stein Utsikten-Alto.mp3",
+                        "alt 2": "Stein på Stein Utsikten-Alto.mp3",
+                        "tenor 1": "Stein på Stein Utsikten-Tenor.mp3",
+                        "tenor 2": "Stein på Stein Utsikten-Tenor.mp3",
+                        "bass 1": "Stein på Stein Utsikten-Bass.mp3",
+                        "bass 2": "Stein på Stein Utsikten-Bass.mp3",
+                        "tutti": "Stein på Stein Utsikten.mp3"
+                    }
+                },
+                {
+                    "id": "Når himmelen faller ned",
+                    "noteTitle": "Når himmelen faller ned",
+                    "pdfFilename": "Når himmelen faller ned Utsikten.pdf",
+                    "audio": {
+                        "sopran 1": "Når himmelen faller ned Utsikten-Soprano.mp3",
+                        "sopran 2": "Når himmelen faller ned Utsikten-Soprano.mp3",
+                        "alt 1": "Når himmelen faller ned Utsikten-Alto.mp3",
+                        "alt 2": "Når himmelen faller ned Utsikten-Alto.mp3",
+                        "tenor 1": "Når himmelen faller ned Utsikten-Tenor.mp3",
+                        "tenor 2": "Når himmelen faller ned Utsikten-Tenor.mp3",
+                        "bass 1": "",
+                        "bass 2": "",
+                        "tutti": "Når himmelen faller ned Utsikten-tutti.mp3"
+                    }
+                },
+                {
+                    "id": "Lean on Me Utsikten",
+                    "noteTitle": "Lean on Me Utsikten",
+                    "pdfFilename": "Lean on Me Utsikten.pdf",
+                    "audio": {
+                        "sopran 1": "Lean on Me Utsikten-Soprano.mp3",
+                        "sopran 2": "Lean on Me Utsikten-Soprano.mp3",
+                        "alt 1": "Lean on Me Utsikten-Alto.mp3",
+                        "alt 2": "Lean on Me Utsikten-Alto.mp3",
+                        "tenor 1": "Lean on Me Utsikten.mp3",
+                        "tenor 2": "Lean on Me Utsikten.mp3",
+                        "bass 1": "Lean on Me Utsikten-Bass.mp3",
+                        "bass 2": "Lean on Me Utsikten-Bass.mp3",
+                        "tutti": ""
+                    }
+                },
+                {
+                    "id": "Himmelhøge sti",
+                    "noteTitle": "Himmelhøge sti",
+                    "pdfFilename": "Himmelhøge sti.pdf",
+                    "audio": {
+                        "sopran 1": "",
+                        "sopran 2": "",
+                        "alt 1": "",
+                        "alt 2": "",
+                        "tenor 1": "",
+                        "tenor 2": "",
+                        "bass 1": "",
+                        "bass 2": "",
+                        "tutti": ""
+                    }
+                }
+            ]
+        }
+    }
+}

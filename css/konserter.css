@@ -1,0 +1,731 @@
+/* ==========================================================================
+   Konserter - Stilark
+   Bruker CSS-variabler fra style.css for dark/light mode
+   ========================================================================== */
+
+/* Concerts Section
+   ========================================================================== */
+.concerts-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+/* Concert Card
+   ========================================================================== */
+.concert-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr;
+    transition: all var(--transition-fast);
+}
+
+.concert-card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-lg);
+}
+
+@media (min-width: 768px) {
+    .concert-card {
+        grid-template-columns: 300px 1fr;
+    }
+}
+
+@media (min-width: 1024px) {
+    .concert-card {
+        grid-template-columns: 380px 1fr;
+    }
+}
+
+/* Concert Image
+   ========================================================================== */
+.concert-card__image {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    .concert-card__image {
+        height: 100%;
+        min-height: 280px;
+    }
+}
+
+.concert-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-normal);
+}
+
+.concert-card:hover .concert-card__image img {
+    transform: scale(1.05);
+}
+
+.concert-card__badge {
+    position: absolute;
+    top: var(--space-md);
+    left: var(--space-md);
+    padding: var(--space-xs) var(--space-md);
+    background: var(--accent);
+    color: var(--bg);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    border-radius: var(--radius-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.concert-card__badge--soldout {
+    background: #dc2626;
+}
+
+.concert-card__badge--few {
+    background: #f59e0b;
+}
+
+/* Concert Content
+   ========================================================================== */
+.concert-card__content {
+    padding: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.concert-card__header {
+    display: flex;
+    gap: var(--space-lg);
+    align-items: flex-start;
+}
+
+.concert-card__date-box {
+    flex-shrink: 0;
+    width: 70px;
+    text-align: center;
+    padding: var(--space-md);
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: var(--radius-sm);
+}
+
+.concert-card__date-day {
+    font-size: var(--font-size-2xl);
+    font-weight: 800;
+    line-height: 1;
+}
+
+.concert-card__date-month {
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-top: var(--space-xs);
+}
+
+.concert-card__date-year {
+    font-size: var(--font-size-xs);
+    opacity: 0.8;
+}
+
+.concert-card__info {
+    flex: 1;
+    min-width: 0;
+}
+
+.concert-card__title {
+    font-size: var(--font-size-xl);
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: var(--space-sm);
+    line-height: 1.3;
+}
+
+.concert-card__location {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--muted);
+    font-size: var(--font-size-sm);
+}
+
+.concert-card__location-icon {
+    font-size: 16px;
+}
+
+.concert-card__time {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--muted);
+    font-size: var(--font-size-sm);
+    margin-top: var(--space-xs);
+}
+
+/* Concert Program
+   ========================================================================== */
+.concert-card__program {
+    border-top: 1px solid var(--line);
+    padding-top: var(--space-lg);
+}
+
+.concert-card__program-title {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-sm);
+}
+
+.concert-card__program-list {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+}
+
+.concert-card__program-item {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xs);
+}
+
+.concert-card__program-item::before {
+    content: "♪";
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+/* Concert Description
+   ========================================================================== */
+.concert-card__description {
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--line);
+}
+
+.concert-card__description p {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary, var(--muted));
+    line-height: 1.6;
+    margin: 0;
+}
+
+.concert-card__edit {
+    padding: var(--space-sm) 0 0;
+}
+
+/* Concert Footer
+   ========================================================================== */
+.concert-card__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--line);
+    margin-top: auto;
+}
+
+.concert-card__price {
+    display: flex;
+    flex-direction: column;
+}
+
+.concert-card__price-label {
+    font-size: var(--font-size-xs);
+    color: var(--muted);
+    text-transform: uppercase;
+}
+
+.concert-card__price-value {
+    font-size: var(--font-size-xl);
+    font-weight: 800;
+    color: var(--text);
+}
+
+.concert-card__price-value--free {
+    color: var(--accent);
+}
+
+.concert-card__tickets {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.concert-card__availability {
+    font-size: var(--font-size-sm);
+    color: var(--muted);
+}
+
+.concert-card__availability--few {
+    color: #f59e0b;
+}
+
+.concert-card__availability--soldout {
+    color: #dc2626;
+}
+
+.btn--book {
+    padding: var(--space-md) var(--space-xl);
+}
+
+.btn--book:disabled {
+    background: var(--line);
+    color: var(--muted);
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   MODAL
+   ========================================================================== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-lg);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+}
+
+.modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+[data-theme="light"] .modal-overlay {
+    background: rgba(8, 18, 37, 0.4);
+}
+
+.modal {
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+    transition: all var(--transition-normal);
+}
+
+.modal-overlay.open .modal {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+.modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-lg) var(--space-xl);
+    border-bottom: 1px solid var(--line);
+}
+
+.modal__title {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    margin: 0;
+}
+
+.modal__close {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-xs);
+    background: var(--card2);
+    border: 1px solid var(--line);
+    font-size: 18px;
+    transition: all var(--transition-fast);
+}
+
+.modal__close:hover {
+    background: var(--line);
+}
+
+.modal__body {
+    padding: var(--space-xl);
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Modal Concert Info
+   ========================================================================== */
+.modal__concert-info {
+    display: flex;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-xl);
+}
+
+.modal__concert-date {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: var(--radius-xs);
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.modal__concert-date .day {
+    font-size: var(--font-size-lg);
+}
+
+.modal__concert-date .month {
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+}
+
+.modal__concert-details h3 {
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 var(--space-xs);
+}
+
+.modal__concert-details p {
+    font-size: var(--font-size-sm);
+    color: var(--muted);
+    margin: 0;
+}
+
+/* Ticket Form
+   ========================================================================== */
+.ticket-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.form-group label {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text);
+}
+
+.form-group input,
+.form-group textarea {
+    padding: var(--space-md);
+    font-size: var(--font-size-base);
+    font-family: inherit;
+    color: var(--text);
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(93, 214, 255, 0.15);
+}
+
+[data-theme="light"] .form-group input:focus,
+[data-theme="light"] .form-group textarea:focus {
+    box-shadow: 0 0 0 3px rgba(0, 119, 204, 0.15);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: var(--muted);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Ticket Counter
+   ========================================================================== */
+.ticket-counter {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    width: fit-content;
+}
+
+.counter-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.counter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.counter-btn:active {
+    transform: scale(0.95);
+}
+
+.ticket-counter input {
+    width: 60px;
+    text-align: center;
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    -moz-appearance: textfield;
+}
+
+.ticket-counter input::-webkit-outer-spin-button,
+.ticket-counter input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.tickets-available {
+    font-size: var(--font-size-xs);
+    color: var(--muted);
+    margin-top: var(--space-xs);
+}
+
+.tickets-available--few {
+    color: #f59e0b;
+}
+
+/* Form Price
+   ========================================================================== */
+.form-price {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md);
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+}
+
+.form-price #total-price {
+    font-size: var(--font-size-xl);
+    color: var(--accent);
+}
+
+/* Submit Button
+   ========================================================================== */
+.btn--full {
+    width: 100%;
+}
+
+.btn-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* Success State
+   ========================================================================== */
+.modal__success {
+    padding: var(--space-2xl);
+    text-align: center;
+}
+
+.success-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--space-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    border-radius: 50%;
+}
+
+.modal__success h3 {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: var(--space-sm);
+}
+
+.modal__success p {
+    color: var(--muted);
+    margin-bottom: var(--space-xl);
+}
+
+.success-summary {
+    text-align: left;
+    margin: var(--space-lg) 0;
+    padding: var(--space-md);
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+}
+
+.success-summary__row {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-sm) 0;
+}
+
+.success-summary__row + .success-summary__row {
+    border-top: 1px solid var(--line);
+}
+
+.success-summary__row dt {
+    font-size: var(--font-size-sm);
+    color: var(--muted);
+}
+
+.success-summary__row dd {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+.success-summary__price {
+    color: var(--accent) !important;
+    font-size: var(--font-size-base) !important;
+    font-weight: 800 !important;
+}
+
+.success-payment-note {
+    margin-top: 1.25rem;
+    padding: 1rem 1.25rem;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.20);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.success-payment-note p {
+    margin: 0.25rem 0;
+}
+
+.success-greeting {
+    margin-top: 1.25rem;
+    font-size: var(--font-size-sm);
+    color: var(--muted);
+    font-style: italic;
+}
+
+/* Skeleton Loading
+   ========================================================================== */
+.concert-card--skeleton {
+    min-height: 300px;
+}
+
+.concert-card--skeleton .concert-card__image,
+.concert-card--skeleton .skeleton-line {
+    background: linear-gradient(90deg, var(--line) 25%, var(--card2) 50%, var(--line) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-line {
+    height: 20px;
+    border-radius: var(--radius-xs);
+}
+
+.skeleton-line--short {
+    width: 60%;
+}
+
+.skeleton-line--medium {
+    width: 80%;
+}
+
+@keyframes skeleton-pulse {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Responsive
+   ========================================================================== */
+@media (max-width: 767px) {
+    .concert-card__header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .concert-card__date-box {
+        width: 100%;
+        flex-direction: row;
+        justify-content: center;
+        gap: var(--space-sm);
+        padding: var(--space-md);
+    }
+
+    .concert-card__date-day,
+    .concert-card__date-month,
+    .concert-card__date-year {
+        font-size: var(--font-size-base);
+    }
+
+    .concert-card__date-month {
+        margin-top: 0;
+    }
+
+    .concert-card__footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .concert-card__tickets {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn--book {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .modal {
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .modal__body {
+        padding: var(--space-lg);
+    }
+}

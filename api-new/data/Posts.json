@@ -1,0 +1,1 @@
+{"success":true,"data":[{"id":1,"title":"Test","content":"Testt","author":{"id":1,"name":"Jan Christiansen (Admin)"},"createdAt":"2026-02-26T19:11:53Z","comments":[]},{"id":2,"title":"Kommer det badge?","content":"Eller ikk","author":{"id":1,"name":"Jan Christiansen (Admin)"},"createdAt":"2026-02-26T19:40:39Z","comments":[]}],"count":15,"total":45}

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kammerkoret Utsikten">
+    <meta name="description" content="Billettkontroll - Kammerkoret Utsikten">
+    <title>Billettkontroll - Kammerkoret Utsikten</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Favicon og ikoner -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/icon-16.png">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/billettkontroll.css">
+</head>
+<body>
+    <div class="wrap">
+        <!-- Header -->
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <span class="uts-brandMiniText">Kammerkoret Utsikten</span>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">🌙</button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">☰</button>
+            </div>
+        </header>
+
+        <!-- Menu overlay -->
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader">
+                    <h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+                </div>
+                <nav class="uts-menuList" id="menuList"></nav>
+            </div>
+        </div>
+
+        <!-- Page header -->
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>Billettkontroll</h1>
+                    <p class="sub">Skann QR-kode for innsjekk ved konsertinngang</p>
+                </div>
+                <div class="logoWrap">
+                    <span style="font-size: 32px;">📱</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Session stats -->
+        <section class="card content">
+            <div class="checkin-stats" id="checkinStats">
+                <div class="stat-box">
+                    <span class="stat-box__value" id="statCheckedIn">0</span>
+                    <span class="stat-box__label">Sjekket inn</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box__value" id="statScanned">0</span>
+                    <span class="stat-box__label">Skannet</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box__value" id="statInvalid">0</span>
+                    <span class="stat-box__label">Ugyldig</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scanner section -->
+        <section class="card content" id="scannerSection">
+            <div class="scanner-container">
+                <div class="scanner-viewfinder" id="scannerViewfinder">
+                    <!-- html5-qrcode renders camera here -->
+                </div>
+                <p class="scanner-hint" id="scannerHint">Pek kameraet mot QR-koden på billetten</p>
+            </div>
+        </section>
+
+        <!-- Result card (hidden by default) -->
+        <section class="card content result-card" id="resultCard" hidden>
+            <div class="result-card__status" id="resultStatus"></div>
+            <button class="result-card__btn" id="scanNextBtn">Skann neste billett</button>
+        </section>
+
+        <!-- Manual entry fallback -->
+        <section class="card content">
+            <details class="manual-entry">
+                <summary class="manual-entry__toggle">Skriv inn referansenummer manuelt</summary>
+                <div class="manual-entry__form">
+                    <input type="text" class="manual-entry__input" id="manualRefInput"
+                           placeholder="Referansenummer" autocomplete="off" spellcheck="false">
+                    <button class="manual-entry__btn" id="manualCheckBtn">Sjekk</button>
+                </div>
+            </details>
+        </section>
+
+        <!-- Footer -->
+        <footer class="card footer">
+            <div class="footer__content">
+                <p class="footer__copyright">&copy; <span id="currentYear"></span> Kammerkoret Utsikten</p>
+                <p class="footer__link"><a href="https://www.kammerkoretutsikten.no" target="_blank" rel="noopener">kammerkoretutsikten.no</a></p>
+                <p class="footer__link"><a href="mailto:admin@kammerkoretutsikten.no">admin@kammerkoretutsikten.no</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loader" id="loader">
+        <div class="loader__content">
+            <div class="loader__spinner"></div>
+            <p class="loader__text">Laster...</p>
+        </div>
+    </div>
+
+    <script src="js/vendor/html5-qrcode.min.js"></script>
+    <script src="js/env.js"></script>
+    <script type="module" src="js/billettkontroll.js"></script>
+
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

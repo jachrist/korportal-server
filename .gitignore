@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment files
+.env
+.env.*
+js/env.js
+
+# Database
+data/*.db
+
+# Uploaded files (binary content)
+uploads/
+
+# IDE and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+*.tmp
+*.bak
+
+# Misc
+*.pem
+*.key
+*.crt
+nul

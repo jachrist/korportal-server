@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <title>Sider og roller - Dokumentasjon</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/docs/docs.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <a href="/docs/" style="text-decoration:none;display:flex;align-items:center;gap:8px">
+                    <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                    <span class="uts-brandMiniText">Dokumentasjon</span>
+                </a>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">&#x1F319;</button>
+            </div>
+        </header>
+
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>Sider og roller</h1>
+                    <p class="sub">Oversikt over alle sider, tilgangsnivaer og funksjoner</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="card content docs-content">
+
+            <h2>Sideoversikt</h2>
+            <p>Tabellen under viser alle sider i Korportalen, hvilken fil de tilsvarer, hvilken rolle som kreves for tilgang, og en kort beskrivelse av funksjonaliteten.</p>
+
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Side</th>
+                        <th>Fil</th>
+                        <th>Rolle</th>
+                        <th>Beskrivelse</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Forside</td>
+                        <td><code>index.html</code></td>
+                        <td>anonym</td>
+                        <td>Artikkel, hurtiglenker, kontaktpersoner</td>
+                    </tr>
+                    <tr>
+                        <td>Konserter</td>
+                        <td><code>konserter.html</code></td>
+                        <td>anonym</td>
+                        <td>Kommende konserter med billettbestilling</td>
+                    </tr>
+                    <tr>
+                        <td>Musikk</td>
+                        <td><code>musikk.html</code></td>
+                        <td>anonym</td>
+                        <td>Innspilte konserter med lydavspilling</td>
+                    </tr>
+                    <tr>
+                        <td>Medlemmer</td>
+                        <td><code>medlemmer.html</code></td>
+                        <td>medlem</td>
+                        <td>Artikkel, arrangementer med RSVP</td>
+                    </tr>
+                    <tr>
+                        <td>Meldinger</td>
+                        <td><code>meldinger.html</code></td>
+                        <td>medlem</td>
+                        <td>Meldinger fra styret med kommentarer</td>
+                    </tr>
+                    <tr>
+                        <td>Innlegg</td>
+                        <td><code>innlegg.html</code></td>
+                        <td>medlem</td>
+                        <td>Innlegg fra medlemmer med kommentarer</td>
+                    </tr>
+                    <tr>
+                        <td>Ovelse</td>
+                        <td><code>ovelse.html</code></td>
+                        <td>medlem</td>
+                        <td>Noter (PDF), lydfiler, autoblading</td>
+                    </tr>
+                    <tr>
+                        <td>Nedlasting</td>
+                        <td><code>nedlasting.html</code></td>
+                        <td>medlem</td>
+                        <td>Nedlastbare filer</td>
+                    </tr>
+                    <tr>
+                        <td>Min profil</td>
+                        <td><code>minprofil.html</code></td>
+                        <td>medlem</td>
+                        <td>Profilredigering, varsler, tema</td>
+                    </tr>
+                    <tr>
+                        <td>Notebibliotek</td>
+                        <td><code>noter.html</code></td>
+                        <td>styre</td>
+                        <td>Filkategorisering, blob-opplasting</td>
+                    </tr>
+                    <tr>
+                        <td>Billetter</td>
+                        <td><code>billetter.html</code></td>
+                        <td>styre</td>
+                        <td>Administrere ubetalte reservasjoner</td>
+                    </tr>
+                    <tr>
+                        <td>Billettkontroll</td>
+                        <td><code>billettkontroll.html</code></td>
+                        <td>styre</td>
+                        <td>QR-skanning og innsjekk ved dor</td>
+                    </tr>
+                    <tr>
+                        <td>Filbehandling</td>
+                        <td><code>filbehandling.html</code></td>
+                        <td>styre</td>
+                        <td>Metadata-redigering for filer</td>
+                    </tr>
+                    <tr>
+                        <td>Admin</td>
+                        <td><code>admin.html</code></td>
+                        <td>admin</td>
+                        <td>Administrasjonsverktoy</td>
+                    </tr>
+                    <tr>
+                        <td>Innlogging</td>
+                        <td><code>login.html</code></td>
+                        <td>anonym</td>
+                        <td>Engangskode-innlogging</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Roller og tilgangshierarki</h2>
+            <p>Korportalen bruker et hierarkisk rollesystem: <strong>admin &gt; styre &gt; medlem &gt; anonym</strong>. Hver rolle arver tilgangen til alle roller under seg i hierarkiet. En bruker med rollen <em>styre</em> har dermed ogsa tilgang til alt som <em>medlem</em> og <em>anonym</em> kan se.</p>
+
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Rolle</th>
+                        <th>Tilgang</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>admin</strong></td>
+                        <td>Full tilgang til alle sider og funksjoner</td>
+                    </tr>
+                    <tr>
+                        <td><strong>styre</strong></td>
+                        <td>Alt over + publisering av meldinger, billettadministrasjon, billettkontroll, filbehandling, spillelister</td>
+                    </tr>
+                    <tr>
+                        <td><strong>medlem</strong></td>
+                        <td>Alt over + ovelse, meldinger, innlegg, nedlasting, medlemmer, min profil</td>
+                    </tr>
+                    <tr>
+                        <td><strong>anonym</strong></td>
+                        <td>Forside, konserter, musikk, innlogging</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Filstruktur per side</h2>
+            <p>Hver side folger et fast monster: en HTML-fil i rotmappen, et tilhorende stilark i <code>css/</code>, og en JavaScript-fil i <code>js/</code>. JavaScript-filene er ES6-moduler som lastes med <code>type="module"</code>. Alle sider importerer <code>js/navigation.js</code> for delt funksjonalitet som navigasjonsmeny, temabytte, rollebasert tilgangskontroll og innloggingssjekk.</p>
+
+            <nav class="docs-nav">
+                <a href="/docs/arkitektur.html">&larr; Arkitektur</a>
+                <a href="/docs/env.html">Konfigurasjon &rarr;</a>
+            </nav>
+        </section>
+
+        <footer class="card footer">
+            <div class="footer__content">
+                <p class="footer__copyright">&copy; <span id="currentYear"></span> Kammerkoret Utsikten</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const themeBtn = document.getElementById('themeBtn');
+        const saved = localStorage.getItem('korportal-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        themeBtn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('korportal-theme', next);
+            themeBtn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        });
+    </script>
+</body>
+</html>

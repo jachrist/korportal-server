@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <title>Autentisering og roller - Dokumentasjon</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/docs/docs.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <a href="/docs/" style="text-decoration:none;display:flex;align-items:center;gap:8px">
+                    <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                    <span class="uts-brandMiniText">Dokumentasjon</span>
+                </a>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">&#x1F319;</button>
+            </div>
+        </header>
+
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>Autentisering og roller</h1>
+                    <p class="sub">Innloggingsflyt, rollehierarki, localStorage og tilgangskontroll</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="card content docs-content">
+
+            <h2>Innloggingsflyt</h2>
+            <p>Autentisering skjer via engangskode sendt til e-post:</p>
+            <ol>
+                <li>Bruker oppgir e-postadresse pa <code>login.html</code></li>
+                <li>Frontend kaller <code>POST /auth/send-kode</code> (Power Automate sender e-post med 6-sifret kode)</li>
+                <li>Bruker taster inn koden</li>
+                <li>Frontend kaller <code>POST /auth/verifiser-kode</code></li>
+                <li>Ved suksess returneres medlemsdata (<code>id</code>, <code>name</code>, <code>email</code>, <code>role</code>, <code>voice</code>)</li>
+                <li>Data lagres i localStorage under nokkelen <code>korportal-member</code></li>
+            </ol>
+
+            <h2>localStorage-nokler</h2>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Nokkel</th>
+                        <th>Innhold</th>
+                        <th>Brukes av</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>korportal-member</code></td>
+                        <td>JSON med medlemsdata (<code>id</code>, <code>name</code>, <code>email</code>, <code>role</code>, <code>voice</code>)</td>
+                        <td>navigation.js, member-utils.js, alle sider</td>
+                    </tr>
+                    <tr>
+                        <td><code>korportal-theme</code></td>
+                        <td><code>"dark"</code> eller <code>"light"</code></td>
+                        <td>navigation.js (ThemeManager)</td>
+                    </tr>
+                    <tr>
+                        <td><code>korportal_badge_lastSeen_*</code></td>
+                        <td>ISO-tidsstempel for sist besok per seksjon</td>
+                        <td>badge-manager.js</td>
+                    </tr>
+                    <tr>
+                        <td><code>korportal_badge_count_*</code></td>
+                        <td>Badge-tall per seksjon</td>
+                        <td>badge-manager.js</td>
+                    </tr>
+                    <tr>
+                        <td><code>korportal_badge_lastCheck</code></td>
+                        <td>Unix-timestamp for siste badge-sjekk</td>
+                        <td>badge-manager.js</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Rollehierarki</h2>
+            <p>Roller er hierarkiske. Hoyere rolle inkluderer alle lavere. Definert i <code>ROLE_HIERARCHY</code> i <code>navigation.js</code>.</p>
+
+            <pre><code>admin  -> [admin, styre, medlem, anonym]
+styre  -> [styre, medlem, anonym]
+medlem -> [medlem, anonym]
+anonym -> [anonym]</code></pre>
+
+            <p><code>hasRole('styre', 'medlem')</code> returnerer <code>true</code> &mdash; styre har tilgang til medlem-sider.</p>
+            <p><code>hasRole('medlem', 'styre')</code> returnerer <code>false</code> &mdash; medlem har ikke tilgang til styre-sider.</p>
+
+            <h2>Tilgangskontroll per side</h2>
+            <p>Hver side kaller <code>initPage()</code> med <code>requireAuth</code> og <code>requiredRole</code>. Hvis autentisering feiler, omdirigeres brukeren til <code>login.html</code>. Hvis rollen ikke er tilstrekkelig, omdirigeres brukeren til <code>/</code>.</p>
+
+            <pre><code>initPage({ requireAuth: true, requiredRole: 'styre' })</code></pre>
+
+            <h2>Navigasjonsmeny og roller</h2>
+            <p>Meny-elementer fra SharePoint har <code>minRole</code>-felt. <code>filterNavItemsByRole()</code> filtrerer basert pa innlogget brukers rolle. <code>hideWhenLoggedIn</code> skjuler &laquo;Logg inn&raquo;-lenken for innloggede brukere. <code>isLogout</code> markerer utloggingsknappen.</p>
+
+            <h2>Utlogging</h2>
+            <p><code>handleLogout()</code> i <code>MenuManager</code>: Tommer badge-data, fjerner <code>korportal-member</code> fra localStorage, omdirigerer til <code>/</code>.</p>
+
+            <nav class="docs-nav">
+                <a href="/docs/service-worker.html">&larr; Service Worker og PWA</a>
+                <a href="/docs/sharepoint.html">SharePoint-lister &rarr;</a>
+            </nav>
+        </section>
+
+        <footer class="card footer">
+            <div class="footer__content">
+                <p class="footer__copyright">&copy; <span id="currentYear"></span> Kammerkoret Utsikten</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const themeBtn = document.getElementById('themeBtn');
+        const saved = localStorage.getItem('korportal-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        themeBtn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('korportal-theme', next);
+            themeBtn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kammerkoret Utsikten">
+    <meta name="description" content="Last ned noter - Kammerkoret Utsikten">
+    <title>Last ned noter - Kammerkoret Utsikten</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Favicon og ikoner -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/icon-16.png">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/nedlasting.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="uts-topbar">
+        <div class="uts-brandMini">
+            <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+            <span class="uts-brandMiniText">Nedlasting</span>
+        </div>
+        <div class="uts-topActions">
+            <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">🌙</button>
+            <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">☰</button>
+        </div>
+    </header>
+
+    <!-- Menu overlay -->
+    <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+        <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+            <div class="uts-menuHeader">
+                <h3>Meny</h3>
+                <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+            </div>
+            <nav class="uts-menuList" id="menuList"></nav>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <main class="nedlasting-main">
+        <div class="nedlasting-container">
+            <!-- Header with info -->
+            <div class="nedlasting-header">
+                <h1>Last ned noter</h1>
+                <p class="nedlasting-subtitle">Noter til øvelser og konserter</p>
+            </div>
+
+            <!-- Search box -->
+            <div class="search-box">
+                <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Søk i noter..."
+                    aria-label="Søk i noter"
+                >
+                <span class="search-icon">🔍</span>
+            </div>
+
+            <!-- File count -->
+            <div class="file-count" id="fileCount">
+                <span id="fileCountText">Laster noter...</span>
+            </div>
+
+            <!-- Files list -->
+            <div class="files-list" id="filesList">
+                <!-- Files loaded dynamically -->
+            </div>
+
+            <!-- Empty state -->
+            <div class="nedlasting-empty" id="emptyState" hidden>
+                <span class="empty-icon">🎼</span>
+                <p id="emptyText">Ingen noter funnet</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading overlay -->
+    <div class="loader" id="loader">
+        <div class="loader__content">
+            <div class="loader__spinner"></div>
+            <p class="loader__text">Laster noter...</p>
+        </div>
+    </div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/nedlasting.js"></script>
+
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

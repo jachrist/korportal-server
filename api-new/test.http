@@ -1,0 +1,571 @@
+@base = http://localhost:3001
+
+### Health check
+GET {{base}}/api/health
+
+### ===========================
+### AUTH
+### ===========================
+
+### Send innloggingskode
+POST {{base}}/api/auth/send-kode
+Content-Type: application/json
+
+{
+  "email": "jachrist2709@gmail.com"
+}
+
+### Verifiser kode (fyll inn kode fra e-post)
+POST {{base}}/api/auth/verifiser-kode
+Content-Type: application/json
+
+{
+  "email": "jachrist2709@gmail.com",
+  "code": "123456"
+}
+
+### ===========================
+### STYRE / MEDLEMMER
+### ===========================
+
+### Hent alle medlemmer
+GET {{base}}/api/styre/medlemmer
+
+### Registrer testmedlem
+POST {{base}}/api/styre/registrer
+Content-Type: application/json
+
+{
+  "name": "Test Bruker",
+  "email": "jachrist2709@gmail.com",
+  "phone": "+47 99887766",
+  "voice": "bass 1",
+  "role": "admin",
+  "kontingentBetalt": true
+}
+
+### Oppdater medlem
+POST {{base}}/api/styre/oppdater
+Content-Type: application/json
+
+{
+  "email": "jachrist2709@gmail.com",
+  "name": "Test Bruker Oppdatert",
+  "phone": "+47 99887766",
+  "voice": "bass 1",
+  "role": "admin",
+  "kontingentBetalt": true
+}
+
+### Slett medlem
+POST {{base}}/api/styre/slett
+Content-Type: application/json
+
+{
+  "email": "jachrist2709@gmail.com"
+}
+
+### Send e-post til medlemmer
+POST {{base}}/api/styre/send-epost
+Content-Type: application/json
+
+{
+  "to": ["jachrist2709@gmail.com"],
+  "subject": "Test fra styret",
+  "body": "Dette er en test-e-post sendt fra styreadmin."
+}
+
+### ===========================
+### PROFIL
+### ===========================
+
+### Hent profil
+POST {{base}}/api/profil/hent
+Content-Type: application/json
+
+{
+  "epost": "jachrist2709@gmail.com"
+}
+
+### Oppdater profil
+POST {{base}}/api/profil/oppdater
+Content-Type: application/json
+
+{
+  "epost": "jachrist2709@gmail.com",
+  "navn": "Test Bruker",
+  "telefon": "+47 99887766",
+  "varsler": {
+    "epost": true,
+    "push": false
+  }
+}
+
+### ===========================
+### NAVIGASJON
+### ===========================
+
+### Hent navigasjon
+GET {{base}}/api/navigasjon
+
+### Opprett navigasjonselement
+POST {{base}}/api/navigasjon
+Content-Type: application/json
+
+{
+  "title": "Hjem",
+  "url": "/",
+  "icon": "home",
+  "order": 0,
+  "minRole": "anonym"
+}
+
+### Oppdater navigasjonselement (fyll inn ID)
+PATCH {{base}}/api/navigasjon/FYLL-INN-ID
+Content-Type: application/json
+
+{
+  "title": "Oppdatert tittel",
+  "order": 1
+}
+
+### Slett navigasjonselement (fyll inn ID)
+DELETE {{base}}/api/navigasjon/FYLL-INN-ID
+
+### ===========================
+### ARTIKLER
+### ===========================
+
+### Hent forsideartikkel
+GET {{base}}/api/forside/artikkel?slug=frontpage
+
+### Opprett artikkel
+POST {{base}}/api/forside/artikkel
+Content-Type: application/json
+
+{
+  "title": "Velkommen til Kammerkoret Utsikten",
+  "text": "Vi er et blandet kor i Oslo.",
+  "format": "markdown",
+  "slug": "frontpage"
+}
+
+### Oppdater artikkel (fyll inn ID)
+PATCH {{base}}/api/forside/artikkel/FYLL-INN-ID
+Content-Type: application/json
+
+{
+  "title": "Oppdatert tittel",
+  "text": "Oppdatert innhold."
+}
+
+### Slett artikkel (fyll inn ID)
+DELETE {{base}}/api/forside/artikkel/FYLL-INN-ID
+
+### ===========================
+### KONTAKTPERSONER
+### ===========================
+
+### Hent kontaktpersoner
+GET {{base}}/api/forside/kontaktpersoner
+
+### Opprett kontaktperson
+POST {{base}}/api/forside/kontaktpersoner
+Content-Type: application/json
+
+{
+  "name": "Per Dirigansen",
+  "email": "dirigent@kor.no",
+  "phone": "+47 900 00 001",
+  "kontaktrolle": "Dirigent",
+  "order": 1
+}
+
+### Oppdater kontaktperson (fyll inn ID)
+PATCH {{base}}/api/forside/kontaktpersoner/FYLL-INN-ID
+Content-Type: application/json
+
+{
+  "name": "Per Dirigansen",
+  "kontaktrolle": "Kunstnerisk leder",
+  "order": 1
+}
+
+### Slett kontaktperson (fyll inn ID)
+DELETE {{base}}/api/forside/kontaktpersoner/FYLL-INN-ID
+
+### ===========================
+### HURTIGLENKER
+### ===========================
+
+### Hent hurtiglenker
+GET {{base}}/api/forside/hurtiglenker
+
+### Opprett hurtiglenke
+POST {{base}}/api/forside/hurtiglenker
+Content-Type: application/json
+
+{
+  "title": "Ovelse",
+  "url": "/ovelse.html",
+  "icon": "music_note",
+  "description": "Noter og ovefiler",
+  "order": 2
+}
+
+### Oppdater hurtiglenke (fyll inn ID)
+PATCH {{base}}/api/forside/hurtiglenker/FYLL-INN-ID
+Content-Type: application/json
+
+{
+  "title": "Oppdatert lenke",
+  "order": 3
+}
+
+### Slett hurtiglenke (fyll inn ID)
+DELETE {{base}}/api/forside/hurtiglenker/FYLL-INN-ID
+
+### ===========================
+### MELDINGER
+### ===========================
+
+### Hent meldinger
+GET {{base}}/api/meldinger
+
+### Opprett melding
+POST {{base}}/api/meldinger
+Content-Type: application/json
+
+{
+  "title": "Testmelding",
+  "content": "Dette er en testmelding fra REST Client.",
+  "authorName": "Test Bruker",
+  "authorEmail": "jachrist2709@gmail.com"
+}
+
+### Kommenter melding (fyll inn meldingsID)
+POST {{base}}/api/meldinger/kommentar
+Content-Type: application/json
+
+{
+  "messageId": "FYLL-INN-MELDING-ID",
+  "authorName": "Test Bruker",
+  "authorEmail": "jachrist2709@gmail.com",
+  "text": "En testkommentar."
+}
+
+### Oppdater melding (fyll inn ID)
+PATCH {{base}}/api/meldinger/FYLL-INN-ID
+Content-Type: application/json
+
+{
+  "title": "Oppdatert tittel",
+  "content": "Oppdatert innhold."
+}
+
+### Slett melding (fyll inn ID)
+DELETE {{base}}/api/meldinger/FYLL-INN-ID
+
+### ===========================
+### INNLEGG
+### ===========================
+
+### Hent innlegg
+GET {{base}}/api/innlegg
+
+### Opprett innlegg
+POST {{base}}/api/innlegg
+Content-Type: application/json
+
+{
+  "title": "Testinnlegg",
+  "content": "Dette er et testinnlegg.",
+  "authorName": "Test Bruker",
+  "authorEmail": "jachrist2709@gmail.com"
+}
+
+### Kommenter innlegg (fyll inn innleggsID)
+POST {{base}}/api/innlegg/kommentar
+Content-Type: application/json
+
+{
+  "postId": "FYLL-INN-INNLEGG-ID",
+  "authorName": "Test Bruker",
+  "authorEmail": "jachrist2709@gmail.com",
+  "text": "En testkommentar."
+}
+
+### ===========================
+### KONSERTER
+### ===========================
+
+### Hent konserter
+GET {{base}}/api/konserter
+
+### Hent kommende konserter
+GET {{base}}/api/konserter?upcoming=true&$top=5
+
+### Opprett konsert
+POST {{base}}/api/konserter
+Content-Type: application/json
+
+{
+  "title": "Varkonsert 2026",
+  "date": "2026-04-18",
+  "time": "19:00",
+  "location": "Kulturhuset, Store sal",
+  "address": "Youngstorget 3, Oslo",
+  "description": "Var arlige varkonsert.",
+  "ticketPrice": 250,
+  "ticketsAvailable": 100,
+  "isPublic": true
+}
+
+### Oppdater konsert (fyll inn ID)
+PATCH {{base}}/api/konserter/FYLL-INN-ID
+Content-Type: application/json
+
+{
+  "title": "Oppdatert konserttittel",
+  "ticketsAvailable": 150
+}
+
+### Slett konsert (fyll inn ID)
+DELETE {{base}}/api/konserter/FYLL-INN-ID
+
+### Bestill billetter
+POST {{base}}/api/konserter/billett
+Content-Type: application/json
+
+{
+  "concertId": "FYLL-INN-KONSERT-ID",
+  "name": "Ola Nordmann",
+  "email": "ola@test.no",
+  "ticketCount": 2,
+  "totalPrice": 500
+}
+
+### ===========================
+### BILLETTER (admin)
+### ===========================
+
+### Hent ubetalte billetter
+GET {{base}}/api/billetter/ubetalte
+
+### Marker billett som betalt
+POST {{base}}/api/billetter/marker-betalt
+Content-Type: application/json
+
+{
+  "reservationId": "FYLL-INN-RESERVASJON-ID"
+}
+
+### Slett ubetalt billett
+POST {{base}}/api/billetter/slett
+Content-Type: application/json
+
+{
+  "reservationId": "FYLL-INN-RESERVASJON-ID"
+}
+
+### ===========================
+### BILLETTKONTROLL
+### ===========================
+
+### Valider billett
+POST {{base}}/api/billettkontroll/valider
+Content-Type: application/json
+
+{
+  "referenceNumber": "UTK-2026-0001"
+}
+
+### ===========================
+### NEDLASTING
+### ===========================
+
+### Hent nedlastinger
+GET {{base}}/api/nedlasting/filer
+
+### Opprett nedlasting
+POST {{base}}/api/nedlasting/filer
+Content-Type: application/json
+
+{
+  "title": "Lift me up",
+  "fileUrl": "https://utsiktenblob.blob.core.windows.net/sanger/Lift-Me-Up.pdf",
+  "filename": "Lift-Me-Up.pdf",
+  "category": "Noter",
+  "sortOrder": 1
+}
+
+### Oppdater nedlasting (fyll inn ID)
+PATCH {{base}}/api/nedlasting/filer/FYLL-INN-ID
+Content-Type: application/json
+
+{
+  "title": "Oppdatert tittel",
+  "category": "Annet"
+}
+
+### Slett nedlasting (fyll inn ID)
+DELETE {{base}}/api/nedlasting/filer/FYLL-INN-ID
+
+### ===========================
+### MUSIKK
+### ===========================
+
+### Hent musikkarkiv
+GET {{base}}/api/musikk/konserter
+
+### Opprett musikkonsert
+POST {{base}}/api/musikk/konserter
+Content-Type: application/json
+
+{
+  "title": "Julekonsert 2024",
+  "date": "2024-12-15",
+  "location": "Valerenga kirke",
+  "images": [],
+  "tracks": [{ "id": 1, "title": "O Helga Natt", "duration": 245, "audioUrl": "https://utsiktenblob.blob.core.windows.net/sanger/o-helga-natt.mp3" }]
+}
+
+### Oppdater musikkonsert (fyll inn ID)
+PATCH {{base}}/api/musikk/konserter/FYLL-INN-ID
+Content-Type: application/json
+
+{
+  "title": "Julekonsert 2024 - oppdatert",
+  "location": "Valerenga kirke"
+}
+
+### Slett musikkonsert (fyll inn ID)
+DELETE {{base}}/api/musikk/konserter/FYLL-INN-ID
+
+### ===========================
+### OVELSE
+### ===========================
+
+### Hent ovelsesprogram
+GET {{base}}/api/ovelse/program
+
+### Lagre sideskift
+POST {{base}}/api/ovelse/sideskift
+Content-Type: application/json
+
+{
+  "noteId": "FYLL-INN-NOTE-ID",
+  "pageTurns": [
+    { "page": 1, "time": 0 },
+    { "page": 2, "time": 45 },
+    { "page": 3, "time": 92 }
+  ]
+}
+
+### ===========================
+### MEDLEMMER / ARRANGEMENTER
+### ===========================
+
+### Hent medlemsside
+GET {{base}}/api/medlemmer/side
+
+### RSVP for arrangement
+POST {{base}}/api/medlemmer/rsvp
+Content-Type: application/json
+
+{
+  "eventId": "FYLL-INN-EVENT-ID",
+  "name": "Test Bruker",
+  "email": "jachrist2709@gmail.com",
+  "attending": true
+}
+
+### Opprett arrangement
+POST {{base}}/api/medlemmer/arrangement
+Content-Type: application/json
+
+{
+  "title": "Kortur 2026",
+  "date": "2026-06-15",
+  "time": "10:00",
+  "location": "Geilo",
+  "description": "Arlig kortur med oving og sosialt."
+}
+
+### Oppdater arrangement (fyll inn ID)
+PATCH {{base}}/api/medlemmer/arrangement/FYLL-INN-ID
+Content-Type: application/json
+
+{
+  "title": "Kortur 2026 - oppdatert",
+  "location": "Hovden"
+}
+
+### Slett arrangement (fyll inn ID)
+DELETE {{base}}/api/medlemmer/arrangement/FYLL-INN-ID
+
+### ===========================
+### FILER
+### ===========================
+
+### Hent filer
+GET {{base}}/api/filer
+
+### Oppdater filmetadata
+POST {{base}}/api/filer/oppdater
+Content-Type: application/json
+
+{
+  "id": "FYLL-INN-FIL-ID",
+  "kategori": "Noter",
+  "verk": "Messiah",
+  "anledning": "Julekonsert 2024"
+}
+
+### Batch-oppdater filmetadata
+POST {{base}}/api/filer/batch-oppdater
+Content-Type: application/json
+
+{
+  "files": [
+    { "id": "FIL-ID-1", "kategori": "Noter", "verk": "Messiah" },
+    { "id": "FIL-ID-2", "kategori": "Lyd", "verk": "Messiah" }
+  ]
+}
+
+### Last opp fil (base64)
+POST {{base}}/api/filer/last-opp
+Content-Type: application/json
+
+{
+  "filename": "test-fil.pdf",
+  "contentType": "application/pdf",
+  "base64": "JVBERi0xLjQK",
+  "kategori": "Noter",
+  "verk": "Test"
+}
+
+### ===========================
+### BLOB
+### ===========================
+
+### Last opp til blob (fra URL)
+POST {{base}}/api/blob/last-opp
+Content-Type: application/json
+
+{
+  "files": [
+    {
+      "sourceUrl": "https://example.com/file.pdf",
+      "blobName": "sanger/file.pdf"
+    }
+  ]
+}
+
+### Tom blob-storage
+POST {{base}}/api/blob/tom
+Content-Type: application/json
+
+{
+  "confirm": true
+}

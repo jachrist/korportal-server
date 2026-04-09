@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Medlemmer - Kammerkoret Utsikten</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/medlemmer.css">
+    <link rel="stylesheet" href="css/markdown-editor.css">
+</head>
+<body>
+    <div class="wrap">
+        <!-- Topbar with hamburger menu and theme toggle -->
+        <header class="uts-topbar" aria-label="Navigasjon">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <span class="uts-brandMiniText">Kammerkoret Utsikten</span>
+            </div>
+
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema" aria-label="Bytt mellom lys og mørk modus">
+                    🌙
+                </button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">
+                    ☰
+                </button>
+            </div>
+        </header>
+
+        <!-- Menu overlay (popdown) -->
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader">
+                    <h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+                </div>
+                <nav class="uts-menuList" id="menuList"></nav>
+            </div>
+        </div>
+
+        <!-- Page title -->
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>👥 Medlemmer</h1>
+                    <p class="sub">Informasjon og arrangementer for kormedlemmer</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Article section -->
+        <section id="articleSection" class="member-article">
+            <!-- Article loaded dynamically -->
+        </section>
+
+        <!-- Events section -->
+        <section id="eventsSection">
+            <!-- Events loaded dynamically -->
+        </section>
+
+        <!-- Footer -->
+        <footer class="card footer" aria-label="Informasjon">
+            <p class="footerTitle">Informasjon</p>
+            <div class="contactGrid">
+                <div class="contactBox">© <span id="current-year"></span> Kammerkoret Utsikten</div>
+                <div class="contactBox">Spørsmål? Kontakt oss på <a href="mailto:admin@kammerkoretutsikten.no">admin@kammerkoretutsikten.no</a></div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Attendees modal -->
+    <div class="attendees-modal-overlay" id="attendeesModal" aria-hidden="true">
+        <div class="attendees-modal" role="dialog" aria-labelledby="attendees-modal-title">
+            <div class="attendees-modal__header">
+                <h2 class="attendees-modal__title" id="attendees-modal-title">Deltakere</h2>
+                <button class="attendees-modal__close" id="attendeesModalClose" type="button" aria-label="Lukk">✕</button>
+            </div>
+            <div class="attendees-modal__body" id="attendeesModalBody">
+                <!-- Attendee list loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- New event modal -->
+    <div class="post-modal" id="eventModal" hidden>
+        <div class="post-modal-content">
+            <div class="post-modal-header">
+                <h3>Nytt arrangement</h3>
+                <button class="post-modal-close" id="eventModalClose" title="Lukk">✕</button>
+            </div>
+            <div class="post-modal-body">
+                <div class="form-group">
+                    <label for="eventTitle">Tittel *</label>
+                    <input type="text" id="eventTitle" placeholder="Navn på arrangementet..." maxlength="200" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Beskrivelse</label>
+                    <textarea id="eventDescription" placeholder="Beskriv arrangementet..." maxlength="2000"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Datoer *</label>
+                    <div class="date-picker-row">
+                        <input type="date" id="eventDateInput">
+                        <button type="button" class="date-add-btn" id="addDateBtn">+ Legg til</button>
+                    </div>
+                    <ul class="date-list" id="eventDateList"></ul>
+                </div>
+                <div class="form-row form-row--two">
+                    <div class="form-group">
+                        <label for="eventStartTime">Starttid</label>
+                        <input type="time" id="eventStartTime">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventEndTime">Sluttid</label>
+                        <input type="time" id="eventEndTime">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="eventLocation">Sted</label>
+                    <input type="text" id="eventLocation" placeholder="Hvor skal arrangementet være?" maxlength="200">
+                </div>
+            </div>
+            <div class="post-modal-footer">
+                <button class="post-cancel-btn" id="eventCancel">Avbryt</button>
+                <button class="post-submit-btn" id="eventSubmit">Opprett arrangement</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loader" id="loader">
+        <div class="loader__content">
+            <div class="loader__spinner"></div>
+            <p class="loader__text">Laster medlemsside...</p>
+        </div>
+    </div>
+
+    <!-- Hidden member fields — populated by JS from innlogget bruker -->
+    <input type="hidden" id="memberEmail" value="">
+    <input type="hidden" id="memberName" value="">
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/medlemmer.js"></script>
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

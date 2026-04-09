@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kammerkoret Utsikten">
+    <meta name="description" content="Korportalen for Kammerkoret Utsikten - øvelser, noter og konserter">
+    <title>Kammerkoret Utsikten</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Favicon og ikoner -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/icon-16.png">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/markdown-editor.css">
+</head>
+<body>
+    <div class="wrap">
+        <!-- Topbar with hamburger menu and theme toggle -->
+        <header class="uts-topbar" aria-label="Navigasjon">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <div class="uts-brandMiniText" id="brandTitle">Kammerkoret Utsikten</div>
+            </div>
+
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema" aria-label="Bytt mellom lys og mørk modus">
+                    🌙
+                </button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">
+                    ☰
+                </button>
+            </div>
+        </header>
+
+        <!-- Menu overlay (popdown) -->
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader">
+                    <h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+                </div>
+                <nav class="uts-menuList" id="menuList">
+                    <!-- Navigation loaded dynamically from SharePoint -->
+                </nav>
+            </div>
+        </div>
+
+        <!-- Title / Hero section -->
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1 id="pageTitle">Kammerkoret Utsikten</h1>
+                    <p class="sub" id="pageSub">Velkommen til korportalen</p>
+                </div>
+                <div class="logoWrap" title="Logo">
+                    <img id="logoImg" src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';">
+                    <span id="logoFallback" style="font-size: 32px; display: none;">🎵</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Article section - dynamic content from Power Automate -->
+        <section class="card content" id="articleSection" aria-label="Artikkel">
+            <div class="article" id="articleContent">
+                <!-- Article loaded dynamically: title, image, text -->
+                <div class="article__skeleton">
+                    <div class="skeleton-line skeleton-line--title"></div>
+                    <div class="skeleton-line skeleton-line--text"></div>
+                    <div class="skeleton-line skeleton-line--text"></div>
+                    <div class="skeleton-line skeleton-line--short"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick links section -->
+        <section class="card content" id="quickLinksSection" aria-label="Hurtiglenker">
+            <h2 class="section__title">Hurtiglenker</h2>
+            <div class="quick-links__grid" id="quickLinksGrid">
+                <!-- Quick links loaded dynamically -->
+            </div>
+        </section>
+
+        <!-- About / Contact section -->
+        <section class="card content" id="aboutSection" aria-label="Om oss">
+            <h2 class="section__title">Kontakt oss</h2>
+            <div class="contact-persons" id="contactPersons">
+                <!-- Contact persons loaded dynamically -->
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="card footer" aria-label="Bunntekst">
+            <div class="footer__content">
+                <p class="footer__copyright">© <span id="currentYear"></span> Kammerkoret Utsikten</p>
+                <p class="footer__link"><a href="https://www.kammerkoretutsikten.no" target="_blank" rel="noopener">kammerkoretutsikten.no</a></p>
+                <p class="footer__link"><a href="mailto:admin@kammerkoretutsikten.no">admin@kammerkoretutsikten.no</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Edit article modal -->
+    <div class="post-modal" id="editArticleModal" hidden>
+        <div class="post-modal-content">
+            <div class="post-modal-header">
+                <h3>Rediger artikkel</h3>
+                <button class="post-modal-close" id="editArticleModalClose" title="Lukk">&#10005;</button>
+            </div>
+            <div class="post-modal-body">
+                <div class="form-group">
+                    <label for="editArticleTitle">Tittel</label>
+                    <input type="text" id="editArticleTitle" placeholder="Tittel..." maxlength="200">
+                </div>
+                <div class="form-group">
+                    <label for="editArticleContent">Innhold</label>
+                    <textarea id="editArticleContent" placeholder="Skriv artikkelinnhold..." maxlength="10000"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editArticleFormat">Format</label>
+                    <select id="editArticleFormat">
+                        <option value="text">Ren tekst</option>
+                        <option value="markdown">Markdown</option>
+                        <option value="html">HTML</option>
+                    </select>
+                </div>
+            </div>
+            <div class="post-modal-footer">
+                <button class="post-delete-btn" id="editArticleDelete">Slett artikkel</button>
+                <button class="post-cancel-btn" id="editArticleCancel">Avbryt</button>
+                <button class="post-submit-btn" id="editArticleSave">Lagre</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loader" id="loader">
+        <div class="loader__content">
+            <div class="loader__spinner"></div>
+            <p class="loader__text">Laster innhold...</p>
+        </div>
+    </div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/main.js"></script>
+
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

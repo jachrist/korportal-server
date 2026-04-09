@@ -1,0 +1,425 @@
+{
+    "success": true,
+    "data": [
+        {
+            "id": "2",
+            "name": "Agnete Trier Hauge",
+            "email": "agneteth@gmail.com",
+            "phone": "+47 932 34 944",
+            "voice": "alt 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-02-24"
+        },
+        {
+            "id": "3",
+            "name": "Alf Vederhus",
+            "email": "alf.vederhus@gmail.com",
+            "phone": "+47 976 72 750",
+            "voice": "tenor 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "4",
+            "name": "Anne Beate Krogh",
+            "email": "annebeate.krogh@vikenfiber.no",
+            "phone": "+47 911 77 326",
+            "voice": "alt 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "5",
+            "name": "Birgit Skaare Eriksen",
+            "email": "19bigga16@gmail.com",
+            "phone": "+47 958 15 590",
+            "voice": "sopran 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-02-26"
+        },
+        {
+            "id": "6",
+            "name": "Brage Grindeland",
+            "email": "bragegrindeland@gmail.com",
+            "phone": "",
+            "voice": "tenor 2",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "7",
+            "name": "Britt Wenche Groven",
+            "email": "",
+            "phone": "+47 458 84 076",
+            "voice": "alt 2",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "8",
+            "name": "Christel Stub",
+            "email": "chs@houm.no",
+            "phone": "+47 911 20 203",
+            "voice": "sopran 1",
+            "role": "styre",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-03-03"
+        },
+        {
+            "id": "9",
+            "name": "Christine Weigård",
+            "email": "christine.weigard@gmail.com",
+            "phone": "+47 936 14 422",
+            "voice": "sopran 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "10",
+            "name": "Elisabeth Holme",
+            "email": "",
+            "phone": "+47 977 01 583",
+            "voice": "alt 2",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "11",
+            "name": "Gunnbjørg Nielsen Saltkjelvik",
+            "email": "gunnbjorg.salt@gmail.com",
+            "phone": "+47 922 03 401",
+            "voice": "sopran 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "12",
+            "name": "Helena Axelsson",
+            "email": "axelsson_h@hotmail.com",
+            "phone": "+47 975 46 680",
+            "voice": "sopran 2",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-03-04"
+        },
+        {
+            "id": "13",
+            "name": "Hild",
+            "email": "hildl@hotmail.com",
+            "phone": "+47 992 64 804",
+            "voice": "alt 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-02-28"
+        },
+        {
+            "id": "14",
+            "name": "Ida Kjensli Sandell",
+            "email": "idakjensli@hotmail.com",
+            "phone": "+47 977 10 379",
+            "voice": "sopran 2",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-03-01"
+        },
+        {
+            "id": "15",
+            "name": "Inger Elisabeth Bjerke",
+            "email": "inger@bj-v.no",
+            "phone": "+47 905 68 722",
+            "voice": "sopran 1",
+            "role": "styre",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "16",
+            "name": "Inger Rørmark",
+            "email": "ingerrmark@gmail.com",
+            "phone": "+47 932 17 613",
+            "voice": "sopran 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-02-24"
+        },
+        {
+            "id": "17",
+            "name": "Ingunn Brandt",
+            "email": "brandt.ingunn@gmail.com",
+            "phone": "+47 920 38 771",
+            "voice": "sopran 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-02-24"
+        },
+        {
+            "id": "18",
+            "name": "Ivar Arild Engh",
+            "email": "arild.engh@outlook.com",
+            "phone": "",
+            "voice": "bass 2",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-02-25"
+        },
+        {
+            "id": "20",
+            "name": "Jostein Løvdal",
+            "email": "jostein1157@gmail.com",
+            "phone": "+47 982 02 794",
+            "voice": "tenor 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-02-24"
+        },
+        {
+            "id": "21",
+            "name": "Kari Anne Müller",
+            "email": "kari.anne.m@hotmail.com",
+            "phone": "+47 918 17 505",
+            "voice": "alt 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "22",
+            "name": "Kirsti Solbyhaug Engh",
+            "email": "kirsti@vikerhavn.com",
+            "phone": "+47 906 74 201",
+            "voice": "sopran 1",
+            "role": "styre",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "23",
+            "name": "Kristin Oftedal",
+            "email": "kristin.oftedal@dnt.no",
+            "phone": "+47 482 21 339",
+            "voice": "alt 2",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-03-08"
+        },
+        {
+            "id": "24",
+            "name": "Lars Ivar Næss",
+            "email": "lin@knowit.no",
+            "phone": "+47 997 38 635",
+            "voice": "bass 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-02-24"
+        },
+        {
+            "id": "25",
+            "name": "Linda Salomonsen",
+            "email": "lsal@online.no",
+            "phone": "+47 977 69 824",
+            "voice": "alt 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "26",
+            "name": "Lise Helsingen",
+            "email": "lisemhe@gmail.com",
+            "phone": "+47 938 33 173",
+            "voice": "sopran 2",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "27",
+            "name": "Liv-Torill Schøyen",
+            "email": "liv.torill.schoyen@gmail.com",
+            "phone": "+47 400 40 945",
+            "voice": "alt 1",
+            "role": "styre",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-02-24"
+        },
+        {
+            "id": "28",
+            "name": "Marte Nordahl",
+            "email": "martenordahl@gmail.com",
+            "phone": "+47 958 60 793",
+            "voice": "sopran 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "29",
+            "name": "Martin Hodges",
+            "email": "",
+            "phone": "+47 415 04 206",
+            "voice": "bass 2",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "30",
+            "name": "Mette Gunnari",
+            "email": "mette@gunnari.net",
+            "phone": "+47 958 57 509",
+            "voice": "sopran 2",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "31",
+            "name": "Mette Sandell",
+            "email": "mettesandell@gmail.com",
+            "phone": "+47 995 85 334",
+            "voice": "alt 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-03-03"
+        },
+        {
+            "id": "32",
+            "name": "Oddrun Eikli",
+            "email": "",
+            "phone": "+47 995 69 680",
+            "voice": "sopran 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "33",
+            "name": "Stephan Hergel",
+            "email": "",
+            "phone": "+47 938 74 749",
+            "voice": "tenor 2",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "34",
+            "name": "Torbjørn Stray-Pedersen",
+            "email": "tspeders@outlook.com",
+            "phone": "+47 976 58 034",
+            "voice": "bass 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-02-25"
+        },
+        {
+            "id": "35",
+            "name": "Torill Johannessen",
+            "email": "torill.johannessen@vikenfiber.no",
+            "phone": "+47 932 27 801",
+            "voice": "sopran 2",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-02-28"
+        },
+        {
+            "id": "36",
+            "name": "Turid Steffensen",
+            "email": "turid1steffensen@gmail.com",
+            "phone": "+47 976 06 494",
+            "voice": "alt 2",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "37",
+            "name": "Tuva Blaauw Sandell",
+            "email": "tuvasandell@gmail.com",
+            "phone": "+47 404 71 067",
+            "voice": "alt 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-02-25"
+        },
+        {
+            "id": "38",
+            "name": "Wenche O Hauge",
+            "email": "wenche.olimstad.hauge@gmail.com",
+            "phone": "+47 928 09 678",
+            "voice": "sopran 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "39",
+            "name": "Jan Christiansen (Admin)",
+            "email": "jachrist2709@gmail.com",
+            "phone": "+47 91652418",
+            "voice": "bass 1",
+            "role": "admin",
+            "kontingentBetalt": false,
+            "joinedAt": "2026-02-28"
+        },
+        {
+            "id": "40",
+            "name": "Jan Christiansen (ikke admin)",
+            "email": "jan.christiansen@jcconsulting.no",
+            "phone": "+47 916 52 418",
+            "voice": "tenor 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "41",
+            "name": "Stine Håkonsen",
+            "email": "stine.riis.haakonsen@gmail.com",
+            "phone": "",
+            "voice": "sopran 2",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "43",
+            "name": "Randi Haga",
+            "email": "randitvedthaga@gmail.com",
+            "phone": "",
+            "voice": "sopran 1",
+            "role": "",
+            "kontingentBetalt": null,
+            "joinedAt": ""
+        },
+        {
+            "id": "44",
+            "name": "Mari Krokann Berge",
+            "email": "marikrokannberge@gmail.com",
+            "phone": "",
+            "voice": "sopran 1",
+            "role": "medlem",
+            "kontingentBetalt": null,
+            "joinedAt": "2026-03-05"
+        },
+        {
+            "id": "46",
+            "name": "Titten Tei",
+            "email": "titten@tei.no",
+            "phone": "90876667",
+            "voice": "sopran 1",
+            "role": "medlem",
+            "kontingentBetalt": false,
+            "joinedAt": ""
+        }
+    ]
+}

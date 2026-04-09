@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <title>Dokumentasjon - Korportal</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/docs/docs.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <span class="uts-brandMiniText">Dokumentasjon</span>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">&#x1F319;</button>
+            </div>
+        </header>
+
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>Korportal - Teknisk dokumentasjon</h1>
+                    <p class="sub">Oppslagsverk for forvaltning, feilsoking og videreutvikling</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="card content">
+            <h2>Innhold</h2>
+            <nav class="docs-toc">
+                <a href="/docs/arkitektur.html" class="docs-toc__item">
+                    <span class="docs-toc__icon">&#x1F3D7;&#xFE0F;</span>
+                    <div class="docs-toc__text">
+                        <strong>Arkitektur</strong>
+                        <span>Overordnet systemdesign, dataflyt, nokkelkomponenter og caching-strategi</span>
+                    </div>
+                </a>
+                <a href="/docs/sider.html" class="docs-toc__item">
+                    <span class="docs-toc__icon">&#x1F4C4;</span>
+                    <div class="docs-toc__text">
+                        <strong>Sider og roller</strong>
+                        <span>Oversikt over alle HTML-sider, tilgangsnivaer og funksjoner</span>
+                    </div>
+                </a>
+                <a href="/docs/env.html" class="docs-toc__item">
+                    <span class="docs-toc__icon">&#x2699;&#xFE0F;</span>
+                    <div class="docs-toc__text">
+                        <strong>Konfigurasjon (env.js)</strong>
+                        <span>Alle miljovaribler, Power Automate-endepunkter og oppsett</span>
+                    </div>
+                </a>
+                <a href="/docs/api.html" class="docs-toc__item">
+                    <span class="docs-toc__icon">&#x1F50C;</span>
+                    <div class="docs-toc__text">
+                        <strong>API-spesifikasjon</strong>
+                        <span>Request/response-format for alle Power Automate-endepunkter</span>
+                    </div>
+                </a>
+                <a href="/docs/service-worker.html" class="docs-toc__item">
+                    <span class="docs-toc__icon">&#x1F4E1;</span>
+                    <div class="docs-toc__text">
+                        <strong>Service Worker og PWA</strong>
+                        <span>Caching, offline-stotte, oppdateringsflyt og manifest</span>
+                    </div>
+                </a>
+                <a href="/docs/autentisering.html" class="docs-toc__item">
+                    <span class="docs-toc__icon">&#x1F510;</span>
+                    <div class="docs-toc__text">
+                        <strong>Autentisering og roller</strong>
+                        <span>Innloggingsflyt, rollehierarki, localStorage og tilgangskontroll</span>
+                    </div>
+                </a>
+                <a href="/docs/sharepoint.html" class="docs-toc__item">
+                    <span class="docs-toc__icon">&#x1F4CA;</span>
+                    <div class="docs-toc__text">
+                        <strong>SharePoint-lister</strong>
+                        <span>Listestrukturer, kolonner og Power Automate-navnestandard</span>
+                    </div>
+                </a>
+                <a href="/docs/deploy.html" class="docs-toc__item">
+                    <span class="docs-toc__icon">&#x1F680;</span>
+                    <div class="docs-toc__text">
+                        <strong>Deploy og hosting</strong>
+                        <span>Azure Static Web Apps, lokal utvikling og deploy-rutiner</span>
+                    </div>
+                </a>
+            </nav>
+        </section>
+
+        <section class="card content">
+            <h2>Hurtigreferanse</h2>
+            <div class="docs-grid">
+                <div class="docs-ref">
+                    <h3>Viktige filer</h3>
+                    <table class="docs-table">
+                        <tr><td><code>js/env.js</code></td><td>Endepunkt-konfigurasjon (ikke i git)</td></tr>
+                        <tr><td><code>js/navigation.js</code></td><td>Felles sideinitialisering</td></tr>
+                        <tr><td><code>js/sharepoint-api.js</code></td><td>API-kommunikasjon</td></tr>
+                        <tr><td><code>sw.js</code></td><td>Service Worker</td></tr>
+                        <tr><td><code>css/style.css</code></td><td>Designsystem</td></tr>
+                        <tr><td><code>staticwebapp.config.json</code></td><td>Azure-konfigurasjon</td></tr>
+                    </table>
+                </div>
+                <div class="docs-ref">
+                    <h3>Roller</h3>
+                    <table class="docs-table">
+                        <tr><td><code>admin</code></td><td>Full tilgang</td></tr>
+                        <tr><td><code>styre</code></td><td>Styrefunksjoner + medlem</td></tr>
+                        <tr><td><code>medlem</code></td><td>Innlogget medlem</td></tr>
+                        <tr><td><code>anonym</code></td><td>Offentlige sider</td></tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <footer class="card footer">
+            <div class="footer__content">
+                <p class="footer__copyright">&copy; <span id="currentYear"></span> Kammerkoret Utsikten</p>
+                <p class="footer__link"><a href="/">Tilbake til portalen</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const themeBtn = document.getElementById('themeBtn');
+        const saved = localStorage.getItem('korportal-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        themeBtn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('korportal-theme', next);
+            themeBtn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        });
+    </script>
+</body>
+</html>

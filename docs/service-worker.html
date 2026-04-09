@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <title>Service Worker og PWA - Dokumentasjon</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/docs/docs.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <a href="/docs/" style="text-decoration:none;display:flex;align-items:center;gap:8px">
+                    <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                    <span class="uts-brandMiniText">Dokumentasjon</span>
+                </a>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">&#x1F319;</button>
+            </div>
+        </header>
+
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>Service Worker og PWA</h1>
+                    <p class="sub">Caching, offline-st&oslash;tte, oppdateringsflyt og manifest</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="card content docs-content">
+
+            <h2>Oversikt</h2>
+            <p><code>sw.js</code> gir offline-st&oslash;tte og raskere lasting. <code>sw-register.js</code> registrerer den og h&aring;ndterer automatisk oppdatering. Brukeren trenger ikke gj&oslash;re noe &ndash; nye versjoner lastes automatisk.</p>
+
+            <h2>Cachestrategi</h2>
+            <p>Service Workeren bruker to strategier:</p>
+            <ul>
+                <li><strong>Cache first:</strong> For statiske filer (CSS, JS, bilder, fonter). Serverer fra cache umiddelbart, oppdaterer i bakgrunnen ved neste deploy.</li>
+                <li><strong>Network first:</strong> For HTML-sider og dynamisk innhold. Pr&oslash;ver nettverk f&oslash;rst for &aring; sikre fersk data, faller tilbake til cache ved offline.</li>
+            </ul>
+            <div class="docs-note">
+                <strong>Merk:</strong> <code>env.js</code> er eksplisitt ekskludert fra cache first. Funksjonen <code>isStaticAsset()</code> i <code>sw.js</code> sjekker dette.
+            </div>
+
+            <h2>Cachede filer</h2>
+            <p>Tre cache-botter brukes:</p>
+            <ul>
+                <li><strong>CACHE_NAME</strong> (<code>master-cache</code>): Brukes for versjonsstyring.</li>
+                <li><strong>STATIC_CACHE</strong>: Alle HTML, CSS, JS, manifest.</li>
+                <li><strong>DYNAMIC_CACHE</strong>: HTML og data som caches ved f&oslash;rste bes&oslash;k.</li>
+            </ul>
+
+            <h2>Oppdateringsflyt</h2>
+            <ol>
+                <li>Endre filer i kodebasen.</li>
+                <li>Bump <code>CACHE_NAME</code>, <code>STATIC_CACHE</code> og/eller <code>DYNAMIC_CACHE</code> versjonsnummer i <code>sw.js</code>.</li>
+                <li>Deploy til Azure Static Web Apps.</li>
+                <li><code>sw-register.js</code> oppdager ny SW, installerer den.</li>
+                <li>Ny SW aktiveres og sletter gamle cacher.</li>
+                <li>Siden reloades automatisk med nye filer.</li>
+            </ol>
+            <div class="docs-note docs-note--warning">
+                <strong>Advarsel:</strong> Hvis du glemmer &aring; bumpe cacheversjonen, kan brukere f&aring; gammel kode fra SW-cache selv etter deploy.
+            </div>
+
+            <h2>manifest.json</h2>
+            <p>PWA-manifestet gj&oslash;r appen installerbar. Viktige egenskaper:</p>
+            <ul>
+                <li><strong>name</strong> &ndash; Fullt appnavn</li>
+                <li><strong>short_name</strong> &ndash; Kort navn for hjemskjerm</li>
+                <li><strong>start_url</strong> &ndash; <code>/</code></li>
+                <li><strong>display</strong> &ndash; <code>standalone</code></li>
+                <li><strong>theme_color</strong> &ndash; <code>#0b1220</code></li>
+            </ul>
+            <p>Ikoner fra 72px til 512px er inkludert for ulike enheter og kontekster.</p>
+
+            <h2>Feils&oslash;king</h2>
+            <ul>
+                <li><strong>Brukere f&aring;r gammel versjon:</strong> Bump <code>CACHE_NAME</code> i <code>sw.js</code> og deploy p&aring; nytt.</li>
+                <li><strong>SW registreres ikke:</strong> Sjekk at <code>sw.js</code> ligger i roten (ikke i <code>js/</code>). SW-scope er begrenset til sin egen katalog og under.</li>
+                <li><strong>Cache t&oslash;mmer seg ikke:</strong> I DevTools &gt; Application &gt; Storage &gt; Clear site data. Eller send <code>'clearCache'</code>-melding til SW via konsollen.</li>
+            </ul>
+
+            <nav class="docs-nav">
+                <a href="/docs/api.html">&larr; API-spesifikasjon</a>
+                <a href="/docs/autentisering.html">Autentisering og roller &rarr;</a>
+            </nav>
+        </section>
+
+        <footer class="card footer">
+            <div class="footer__content">
+                <p class="footer__copyright">&copy; <span id="currentYear"></span> Kammerkoret Utsikten</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const themeBtn = document.getElementById('themeBtn');
+        const saved = localStorage.getItem('korportal-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        themeBtn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('korportal-theme', next);
+            themeBtn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        });
+    </script>
+</body>
+</html>

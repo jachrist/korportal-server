@@ -1,0 +1,537 @@
+/**
+ * Styresider Styles - Kammerkoret Utsikten
+ */
+
+/* Stats row */
+.styre-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 1rem;
+    background: var(--card2);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+}
+
+.stat-box__value {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.stat-box__label {
+    font-size: var(--font-size-sm);
+    color: var(--muted);
+}
+
+/* Actions bar */
+.styre-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.styre-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--radius-xs);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+    white-space: nowrap;
+}
+
+.styre-btn--primary {
+    background: var(--accent);
+    color: #0b1220;
+}
+
+.styre-btn--primary:hover {
+    background: var(--accent-hover);
+}
+
+.styre-btn--secondary {
+    background: var(--card2);
+    color: var(--text);
+    border: 1px solid var(--line);
+}
+
+.styre-btn--secondary:hover {
+    background: var(--line);
+}
+
+.styre-btn--ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--line);
+}
+
+.styre-btn--ghost:hover {
+    background: var(--card2);
+    color: var(--text);
+}
+
+.styre-btn--danger {
+    padding: 0.35rem 0.75rem;
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid #ef4444;
+    border-radius: var(--radius-xs);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.styre-btn--danger:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
+.styre-btn--edit {
+    padding: 0.35rem 0.75rem;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-xs);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.styre-btn--edit:hover {
+    background: var(--accent);
+    color: #0b1220;
+}
+
+.styre-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Filter bar */
+.styre-filter-bar {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.styre-search {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.6rem 1rem;
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+    color: var(--text);
+    font-size: var(--font-size-sm);
+    outline: none;
+    transition: border-color var(--transition-fast);
+}
+
+.styre-search:focus {
+    border-color: var(--accent);
+}
+
+.styre-select {
+    padding: 0.6rem 1rem;
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+    color: var(--text);
+    font-size: var(--font-size-sm);
+    outline: none;
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+}
+
+.styre-select:focus {
+    border-color: var(--accent);
+}
+
+/* Members table */
+.members-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.members-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--line);
+}
+
+.members-table td {
+    padding: 0.75rem 1rem;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--line);
+}
+
+.members-table tr:last-child td {
+    border-bottom: none;
+}
+
+.members-table tbody tr:hover {
+    background: var(--card2);
+}
+
+.members-table th:last-child,
+.members-table td:last-child {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.members-table td:last-child {
+    gap: 0.5rem;
+    text-align: right;
+}
+
+/* Kontingent column */
+.th-kontingent {
+    text-align: center !important;
+    line-height: 1.3;
+}
+
+.td-kontingent {
+    text-align: center;
+    min-width: 50px;
+}
+
+.kontingent-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+/* Form checkbox group */
+.styre-form-group--checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.styre-form-group--checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+/* Role badges */
+.role-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-xs);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.role-badge--admin {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+.role-badge--styre {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+}
+
+.role-badge--medlem {
+    background: rgba(156, 163, 175, 0.15);
+    color: #9ca3af;
+}
+
+/* Voice group badge */
+.voice-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-xs);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    background: rgba(var(--accent-rgb, 0, 200, 150), 0.12);
+    color: var(--accent);
+}
+
+/* Modal */
+.styre-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.styre-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.styre-modal {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    width: 90%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+}
+
+.styre-modal-overlay.active .styre-modal {
+    transform: scale(1);
+}
+
+.styre-modal__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.styre-modal__header h2 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+.styre-modal__body {
+    padding: 1.5rem;
+}
+
+.styre-modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    margin-top: 1.25rem;
+}
+
+/* Form groups */
+.styre-form-group {
+    margin-bottom: 1rem;
+}
+
+.styre-form-group label {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.35rem;
+}
+
+.styre-form-group input,
+.styre-form-group select,
+.styre-form-group textarea {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+    color: var(--text);
+    font-size: var(--font-size-sm);
+    font-family: inherit;
+    outline: none;
+    transition: border-color var(--transition-fast);
+    box-sizing: border-box;
+}
+
+.styre-form-group input:focus,
+.styre-form-group select:focus,
+.styre-form-group textarea:focus {
+    border-color: var(--accent);
+}
+
+.styre-form-group textarea {
+    resize: vertical;
+}
+
+/* Checkbox list for email recipients */
+.styre-checkbox-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+    padding: 0.5rem;
+    background: var(--card2);
+}
+
+.styre-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.5rem;
+    font-size: var(--font-size-sm);
+    color: var(--text);
+    cursor: pointer;
+    border-radius: var(--radius-xs);
+}
+
+.styre-checkbox-item:hover {
+    background: var(--line);
+}
+
+.styre-checkbox-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+/* Empty state */
+.styre-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+}
+
+.styre-empty__icon {
+    font-size: 48px;
+    margin-bottom: 1rem;
+}
+
+.styre-empty__title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.styre-empty__text {
+    font-size: var(--font-size-sm);
+    color: var(--muted);
+}
+
+/* Toast notification */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    padding: 0.875rem 1.5rem;
+    background: var(--card);
+    color: var(--text);
+    border-radius: var(--radius-xs);
+    box-shadow: var(--shadow-lg);
+    font-size: var(--font-size-sm);
+    z-index: 1000;
+    opacity: 0;
+    transition: all 0.3s ease;
+    border: 1px solid var(--line);
+}
+
+.toast.toast--visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast.toast--success {
+    border-left: 4px solid #22c55e;
+}
+
+.toast.toast--error {
+    border-left: 4px solid #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .styre-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .styre-filter-bar {
+        flex-direction: column;
+    }
+
+    .styre-search {
+        min-width: unset;
+    }
+
+    .styre-actions {
+        flex-direction: column;
+    }
+
+    .styre-actions .styre-btn {
+        justify-content: center;
+    }
+
+    /* Card layout for table on mobile */
+    .members-table thead {
+        display: none;
+    }
+
+    .members-table,
+    .members-table tbody,
+    .members-table tr,
+    .members-table td {
+        display: block;
+    }
+
+    .members-table tr {
+        padding: 1rem;
+        border-bottom: 1px solid var(--line);
+        position: relative;
+    }
+
+    .members-table tr:last-child {
+        border-bottom: none;
+    }
+
+    .members-table td {
+        padding: 0.25rem 1rem 0.25rem 0;
+        border-bottom: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .members-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        font-size: var(--font-size-xs);
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-right: 1rem;
+    }
+
+    .members-table td:last-child {
+        justify-content: flex-end;
+        padding-top: 0.5rem;
+    }
+
+    .members-table td:last-child::before {
+        content: none;
+    }
+}

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Spillelister og filer - Kammerkoret Utsikten</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/noter.css">
+</head>
+<body>
+    <div class="wrap">
+        <!-- Topbar -->
+        <header class="uts-topbar" aria-label="Navigasjon">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <span class="uts-brandMiniText">Kammerkoret Utsikten</span>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema" aria-label="Bytt mellom lys og mørk modus">
+                    🌙
+                </button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">
+                    ☰
+                </button>
+            </div>
+        </header>
+
+        <!-- Menu overlay -->
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader">
+                    <h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+                </div>
+                <nav class="uts-menuList" id="menuList"></nav>
+            </div>
+        </div>
+
+        <!-- Page title -->
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>Spillelister og filer</h1>
+                    <p class="sub">Administrer filer, metadata og blob-storage</p>
+                </div>
+                <div class="logoWrap">
+                    <span style="font-size: 32px;">🎵</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filters -->
+        <section class="card content filters-section">
+            <!-- Search -->
+            <div class="search-box">
+                <span class="search-box__icon">🔍</span>
+                <input
+                    type="search"
+                    id="searchInput"
+                    class="search-box__input"
+                    placeholder="Søk i filnavn, anledning eller verk..."
+                    autocomplete="off"
+                >
+                <button class="search-box__clear" id="searchClear" aria-label="Tøm søk" hidden>✕</button>
+            </div>
+
+            <!-- Category filters -->
+            <div class="filter-group">
+                <label class="filter-group__label">Kategori</label>
+                <div class="filter-chips" id="categoryFilters">
+                    <button class="filter-chip filter-chip--active" data-category="alle">Alle</button>
+                    <button class="filter-chip" data-category="note">Note</button>
+                    <button class="filter-chip" data-category="opptak">Opptak</button>
+                    <button class="filter-chip" data-category="ovefil">Øvefil</button>
+                    <button class="filter-chip" data-category="sideskift">Sideskift</button>
+                </div>
+            </div>
+
+            <!-- Filter status -->
+            <div class="filter-status">
+                <span class="filter-status__count" id="resultCount">Laster filer...</span>
+                <button class="filter-status__reset" id="resetFilters" hidden>
+                    ↺ Nullstill filtre
+                </button>
+            </div>
+        </section>
+
+        <!-- Two-panel layout -->
+        <div class="panels-layout">
+            <!-- File list -->
+            <section class="card content files-section">
+                <div class="files-section__header">
+                    <button class="btn btn--secondary btn--sm" id="selectAllBtn">Merk alle synlige</button>
+                    <button class="btn btn--secondary btn--sm" id="deselectAllBtn">Fjern alle</button>
+                    <button class="btn btn--primary btn--sm" id="uploadFilesBtn">Last opp filer</button>
+                    <button class="btn btn--secondary btn--sm" id="syncBlobBtn">Synk fra blob</button>
+                    <input type="file" id="uploadFileInput" multiple hidden>
+                </div>
+                <div class="files-list" id="filesList">
+                    <!-- Files loaded dynamically -->
+                </div>
+
+                <!-- Empty state -->
+                <div class="empty-state" id="emptyState" hidden>
+                    <div class="empty-state__icon">📂</div>
+                    <h3 class="empty-state__title">Ingen filer funnet</h3>
+                    <p class="empty-state__description">Prøv å endre søk eller filtre</p>
+                </div>
+
+                <!-- Error state -->
+                <div class="error-state" id="errorState" hidden>
+                    <div class="error-state__icon">⚠️</div>
+                    <h3 class="error-state__title">Kunne ikke laste filer</h3>
+                    <p class="error-state__description" id="errorMessage">En feil oppstod ved lasting av filer.</p>
+                    <button class="btn btn--primary mt-lg" id="retryButton">Prøv igjen</button>
+                </div>
+            </section>
+
+            <!-- Marked panel (sidebar) -->
+            <aside class="card content marked-panel" id="markedPanel">
+                <h3 class="marked-panel__title">Merkede filer <span class="marked-panel__count" id="markedCount">0</span></h3>
+                <div class="marked-panel__list" id="markedList">
+                    <p class="marked-panel__empty">Ingen filer er merket</p>
+                </div>
+                <div class="marked-panel__form" id="markedForm" hidden>
+                    <div class="form-group">
+                        <label class="form-label" for="kategoriInput">Kategori</label>
+                        <select id="kategoriInput" class="form-select">
+                            <option value="">— Ikke endre —</option>
+                            <option value="Note">Note</option>
+                            <option value="Opptak">Opptak</option>
+                            <option value="Øvefil">Øvefil</option>
+                            <option value="Sideskift">Sideskift</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="verkInput">Verk</label>
+                        <input type="text" id="verkInput" class="form-input" placeholder="F.eks. Halleluja fra Messias">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="stemmeInput">Stemme</label>
+                        <select id="stemmeInput" class="form-select">
+                            <option value="">— Ikke endre —</option>
+                            <option value="sopran-1">sopran 1</option>
+                            <option value="sopran-2">sopran 2</option>
+                            <option value="alt-1">alt 1</option>
+                            <option value="alt-2">alt 2</option>
+                            <option value="tenor-1">tenor 1</option>
+                            <option value="tenor-2">tenor 2</option>
+                            <option value="bass-1">bass 1</option>
+                            <option value="bass-2">bass 2</option>
+                            <option value="tutti">tutti</option>
+                            <option value="partitur">partitur</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="sorteringInput">Sortering</label>
+                        <input type="number" id="sorteringInput" class="form-input" placeholder="Rekkefølge i konsert">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="anledningInput">Anledning</label>
+                        <input type="text" id="anledningInput" class="form-input" placeholder="F.eks. Julekonsert 2025">
+                    </div>
+                </div>
+                <div class="marked-panel__actions" id="markedActions" hidden>
+                    <button class="btn btn--primary" id="updateMetadataBtn">Oppdater metadata</button>
+                    <button class="btn btn--secondary" id="uploadBlobBtn">Last opp til blob</button>
+                    <button class="btn btn--danger" id="clearBlobBtn">Tøm blob-storage</button>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Footer -->
+        <footer class="card footer" aria-label="Informasjon">
+            <p class="footerTitle">Informasjon</p>
+            <div class="contactGrid">
+                <div class="contactBox">
+                    © <span id="currentYear"></span> Kammerkoret Utsikten
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Confirm overlay -->
+    <div class="confirm-overlay" id="confirmOverlay" aria-hidden="true" style="display:none">
+        <div class="confirm-panel" role="dialog" aria-label="Bekreftelse">
+            <h3 class="confirm-panel__title" id="confirmTitle">Er du sikker?</h3>
+            <p class="confirm-panel__message" id="confirmMessage">Denne handlingen kan ikke angres.</p>
+            <div class="confirm-panel__actions">
+                <button class="btn btn--secondary" id="confirmCancel">Avbryt</button>
+                <button class="btn btn--danger" id="confirmOk">Bekreft</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loader" id="loader">
+        <div class="loader__content">
+            <div class="loader__spinner"></div>
+            <p class="loader__text">Laster filer...</p>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/noter.js"></script>
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

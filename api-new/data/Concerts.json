@@ -1,0 +1,34 @@
+{
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "title": "Under samme himmel",
+            "description": "En hyggelig kveld i et (kanskje) uvant lokale.  Første forestilling",
+            "date": "2026-03-22",
+            "time": "18:00",
+            "location": "Grefsen kapell",
+            "address": "Kapellveien 75, 0493 Oslo ",
+            "imageUrl": "https://utsiktenblob.blob.core.windows.net/bilder/Konsertplakat-1.jpeg",
+            "ticketPrice": 200.0,
+            "ticketsAvailable": 77.0,
+            "ticketUrl": "",
+            "isPublic": "true"
+        },
+        {
+            "id": 2,
+            "title": "Under samme himmel",
+            "description": "En hyggelig kveld i et (kanskje) uvant lokale.  Annen forestilling",
+            "date": "2026-03-22",
+            "time": "20:00",
+            "location": "Grefsen kapell",
+            "address": "Kapellveien 75, 0493 Oslo ",
+            "imageUrl": "https://utsiktenblob.blob.core.windows.net/bilder/1200px-Grefsen_kapell.jpg",
+            "ticketPrice": 200.0,
+            "ticketsAvailable": 82.0,
+            "ticketUrl": "",
+            "isPublic": "true"
+        }
+    ],
+    "count": 2
+}

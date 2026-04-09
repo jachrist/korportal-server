@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kammerkoret Utsikten">
+    <meta name="description" content="Filbehandling - Kammerkoret Utsikten">
+    <title>Filbehandling - Kammerkoret Utsikten</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Favicon og ikoner -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/icon-16.png">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/filbehandling.css">
+</head>
+<body>
+    <div class="wrap">
+        <!-- Header -->
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <span class="uts-brandMiniText">Kammerkoret Utsikten</span>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">🌙</button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">☰</button>
+            </div>
+        </header>
+
+        <!-- Menu overlay -->
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader">
+                    <h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+                </div>
+                <nav class="uts-menuList" id="menuList"></nav>
+            </div>
+        </div>
+
+        <!-- Page header -->
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>Filbehandling</h1>
+                    <p class="sub">Kategoriser og rediger metadata for filer</p>
+                </div>
+                <div class="logoWrap">
+                    <span style="font-size: 32px;">📁</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filters -->
+        <section class="card content filters-section">
+            <!-- Search -->
+            <div class="search-box">
+                <span class="search-box__icon">🔍</span>
+                <input
+                    type="search"
+                    id="searchInput"
+                    class="search-box__input"
+                    placeholder="Sok i filnavn..."
+                    autocomplete="off"
+                >
+                <button class="search-box__clear" id="searchClear" aria-label="Tom sok" hidden>✕</button>
+            </div>
+
+            <!-- Category filters -->
+            <div class="filter-group">
+                <label class="filter-group__label">Kategori</label>
+                <div class="filter-chips" id="categoryFilters">
+                    <button class="filter-chip filter-chip--active" data-category="alle">Alle</button>
+                    <button class="filter-chip" data-category="tom">Tom</button>
+                    <button class="filter-chip" data-category="note">Note</button>
+                    <button class="filter-chip" data-category="opptak">Opptak</button>
+                    <button class="filter-chip" data-category="ovefil">Øvefil</button>
+                    <button class="filter-chip" data-category="sideskift">Sideskift</button>
+                </div>
+            </div>
+
+            <!-- Filter status -->
+            <div class="filter-status">
+                <span class="filter-status__count" id="resultCount">Laster filer...</span>
+                <button class="filter-status__reset" id="resetFilters" hidden>
+                    ↺ Nullstill filtre
+                </button>
+            </div>
+        </section>
+
+        <!-- File list -->
+        <section class="card content files-section">
+            <div class="files-list" id="filesList">
+                <!-- Files loaded dynamically -->
+            </div>
+
+            <!-- Empty state -->
+            <div class="empty-state" id="emptyState" hidden>
+                <div class="empty-state__icon">📂</div>
+                <h3 class="empty-state__title">Ingen filer funnet</h3>
+                <p class="empty-state__description">Prov a endre sok eller filtre</p>
+            </div>
+
+            <!-- Error state -->
+            <div class="error-state" id="errorState" hidden>
+                <div class="error-state__icon">⚠️</div>
+                <h3 class="error-state__title">Kunne ikke laste filer</h3>
+                <p class="error-state__description" id="errorMessage">En feil oppstod ved lasting av filer.</p>
+                <button class="btn btn--primary mt-lg" id="retryButton">Prov igjen</button>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="card footer">
+            <div class="footer__content">
+                <p class="footer__copyright">© <span id="currentYear"></span> Kammerkoret Utsikten</p>
+                <p class="footer__link"><a href="https://www.kammerkoretutsikten.no" target="_blank" rel="noopener">kammerkoretutsikten.no</a></p>
+                <p class="footer__link"><a href="mailto:admin@kammerkoretutsikten.no">admin@kammerkoretutsikten.no</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Edit overlay -->
+    <div class="edit-overlay" id="editOverlay" aria-hidden="true">
+        <div class="edit-panel" role="dialog" aria-label="Rediger metadata">
+            <div class="edit-panel__header">
+                <h3 id="editTitle">Rediger metadata</h3>
+                <button class="uts-closeBtn" id="editClose" type="button" title="Lukk">✕</button>
+            </div>
+            <form class="edit-panel__form" id="editForm">
+                <input type="hidden" id="editFileId">
+
+                <!-- Common info -->
+                <div class="form-group">
+                    <label class="form-label">Filnavn</label>
+                    <p class="form-value" id="editFilename">-</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Filtype</label>
+                    <p class="form-value" id="editFiletype">-</p>
+                </div>
+
+                <!-- Universal fields -->
+                <div class="form-group">
+                    <label class="form-label" for="editKategori">Kategori</label>
+                    <select id="editKategori" class="form-select">
+                        <option value="">Ingen</option>
+                        <option value="Note">Note</option>
+                        <option value="Opptak">Opptak</option>
+                        <option value="Øvefil">Øvefil</option>
+                        <option value="Sideskift">Sideskift</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editVerk">Verk</label>
+                    <input type="text" id="editVerk" class="form-input" placeholder="F.eks. Halleluja fra Messias">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editStemme">Stemme</label>
+                    <select id="editStemme" class="form-select">
+                        <option value="">Velg stemme...</option>
+                        <option value="sopran-1">sopran 1</option>
+                        <option value="sopran-2">sopran 2</option>
+                        <option value="alt-1">alt 1</option>
+                        <option value="alt-2">alt 2</option>
+                        <option value="tenor-1">tenor 1</option>
+                        <option value="tenor-2">tenor 2</option>
+                        <option value="bass-1">bass 1</option>
+                        <option value="bass-2">bass 2</option>
+                        <option value="tutti">tutti</option>
+                        <option value="partitur">partitur</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editSortering">Sortering</label>
+                    <input type="number" id="editSortering" class="form-input" placeholder="Rekkefølge i konsert">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editAnledning">Anledning</label>
+                    <input type="text" id="editAnledning" class="form-input" placeholder="F.eks. Julekonsert 2024">
+                </div>
+
+                <!-- Form actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn--secondary" id="editCancel">Avbryt</button>
+                    <button type="submit" class="btn btn--primary" id="editSave">Lagre</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loader" id="loader">
+        <div class="loader__content">
+            <div class="loader__spinner"></div>
+            <p class="loader__text">Laster...</p>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/filbehandling.js"></script>
+
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

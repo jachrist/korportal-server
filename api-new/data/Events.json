@@ -1,0 +1,59 @@
+{
+    "success": true,
+    "data": {
+        "article": {
+            "title": "Velkommen til ny medlemsside!",
+            "text": "**Korets program for konserten**\n\n1. [Stein på stein](https://utsiktenblob.blob.core.windows.net/sanger/Stein%20p%C3%A5%20stein%20Utsikten.pdf)\n2. [Når himlen faller ned](https://utsiktenblob.blob.core.windows.net/sanger/Nar-himmelen-faller-ned-Utsikten.pdf)\n3. [Engler i sneen](https://utsiktenblob.blob.core.windows.net/sanger/Engler%20i%20sneen.pdf)\n4. [Oppe på månen](https://utsiktenblob.blob.core.windows.net/sanger/Oppe%20p%C3%A5%20m%C3%A5nen.pdf)\n5. [Lift me up](https://utsiktenblob.blob.core.windows.net/sanger/Lift%20Me%20Up%20EPRINT-Choral.pdf)\n6. [Bruremarsj fra Valsøyfjord](https://utsiktenblob.blob.core.windows.net/sanger/Bruremarsj-fra-Vals%C3%B8yfjord-Aure.pdf)\n7. [A light of hope a song of peace](https://utsiktenblob.blob.core.windows.net/sanger/A%20Light%20of%20Hope.pdf)\n8. [Fordi eg elskar deg](https://utsiktenblob.blob.core.windows.net/sanger/Fordi%20eg%20elskar%20deg.pdf)\n9. [Lean on me](https://utsiktenblob.blob.core.windows.net/sanger/Lean%20on%20Me%20Utsikten.pdf)\n\nJeg har tatt bort siden for nedlasting av noter, og lar dere heller få den som vi var vant til fra den gamle medlemssiden.\nHer er også lenka til Box for dere som ikke har bokmerket: [https://app.box.com/shared/8huwmi1ccw](https://app.box.com/shared/8huwmi1ccw)\nDere finner også øvefiler på *Øvelse* - sjekk menyen!\n",
+            "format": "markdown",
+            "imageUrl": "",
+            "imagePlacement": "angitt"
+        },
+        "events": [
+            {
+                "id": 4,
+                "title": "Ekstraøvelse",
+                "description": "Kirken er ledig",
+                "date": "2026-03-18",
+                "startTime": "19:00",
+                "endTime": "21:30",
+                "location": "Grefsen kirke",
+                "attendees": [
+                    {
+                        "name": "Liv-Torill Schøyen",
+                        "email": "liv.torill.schoyen@gmail.com",
+                        "status": "attending"
+                    }
+                ],
+                "totalMembers": 25
+            },
+            {
+                "id": 5,
+                "title": "Konsert - Under samme himmel",
+                "description": "Program: Se medlemssiden. Første kl. 18:00, annen kl. 20:00",
+                "date": "2026-03-22",
+                "startTime": "16:00",
+                "endTime": "21:30",
+                "location": "Grefsen Kirke",
+                "attendees": [
+                    {
+                        "name": "Jan Christiansen (Admin)",
+                        "email": "jachrist2709@gmail.com",
+                        "status": "attending"
+                    }
+                ],
+                "totalMembers": 25
+            },
+            {
+                "id": 6,
+                "title": "Gudstjeneste",
+                "description": "Forsang og to egne nummer",
+                "date": "2026-05-10",
+                "startTime": "09:45",
+                "endTime": "13:00",
+                "location": "Grefsen Kirke",
+                "attendees": [],
+                "totalMembers": 25
+            }
+        ]
+    }
+}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <title>Arkitektur - Dokumentasjon</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/docs/docs.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <a href="/docs/" style="text-decoration:none;display:flex;align-items:center;gap:8px">
+                    <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                    <span class="uts-brandMiniText">Dokumentasjon</span>
+                </a>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">&#x1F319;</button>
+            </div>
+        </header>
+
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>Arkitektur</h1>
+                    <p class="sub">Overordnet systemdesign, dataflyt og nokkelkomponenter</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="card content docs-content">
+
+            <h2>Overordnet design</h2>
+            <p>Korportalen er en <strong>statisk PWA</strong> (Progressive Web App) uten build-steg. All kode kjorer direkte i nettleseren. Det finnes ingen backend-server &mdash; Power Automate fungerer som et serverless API-lag mellom frontend og SharePoint.</p>
+
+            <div class="docs-diagram">Bruker (nettleser / PWA)
+    |
+    +-- HTML-sider (en fil per side)
+    +-- CSS (felles designsystem + ett ark per side)
+    +-- JavaScript (ES6-moduler, en fil per side + felles moduler)
+    |
+    +-- Service Worker (offline-stotte og caching)
+    |
+    +-- Power Automate HTTP-endepunkter (REST-aktige kall)
+            |
+            +-- SharePoint Online (lister som database)
+                    |
+                    +-- Azure Blob Storage (PDF, lyd, bilder)</div>
+
+            <h2>Dataflyt</h2>
+            <p>Nettleseren laster HTML/CSS/JS fra <strong>Azure Static Web Apps</strong>. JavaScript-koden kaller Power Automate-endepunkter (konfigurert i <code>js/env.js</code>) som henter eller skriver data i SharePoint-lister. Binaerfiler (noter, lydfiler, bilder) serveres fra Azure Blob Storage.</p>
+
+            <h2>Nokkelkomponenter</h2>
+
+            <h3><code>js/env.js</code> &mdash; Konfigurasjon</h3>
+            <p>Inneholder alle Power Automate-endepunkt-URLer som <code>window.ENV</code>-variabler. Denne filen er <strong>ikke versjonskontrollert</strong> (inneholder signerte tokens). <code>js/env.example.js</code> er malen. Service Worker cacher <em>ikke</em> denne filen &mdash; den hentes alltid fra nettverk slik at endringer i endepunkter trer i kraft umiddelbart.</p>
+
+            <h3><code>js/navigation.js</code> &mdash; Felles sideinitialisering</h3>
+            <p>Importeres av alle sider. Handterer:</p>
+            <ul>
+                <li><strong>Rollebasert tilgangskontroll</strong> &mdash; hierarkisk (admin &gt; styre &gt; medlem &gt; anonym)</li>
+                <li><strong>Navigasjonsmeny</strong> &mdash; hentes fra SharePoint med fallback til hardkodede elementer</li>
+                <li><strong>Temabytte</strong> &mdash; dark/light mode med localStorage-persistering</li>
+                <li><strong>Innloggingssjekk</strong> &mdash; omdirigerer til login.html hvis tilgang kreves</li>
+            </ul>
+            <p>Alle beskyttede sider kaller <code>initPage({ requireAuth: true, requiredRole: 'medlem' })</code> ved oppstart.</p>
+
+            <h3><code>js/sharepoint-api.js</code> &mdash; API-lag</h3>
+            <p>Singleton-klasse (<code>sharePointAPI</code>) som abstraherer all kommunikasjon med Power Automate. Inkluderer:</p>
+            <ul>
+                <li><strong>Caching</strong> &mdash; 5 minutter for GET-kall, automatisk invalidering ved POST</li>
+                <li><strong>Deduplisering</strong> &mdash; samtidige identiske foresporssler slas sammen</li>
+                <li><strong>Feilhandtering</strong> &mdash; egen <code>SharePointAPIError</code>-klasse</li>
+                <li><strong>Datautpakking</strong> &mdash; stotter bade <code>{ data: [...] }</code> og <code>{ value: [...] }</code>-format</li>
+            </ul>
+
+            <h3><code>js/member-utils.js</code> &mdash; Medlemshandtering</h3>
+            <p>Hjelpefunksjoner for a hente innlogget bruker fra <code>localStorage</code>, sjekke stemmegruppe, og handtere utlogging.</p>
+
+            <h3><code>js/badge-manager.js</code> &mdash; Varslingsbadger</h3>
+            <p>Sporer uleste elementer (meldinger, innlegg, konserter) via <code>lastSeen</code>-tidsstempler i localStorage. Oppdaterer badge-tall i menyen og PWA-app-badge via <code>navigator.setAppBadge()</code>. Sjekker maks hvert 30. minutt.</p>
+
+            <h3><code>sw.js</code> &mdash; Service Worker</h3>
+            <p>Gir offline-stotte og raskere lasting via to cache-strategier:</p>
+            <ul>
+                <li><strong>Cache first</strong> for statiske assets (CSS, JS, bilder) &mdash; serverer fra cache, oppdaterer i bakgrunnen</li>
+                <li><strong>Network first</strong> for HTML-sider og dynamisk innhold &mdash; prover nettverk forst, faller tilbake til cache</li>
+            </ul>
+
+            <h3><code>css/style.css</code> &mdash; Designsystem</h3>
+            <p>Felles stilark med CSS Custom Properties for dark/light mode. Definerer farger, spacing, typografi, radius og animasjoner. Alle sider importerer dette + sitt eget CSS-ark.</p>
+
+            <h3><code>staticwebapp.config.json</code> &mdash; Azure-konfigurasjon</h3>
+            <p>Konfigurerer hosting-miljoet: ruting, sikkerhetshoder (CSP, X-Frame-Options), autentisering (Azure AD) og tilpassede feilsider.</p>
+
+            <h2>Caching-strategi</h2>
+            <p>Tre lag med caching:</p>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Lag</th>
+                        <th>Hvor</th>
+                        <th>Varighet</th>
+                        <th>Formal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Service Worker</td>
+                        <td>Nettleser</td>
+                        <td>Cache first / Network first</td>
+                        <td>Offline-stotte, rask lasting</td>
+                    </tr>
+                    <tr>
+                        <td>SharePoint API-cache</td>
+                        <td>JavaScript (minne)</td>
+                        <td>5 min</td>
+                        <td>Unnga gjentatte API-kall</td>
+                    </tr>
+                    <tr>
+                        <td>Power Automate</td>
+                        <td>Server</td>
+                        <td>Varierer</td>
+                        <td>SharePoint throttling-beskyttelse</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="docs-note">
+                <strong>Merk:</strong> <code>env.js</code> ekskluderes bevisst fra SW-cache slik at endringer i endepunkter trer i kraft umiddelbart.
+            </div>
+
+            <nav class="docs-nav">
+                <a href="/docs/">&larr; Innholdsfortegnelse</a>
+                <a href="/docs/sider.html">Sider og roller &rarr;</a>
+            </nav>
+        </section>
+
+        <footer class="card footer">
+            <div class="footer__content">
+                <p class="footer__copyright">&copy; <span id="currentYear"></span> Kammerkoret Utsikten</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const themeBtn = document.getElementById('themeBtn');
+        const saved = localStorage.getItem('korportal-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        themeBtn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('korportal-theme', next);
+            themeBtn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        });
+    </script>
+</body>
+</html>

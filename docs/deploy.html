@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <title>Deploy og hosting - Dokumentasjon</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/docs/docs.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <a href="/docs/" style="text-decoration:none;display:flex;align-items:center;gap:8px">
+                    <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                    <span class="uts-brandMiniText">Dokumentasjon</span>
+                </a>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">&#x1F319;</button>
+            </div>
+        </header>
+
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>Deploy og hosting</h1>
+                    <p class="sub">Azure Static Web Apps, lokal utvikling og deploy-rutiner</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="card content docs-content">
+
+            <h2>Forutsetninger</h2>
+            <ul>
+                <li>SharePoint Online-tilgang</li>
+                <li>Power Automate (inkludert i Microsoft 365)</li>
+                <li>Azure-abonnement (for hosting)</li>
+                <li>Moderne nettleser</li>
+            </ul>
+
+            <h2>Lokal utvikling</h2>
+            <p>Appen har ingen build-steg. Bruk en enkel HTTP-server:</p>
+            <pre><code># Alternativ 1: Python
+python -m http.server 8080
+
+# Alternativ 2: Node.js
+npx serve
+
+# Alternativ 3: VS Code
+# Installer Live Server-utvidelsen, h&oslash;yreklikk -&gt; Open with Live Server</code></pre>
+
+            <div class="docs-note">
+                <strong>Merk:</strong> Husk &aring; opprette <code>js/env.js</code> fra <code>js/env.example.js</code> og fylle inn Power Automate-URLene.
+            </div>
+
+            <h2>Deploy til Azure Static Web Apps</h2>
+
+            <h3>Fra VS Code (anbefalt)</h3>
+            <ol>
+                <li>Installer utvidelsen &laquo;Azure Static Web Apps&raquo;</li>
+                <li>Logg inn med Azure-kontoen</li>
+                <li>Opprett Static Web App:
+                    <ul>
+                        <li><strong>Navn:</strong> korportal</li>
+                        <li><strong>Region:</strong> West Europe</li>
+                        <li><strong>Build preset:</strong> Custom</li>
+                        <li><strong>App location:</strong> <code>/</code></li>
+                        <li><strong>Output location:</strong> <code>/</code></li>
+                    </ul>
+                </li>
+                <li>Deploy oppdateringer: H&oslash;yreklikk &rarr; <em>Deploy to Static Web App</em>, eller koble til GitHub for automatisk deploy ved push</li>
+            </ol>
+
+            <h3>Med Azure CLI</h3>
+            <pre><code># Logg inn
+az login
+
+# Opprett ressursgruppe
+az group create --name korportal-rg --location westeurope
+
+# Opprett Static Web App
+az staticwebapp create \
+  --name korportal \
+  --resource-group korportal-rg \
+  --location westeurope
+
+# Hent deployment token
+az staticwebapp secrets list \
+  --name korportal \
+  --resource-group korportal-rg
+
+# Deploy med token
+swa deploy ./ \
+  --deployment-token &lt;TOKEN&gt;</code></pre>
+
+            <h2>staticwebapp.config.json</h2>
+            <p>Konfigurasjonsfilen styrer ruting, sikkerhet og autentisering for Azure Static Web Apps.</p>
+            <ul>
+                <li><strong>routes</strong> &ndash; Ruting og rollebasert tilgang. Definerer hvilke roller som kreves for ulike stier.</li>
+                <li><strong>navigationFallback</strong> &ndash; Ukjente stier reskrives til <code>index.html</code> (SPA-st&oslash;tte). Sikrer at klient-ruting fungerer korrekt.</li>
+                <li><strong>globalHeaders</strong> &ndash; Sikkerhetshoder (CSP, X-Frame-Options, etc.). Beskytter mot XSS, clickjacking og andre angrep.</li>
+                <li><strong>auth</strong> &ndash; Azure AD identity provider. Konfigurerer hvilke autentiseringsleverand&oslash;rer som er tilgjengelige.</li>
+                <li><strong>responseOverrides</strong> &ndash; Tilpassede feilsider:
+                    <ul>
+                        <li><code>400</code> &ndash; Ugyldig foresp&oslash;rsel</li>
+                        <li><code>401</code> &ndash; Omdirigerer til innlogging</li>
+                        <li><code>403</code> &ndash; Ingen tilgang</li>
+                        <li><code>404</code> &ndash; Side ikke funnet</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h2>Deploy-sjekkliste</h2>
+            <ol>
+                <li>Bump SW-cacheversjoner i <code>sw.js</code> hvis statiske filer er endret</li>
+                <li>Sjekk at <code>env.js</code> har korrekte endepunkt-URLer</li>
+                <li>Test lokalt med HTTP-server</li>
+                <li>Deploy via VS Code eller GitHub push</li>
+                <li>Verifiser at siden laster korrekt i nettleseren</li>
+                <li>Sjekk DevTools &rarr; Application &rarr; Service Workers for oppdateringsstatus</li>
+            </ol>
+
+            <h2>Kodestandard</h2>
+            <ul>
+                <li>ES6+ JavaScript med moduler</li>
+                <li>BEM-navngivning for CSS</li>
+                <li>Semantisk HTML5</li>
+                <li>Mobile-first responsivt design</li>
+            </ul>
+
+            <nav class="docs-nav">
+                <a href="/docs/sharepoint.html">&larr; SharePoint-lister</a>
+                <a href="/docs/">Innholdsfortegnelse &rarr;</a>
+            </nav>
+        </section>
+
+        <footer class="card footer">
+            <div class="footer__content">
+                <p class="footer__copyright">&copy; <span id="currentYear"></span> Kammerkoret Utsikten</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const themeBtn = document.getElementById('themeBtn');
+        const saved = localStorage.getItem('korportal-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        themeBtn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('korportal-theme', next);
+            themeBtn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        });
+    </script>
+</body>
+</html>

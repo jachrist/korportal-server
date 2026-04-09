@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Konserter - Kammerkoret Utsikten</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/konserter.css">
+    <link rel="stylesheet" href="css/markdown-editor.css">
+</head>
+<body>
+    <div class="wrap">
+        <!-- Topbar with hamburger menu and theme toggle -->
+        <header class="uts-topbar" aria-label="Navigasjon">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <span class="uts-brandMiniText">Kammerkoret Utsikten</span>
+            </div>
+
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema" aria-label="Bytt mellom lys og mørk modus">
+                    🌙
+                </button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">
+                    ☰
+                </button>
+            </div>
+        </header>
+
+        <!-- Menu overlay (popdown) -->
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader">
+                    <h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+                </div>
+                <nav class="uts-menuList" id="menuList"></nav>
+            </div>
+        </div>
+
+        <!-- Page title -->
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>🎭 Konserter</h1>
+                    <p class="sub">Kommende konserter og billettbestilling</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Concerts list -->
+        <section class="concerts-section" id="concerts-section">
+            <!-- Concerts loaded dynamically -->
+        </section>
+
+        <!-- Empty state -->
+        <section class="card content" id="empty-state" hidden>
+            <div class="empty-state">
+                <div class="empty-state__icon">🎵</div>
+                <h3 class="empty-state__title">Ingen kommende konserter</h3>
+                <p class="empty-state__description">Sjekk tilbake senere for nye konserter</p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="card footer" aria-label="Informasjon">
+            <p class="footerTitle">Informasjon</p>
+            <div class="contactGrid">
+                <div class="contactBox">© <span id="current-year"></span> Kammerkoret Utsikten</div>
+                <div class="contactBox">Spørsmål? Kontakt oss på <a href="mailto:admin@kammerkoretutsikten.no">admin@kammerkoretutsikten.no</a></div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Ticket reservation modal -->
+    <div class="modal-overlay" id="ticketModal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-labelledby="modal-title">
+            <div class="modal__header">
+                <h2 class="modal__title" id="modal-title">Bestill billetter</h2>
+                <button class="modal__close" id="modalClose" type="button" aria-label="Lukk">✕</button>
+            </div>
+
+            <div class="modal__body">
+                <!-- Concert info summary -->
+                <div class="modal__concert-info" id="modal-concert-info">
+                    <div class="modal__concert-date" id="modal-date"></div>
+                    <div class="modal__concert-details">
+                        <h3 id="modal-concert-title"></h3>
+                        <p id="modal-concert-location"></p>
+                    </div>
+                </div>
+
+                <!-- Ticket form -->
+                <form class="ticket-form" id="ticket-form">
+                    <input type="hidden" id="concert-id" name="concertId">
+
+                    <div class="form-group">
+                        <label for="ticket-name">Navn *</label>
+                        <input type="text" id="ticket-name" name="name" required autocomplete="name" placeholder="Ditt fulle navn">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ticket-email">E-post *</label>
+                        <input type="email" id="ticket-email" name="email" required autocomplete="email" placeholder="din@epost.no">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ticket-phone">Telefon</label>
+                        <input type="tel" id="ticket-phone" name="phone" autocomplete="tel" placeholder="+47 xxx xx xxx">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ticket-count">Antall billetter *</label>
+                        <div class="ticket-counter">
+                            <button type="button" class="counter-btn" id="decrease-tickets" aria-label="Reduser antall">−</button>
+                            <input type="number" id="ticket-count" name="ticketCount" value="1" min="1" max="10" required readonly>
+                            <button type="button" class="counter-btn" id="increase-tickets" aria-label="Øk antall">+</button>
+                        </div>
+                        <p class="tickets-available" id="tickets-available"></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ticket-message">Melding (valgfritt)</label>
+                        <textarea id="ticket-message" name="message" rows="3" placeholder="Spesielle ønsker eller behov..."></textarea>
+                    </div>
+
+                    <div class="form-price" id="form-price">
+                        <span>Totalt:</span>
+                        <span id="total-price">0 kr</span>
+                    </div>
+
+                    <button type="submit" class="btn btn--primary btn--full" id="submit-btn">
+                        <span id="submit-text">Bestill billetter</span>
+                        <span id="submit-spinner" class="btn-spinner" hidden></span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Success state -->
+            <div class="modal__success" id="modal-success" hidden>
+                <div class="success-icon">✓</div>
+                <h3>Takk for din bestilling!</h3>
+                <div class="success-details" id="success-details"></div>
+                <p>Du vil motta en bekreftelse på e-post.</p>
+                <button type="button" class="btn btn--secondary" id="close-success">Lukk</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit concert modal -->
+    <div class="post-modal" id="editConcertModal" hidden>
+        <div class="post-modal-content">
+            <div class="post-modal-header">
+                <h3>Rediger konsert</h3>
+                <button class="post-modal-close" id="editConcertModalClose" title="Lukk">&#10005;</button>
+            </div>
+            <div class="post-modal-body">
+                <div class="form-group">
+                    <label for="editConcertTitle">Tittel</label>
+                    <input type="text" id="editConcertTitle" placeholder="Konserttittel..." maxlength="200">
+                </div>
+                <div class="form-group">
+                    <label for="editConcertDescription">Beskrivelse</label>
+                    <textarea id="editConcertDescription" placeholder="Beskriv konserten..." maxlength="5000"></textarea>
+                </div>
+            </div>
+            <div class="post-modal-footer">
+                <button class="post-delete-btn" id="editConcertDelete">Slett konsert</button>
+                <button class="post-cancel-btn" id="editConcertCancel">Avbryt</button>
+                <button class="post-submit-btn" id="editConcertSave">Lagre</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loader" id="loader">
+        <div class="loader__content">
+            <div class="loader__spinner"></div>
+            <p class="loader__text">Laster konserter...</p>
+        </div>
+    </div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/konserter.js"></script>
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Min profil - Kammerkoret Utsikten</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/minprofil.css">
+</head>
+<body>
+    <div class="wrap">
+        <!-- Topbar -->
+        <header class="uts-topbar" aria-label="Navigasjon">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <span class="uts-brandMiniText">Kammerkoret Utsikten</span>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema" aria-label="Bytt mellom lys og mørk modus">
+                    🌙
+                </button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">
+                    ☰
+                </button>
+            </div>
+        </header>
+
+        <!-- Menu overlay -->
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader">
+                    <h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+                </div>
+                <nav class="uts-menuList" id="menuList"></nav>
+            </div>
+        </div>
+
+        <!-- Page title -->
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>Min profil</h1>
+                    <p class="sub">Oppdater din informasjon og innstillinger</p>
+                </div>
+                <div class="logoWrap">
+                    <span style="font-size: 32px;">👤</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Personlig informasjon -->
+        <section class="card content">
+            <h2 class="section-title">Min informasjon</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label" for="nameInput">Navn</label>
+                    <input type="text" id="nameInput" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="emailInput">E-post</label>
+                    <input type="email" id="emailInput" class="form-input" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="phoneInput">Telefon</label>
+                    <input type="tel" id="phoneInput" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="voiceInput">Stemmegruppe</label>
+                    <select id="voiceInput" class="form-select">
+                        <option value="">— Velg —</option>
+                        <option value="sopran 1">Sopran 1</option>
+                        <option value="sopran 2">Sopran 2</option>
+                        <option value="alt 1">Alt 1</option>
+                        <option value="alt 2">Alt 2</option>
+                        <option value="tenor 1">Tenor 1</option>
+                        <option value="tenor 2">Tenor 2</option>
+                        <option value="bass 1">Bass 1</option>
+                        <option value="bass 2">Bass 2</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- E-postvarsler -->
+        <section class="card content">
+            <h2 class="section-title">E-postvarsler</h2>
+            <p class="section-desc">Velg hva du ønsker å bli varslet om på e-post.</p>
+            <label class="toggle-row">
+                <input type="checkbox" id="notifyPosts"> Nye innlegg
+            </label>
+            <label class="toggle-row">
+                <input type="checkbox" id="notifyEvents"> Nye arrangementer
+            </label>
+            <label class="toggle-row">
+                <input type="checkbox" id="notifyMessages"> Meldinger fra styret
+            </label>
+        </section>
+
+        <!-- App-innstillinger -->
+        <section class="card content">
+            <h2 class="section-title">App-innstillinger</h2>
+            <div class="form-group">
+                <label class="form-label" for="themeSelect">Tema</label>
+                <select id="themeSelect" class="form-select">
+                    <option value="dark">Mørkt</option>
+                    <option value="light">Lyst</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Lagre -->
+        <section class="card content profile-actions">
+            <button class="btn btn--primary" id="saveProfileBtn">Lagre endringer</button>
+        </section>
+
+        <!-- Footer -->
+        <footer class="card footer" aria-label="Informasjon">
+            <p class="footerTitle">Informasjon</p>
+            <div class="contactGrid">
+                <div class="contactBox">
+                    © <span id="currentYear"></span> Kammerkoret Utsikten
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loader" id="loader">
+        <div class="loader__content">
+            <div class="loader__spinner"></div>
+            <p class="loader__text">Laster profil...</p>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/minprofil.js"></script>
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

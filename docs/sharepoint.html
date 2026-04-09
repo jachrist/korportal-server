@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <title>SharePoint-lister - Dokumentasjon</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/docs/docs.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <a href="/docs/" style="text-decoration:none;display:flex;align-items:center;gap:8px">
+                    <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                    <span class="uts-brandMiniText">Dokumentasjon</span>
+                </a>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">&#x1F319;</button>
+            </div>
+        </header>
+
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>SharePoint-lister</h1>
+                    <p class="sub">Listestrukturer, kolonner og Power Automate-navnestandard</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="card content docs-content">
+
+            <h2>Power Automate navnestandard</h2>
+            <p>Format: <code>[Prosjekt] - [Modul] - [Handling] - [Beskrivelse]</code></p>
+            <p>Prefix: Alle flows starter med <code>Utsikten -</code></p>
+
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Flow-navn</th>
+                        <th>Metode</th>
+                        <th>Beskrivelse</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Utsikten - Forside - GET - Artikkel</td>
+                        <td>GET</td>
+                        <td>Henter forsideartikkel</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Forside - GET - Kontaktpersoner</td>
+                        <td>GET</td>
+                        <td>Henter kontaktpersoner</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Forside - GET - Hurtiglenker</td>
+                        <td>GET</td>
+                        <td>Henter hurtiglenker</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Meldinger - GET - Liste</td>
+                        <td>GET</td>
+                        <td>Henter meldinger fra styret</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Meldinger - POST - Ny</td>
+                        <td>POST</td>
+                        <td>Oppretter ny melding</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Meldinger - POST - Kommentar</td>
+                        <td>POST</td>
+                        <td>Legger til kommentar</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Innlegg - GET - Liste</td>
+                        <td>GET</td>
+                        <td>Henter medlemsinnlegg</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Innlegg - POST - Nytt</td>
+                        <td>POST</td>
+                        <td>Oppretter nytt innlegg</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Innlegg - POST - Kommentar</td>
+                        <td>POST</td>
+                        <td>Legger til kommentar</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Ovelse - GET - Program</td>
+                        <td>GET</td>
+                        <td>Henter ovelsesrepertoar</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Ovelse - POST - Sideskift</td>
+                        <td>POST</td>
+                        <td>Lagrer sideskifttidspunkter</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Noter - GET - Bibliotek</td>
+                        <td>GET</td>
+                        <td>Henter notebiblioteket</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Nedlasting - GET - Filer</td>
+                        <td>GET</td>
+                        <td>Henter nedlastbare filer</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Konserter - GET - Liste</td>
+                        <td>GET</td>
+                        <td>Henter konserter</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Konserter - POST - Billett</td>
+                        <td>POST</td>
+                        <td>Bestiller billetter</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Billetter - GET - Ubetalte</td>
+                        <td>GET</td>
+                        <td>Henter ubetalte reservasjoner</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Billetter - POST - MarkerBetalt</td>
+                        <td>POST</td>
+                        <td>Markerer som betalt</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Billetter - POST - Slett</td>
+                        <td>POST</td>
+                        <td>Sletter ubetalte reservasjoner</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Musikk - GET - Konserter</td>
+                        <td>GET</td>
+                        <td>Henter innspilte konserter</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Medlemmer - GET - Side</td>
+                        <td>GET</td>
+                        <td>Henter medlemsside-data</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Medlemmer - POST - RSVP</td>
+                        <td>POST</td>
+                        <td>Registrerer deltakelse</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Auth - POST - SendKode</td>
+                        <td>POST</td>
+                        <td>Sender engangskode</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Auth - POST - VerifiserKode</td>
+                        <td>POST</td>
+                        <td>Verifiserer kode</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Billettkontroll - POST - Valider</td>
+                        <td>POST</td>
+                        <td>Validerer billettreferanse</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Filer - GET - Liste</td>
+                        <td>GET</td>
+                        <td>Henter filer med metadata</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Filer - POST - OppdaterMetadata</td>
+                        <td>POST</td>
+                        <td>Oppdaterer metadata</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Blob - POST - LastOpp</td>
+                        <td>POST</td>
+                        <td>Laster opp til blob</td>
+                    </tr>
+                    <tr>
+                        <td>Utsikten - Blob - POST - Tom</td>
+                        <td>POST</td>
+                        <td>Tommer blob-storage</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Responseformat</h2>
+            <p>GET-flows returnerer:</p>
+            <pre><code>{ success: true, data: [...], count: N }</code></pre>
+            <p>POST-flows returnerer:</p>
+            <pre><code>{ success: true, message: "...", id: "..." }</code></pre>
+            <p>Feil:</p>
+            <pre><code>{ success: false, error: "Feilmelding" }</code></pre>
+
+            <h2>SharePoint-lister</h2>
+
+            <h3>Navigasjon</h3>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Kolonne</th>
+                        <th>Type</th>
+                        <th>Beskrivelse</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Title</td>
+                        <td>Tekst</td>
+                        <td>Visningsnavn for navigasjonselementet</td>
+                    </tr>
+                    <tr>
+                        <td>URL</td>
+                        <td>Tekst</td>
+                        <td>Lenke til siden</td>
+                    </tr>
+                    <tr>
+                        <td>Icon</td>
+                        <td>Tekst</td>
+                        <td>Ikonnavn</td>
+                    </tr>
+                    <tr>
+                        <td>Order</td>
+                        <td>Tall</td>
+                        <td>Sorteringsrekkefolge</td>
+                    </tr>
+                    <tr>
+                        <td>OpenInNewTab</td>
+                        <td>Ja/Nei</td>
+                        <td>Apne i ny fane</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Billettreservasjoner</h3>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Kolonne</th>
+                        <th>Type</th>
+                        <th>Beskrivelse</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Title</td>
+                        <td>Tekst</td>
+                        <td>Kundens navn</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>Tekst</td>
+                        <td>E-postadresse</td>
+                    </tr>
+                    <tr>
+                        <td>Phone</td>
+                        <td>Tekst</td>
+                        <td>Telefonnummer</td>
+                    </tr>
+                    <tr>
+                        <td>ConcertId</td>
+                        <td>Oppslag</td>
+                        <td>Referanse til konsert</td>
+                    </tr>
+                    <tr>
+                        <td>TicketCount</td>
+                        <td>Tall</td>
+                        <td>Antall billetter</td>
+                    </tr>
+                    <tr>
+                        <td>TotalPrice</td>
+                        <td>Tall</td>
+                        <td>Totalpris</td>
+                    </tr>
+                    <tr>
+                        <td>ReferenceNumber</td>
+                        <td>Tekst</td>
+                        <td>Unik referansekode</td>
+                    </tr>
+                    <tr>
+                        <td>ReservationDate</td>
+                        <td>Dato</td>
+                        <td>Tidspunkt for reservasjon</td>
+                    </tr>
+                    <tr>
+                        <td>IsPaid</td>
+                        <td>Ja/Nei</td>
+                        <td>Om betalingen er mottatt</td>
+                    </tr>
+                    <tr>
+                        <td>PaidDate</td>
+                        <td>Dato</td>
+                        <td>Tidspunkt for betaling</td>
+                    </tr>
+                    <tr>
+                        <td>IsCheckedIn</td>
+                        <td>Ja/Nei</td>
+                        <td>Om billetten er sjekket inn</td>
+                    </tr>
+                    <tr>
+                        <td>CheckinTime</td>
+                        <td>Dato</td>
+                        <td>Tidspunkt for innsjekking</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Filbibliotek</h3>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Kolonne</th>
+                        <th>Type</th>
+                        <th>Beskrivelse</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>id</td>
+                        <td>Automatisk</td>
+                        <td>Unik identifikator</td>
+                    </tr>
+                    <tr>
+                        <td>Navn</td>
+                        <td>Tekst</td>
+                        <td>Filnavn</td>
+                    </tr>
+                    <tr>
+                        <td>Kategori</td>
+                        <td>Valg</td>
+                        <td>Note / Opptak / Ovefil / Sideskift</td>
+                    </tr>
+                    <tr>
+                        <td>URL</td>
+                        <td>URL</td>
+                        <td>Lenke til filen</td>
+                    </tr>
+                    <tr>
+                        <td>Sortering</td>
+                        <td>Tall</td>
+                        <td>Sorteringsrekkefolge</td>
+                    </tr>
+                    <tr>
+                        <td>Verk</td>
+                        <td>Tekst</td>
+                        <td>Tilknyttet verk</td>
+                    </tr>
+                    <tr>
+                        <td>Stemme</td>
+                        <td>Valg</td>
+                        <td>Stemmegruppe</td>
+                    </tr>
+                    <tr>
+                        <td>Anledning</td>
+                        <td>Tekst</td>
+                        <td>Konsert eller anledning</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="docs-note">
+                <strong>Merk:</strong> Se <code>sharepoint/list-schemas.md</code> for komplett dokumentasjon av alle lister.
+            </div>
+
+            <nav class="docs-nav">
+                <a href="/docs/autentisering.html">&larr; Autentisering og roller</a>
+                <a href="/docs/deploy.html">Deploy og hosting &rarr;</a>
+            </nav>
+        </section>
+
+        <footer class="card footer">
+            <div class="footer__content">
+                <p class="footer__copyright">&copy; <span id="currentYear"></span> Kammerkoret Utsikten</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const themeBtn = document.getElementById('themeBtn');
+        const saved = localStorage.getItem('korportal-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        themeBtn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('korportal-theme', next);
+            themeBtn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        });
+    </script>
+</body>
+</html>

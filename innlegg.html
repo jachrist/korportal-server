@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kammerkoret Utsikten">
+    <meta name="description" content="Innlegg fra medlemmer - Kammerkoret Utsikten">
+    <title>Innlegg - Kammerkoret Utsikten</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Favicon og ikoner -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/icon-16.png">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/innlegg.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="uts-topbar">
+        <div class="uts-brandMini">
+            <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+            <span class="uts-brandMiniText">Innlegg</span>
+        </div>
+        <div class="uts-topActions">
+            <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">🌙</button>
+            <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">☰</button>
+        </div>
+    </header>
+
+    <!-- Menu overlay -->
+    <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+        <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+            <div class="uts-menuHeader">
+                <h3>Meny</h3>
+                <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+            </div>
+            <nav class="uts-menuList" id="menuList"></nav>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <main class="innlegg-main">
+        <div class="innlegg-container">
+            <!-- Header with search and new post button -->
+            <div class="innlegg-header">
+                <div class="innlegg-header__top">
+                    <h1>Innlegg fra medlemmer</h1>
+                    <button class="new-post-btn" id="newPostBtn">
+                        ✏️ Skriv innlegg
+                    </button>
+                </div>
+                <div class="search-box">
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Søk i innlegg..."
+                        aria-label="Søk i innlegg"
+                    >
+                    <span class="search-icon">🔍</span>
+                </div>
+            </div>
+
+            <!-- Posts list -->
+            <div class="innlegg-list" id="innleggList">
+                <!-- Posts loaded dynamically -->
+            </div>
+
+            <!-- Load more button -->
+            <div class="load-more-container" id="loadMoreContainer" hidden>
+                <button class="load-more-btn" id="loadMoreBtn">
+                    Vis flere innlegg
+                </button>
+            </div>
+
+            <!-- Empty state -->
+            <div class="innlegg-empty" id="emptyState" hidden>
+                <span class="empty-icon">📝</span>
+                <p id="emptyText">Ingen innlegg å vise</p>
+                <button class="new-post-btn" id="emptyNewPostBtn">
+                    ✏️ Skriv det første innlegget
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- New post modal -->
+    <div class="post-modal" id="postModal" hidden>
+        <div class="post-modal-content">
+            <div class="post-modal-header">
+                <h3>Skriv nytt innlegg</h3>
+                <button class="post-modal-close" id="postModalClose" title="Lukk">✕</button>
+            </div>
+            <div class="post-modal-body">
+                <div class="form-group">
+                    <label for="postTitle">Tittel *</label>
+                    <input
+                        type="text"
+                        id="postTitle"
+                        placeholder="Gi innlegget en tittel..."
+                        maxlength="200"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="postContent">Innhold *</label>
+                    <textarea
+                        id="postContent"
+                        placeholder="Skriv innlegget ditt her..."
+                        maxlength="5000"
+                        required
+                    ></textarea>
+                    <p class="form-hint">Du kan bruke enkel formatering: *kursiv*, **fet**, - punktliste</p>
+                </div>
+            </div>
+            <div class="post-modal-footer">
+                <button class="post-cancel-btn" id="postCancel">Avbryt</button>
+                <button class="post-submit-btn" id="postSubmit">Publiser innlegg</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comment modal -->
+    <div class="comment-modal" id="commentModal" hidden>
+        <div class="comment-modal-content">
+            <div class="comment-modal-header">
+                <h3>Skriv kommentar</h3>
+                <button class="comment-modal-close" id="commentModalClose" title="Lukk">✕</button>
+            </div>
+            <div class="comment-modal-body">
+                <textarea
+                    id="commentText"
+                    placeholder="Skriv din kommentar her..."
+                    maxlength="1000"
+                ></textarea>
+            </div>
+            <div class="comment-modal-footer">
+                <button class="comment-cancel-btn" id="commentCancel">Avbryt</button>
+                <button class="comment-submit-btn" id="commentSubmit">Send kommentar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loader" id="loader">
+        <div class="loader__content">
+            <div class="loader__spinner"></div>
+            <p class="loader__text">Laster innlegg...</p>
+        </div>
+    </div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/innlegg.js"></script>
+
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

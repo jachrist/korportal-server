@@ -1,0 +1,313 @@
+/**
+ * MusicXML Tools Styles - Kammerkoret Utsikten
+ * Delte stiler for fonetisk konvertering og repetisjonsekspandering
+ */
+
+/* Drop zone */
+.mxml-dropzone {
+    border: 2px dashed var(--line);
+    border-radius: var(--radius-sm);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+    position: relative;
+}
+
+.mxml-dropzone:hover,
+.mxml-dropzone.drag-over {
+    border-color: var(--accent);
+    background: rgba(93, 214, 255, 0.05);
+}
+
+[data-theme="light"] .mxml-dropzone:hover,
+[data-theme="light"] .mxml-dropzone.drag-over {
+    background: rgba(0, 119, 204, 0.05);
+}
+
+.mxml-dropzone__icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.mxml-dropzone__text {
+    color: var(--muted);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+}
+
+.mxml-dropzone__text strong {
+    color: var(--accent);
+}
+
+.mxml-dropzone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* File info (shown after file selected) */
+.mxml-file-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: var(--card2);
+    border-radius: var(--radius-xs);
+    margin-top: 1rem;
+    font-size: var(--font-size-sm);
+}
+
+.mxml-file-info[hidden] {
+    display: none;
+}
+
+.mxml-file-name {
+    color: var(--text);
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 0.5rem;
+}
+
+.mxml-file-remove {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: var(--font-size-lg);
+    padding: 0 0.25rem;
+    line-height: 1;
+}
+
+.mxml-file-remove:hover {
+    color: #ef4444;
+}
+
+/* Options row */
+.mxml-options {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.mxml-options label {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.mxml-options select {
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--line);
+    background: var(--card2);
+    color: var(--text);
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family);
+    cursor: pointer;
+}
+
+/* Action buttons */
+.mxml-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.mxml-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border: none;
+    border-radius: var(--radius-xs);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    font-family: var(--font-family);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.mxml-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.mxml-btn--primary {
+    background: var(--accent);
+    color: #0b1220;
+}
+
+.mxml-btn--primary:hover:not(:disabled) {
+    background: var(--accent-hover);
+}
+
+.mxml-btn--download {
+    background: var(--card2);
+    color: var(--text);
+    border: 1px solid var(--line);
+}
+
+.mxml-btn--download:hover:not(:disabled) {
+    background: var(--card);
+    border-color: var(--accent);
+}
+
+/* Result info */
+.mxml-result {
+    margin-top: 1rem;
+    padding: 0.875rem 1rem;
+    border-radius: var(--radius-xs);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+}
+
+.mxml-result[hidden] {
+    display: none;
+}
+
+.mxml-result--success {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    color: #22c55e;
+}
+
+.mxml-result--error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #ef4444;
+}
+
+/* Processing spinner */
+.mxml-btn .spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: mxml-spin 0.6s linear infinite;
+}
+
+.mxml-btn.processing .spinner {
+    display: inline-block;
+}
+
+.mxml-btn.processing .btn-label {
+    display: none;
+}
+
+@keyframes mxml-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* WAV file list */
+.wav-file-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+    font-size: var(--font-size-sm);
+}
+
+.wav-file-count {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.wav-clear-all {
+    font-size: var(--font-size-sm) !important;
+    color: var(--muted) !important;
+    padding: 0.25rem 0.5rem !important;
+}
+
+.wav-clear-all[hidden] {
+    display: none;
+}
+
+.wav-file-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+}
+
+.wav-file-list[hidden] {
+    display: none;
+}
+
+.wav-file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    font-size: var(--font-size-sm);
+    border-bottom: 1px solid var(--line);
+}
+
+.wav-file-item:last-child {
+    border-bottom: none;
+}
+
+.wav-file-item__name {
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 0.5rem;
+}
+
+/* Progress bar */
+.wav-progress {
+    margin-top: 1rem;
+}
+
+.wav-progress[hidden] {
+    display: none;
+}
+
+.wav-progress__track {
+    height: 6px;
+    background: var(--card2);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.wav-progress__bar {
+    height: 100%;
+    width: 0;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.wav-progress__text {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: var(--font-size-xs, 0.75rem);
+    color: var(--muted);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .mxml-dropzone {
+        padding: 1.5rem 1rem;
+    }
+
+    .mxml-actions {
+        flex-direction: column;
+    }
+
+    .mxml-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

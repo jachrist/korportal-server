@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Musikk">
+    <meta name="description" content="Hør innspillinger fra Kammerkoret Utsikten">
+    <title>Musikk fra oss - Kammerkoret Utsikten</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Favicon og ikoner -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/icon-16.png">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/musikk.css">
+</head>
+<body>
+    <div class="wrap">
+        <!-- Topbar -->
+        <header class="uts-topbar" aria-label="Navigasjon">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <div class="uts-brandMiniText">Kammerkoret Utsikten</div>
+            </div>
+
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema" aria-label="Bytt mellom lys og mørk modus">
+                    🌙
+                </button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">
+                    ☰
+                </button>
+            </div>
+        </header>
+
+        <!-- Menu overlay -->
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader">
+                    <h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+                </div>
+                <nav class="uts-menuList" id="menuList"></nav>
+            </div>
+        </div>
+
+        <!-- Page header -->
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>Musikk fra oss</h1>
+                    <p class="sub">Hør innspillinger fra Kammerkoret Utsikten</p>
+                </div>
+                <div class="logoWrap">
+                    <span style="font-size: 32px;">🎧</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Concerts container -->
+        <div id="concertsContainer">
+            <!-- Concerts loaded dynamically -->
+            <section class="card content">
+                <div class="skeleton-concert">
+                    <div class="skeleton-line skeleton-line--title"></div>
+                    <div class="skeleton-line skeleton-line--text"></div>
+                    <div class="skeleton-line skeleton-line--short"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Footer -->
+        <footer class="card footer">
+            <div class="footer__content">
+                <p class="footer__copyright">© <span id="currentYear"></span> Kammerkoret Utsikten</p>
+                <p class="footer__link"><a href="https://www.kammerkoretutsikten.no" target="_blank" rel="noopener">kammerkoretutsikten.no</a></p>
+                <p class="footer__link"><a href="mailto:admin@kammerkoretutsikten.no">admin@kammerkoretutsikten.no</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loader" id="loader">
+        <div class="loader__content">
+            <div class="loader__spinner"></div>
+            <p class="loader__text">Laster musikk...</p>
+        </div>
+    </div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/musikk.js"></script>
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

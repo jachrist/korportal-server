@@ -1,0 +1,70 @@
+{
+    "BaseUrl": "https://musikk.example.com/",
+    "konserter": [
+        {
+            "id": "1",
+            "navn": "Konsert 1",
+            "dato": "2024-05-15",
+            "sted": "Konsertsalen",
+            "bilder": [
+                {
+                    "url": "https://musikk.example.com/konsert1-bilder/bilde1.png",
+                    "beskrivelse": "Bilde fra Konsert 1 - 1"
+                }
+            ],
+            "musikk": [
+                {
+                    "Nr": "1",
+                    "Tittel": "Stein på Stein Utsikten",
+                    "Komponist": "Ola Nordmann",
+                    "Filnavn": "Stein på Stein Utsikten.mp3"
+                },
+                {
+                    "Nr": "2",
+                    "Tittel": "Når himmelen faller ned",
+                    "Komponist": "Kari Nordmann",
+                    "Filnavn": "Når himmelen faller ned Utsikten.mp3"
+                },
+                {
+                    "Nr": "3",
+                    "Tittel": "Lean on Me Utsikten",
+                    "Komponist": "Bill Withers",
+                    "Filnavn": "Lean on Me Utsikten.mp3"
+                },
+                {
+                    "Nr": "4",
+                    "Tittel": "Himmelhøge sti",
+                    "Komponist": "Lars Larsen",
+                    "Filnavn": "Himmelhøge sti.mp3"
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "navn": "Konsert 2",
+            "dato": "2024-06-20",
+            "sted": "Teatret",
+            "bilder": [
+                {
+                    "url": "https://musikk.example.com/konsert2-bilder/bilde1.png",
+                    "beskrivelse": "Bilde fra Konsert 2 - 1"
+                }
+            ],
+            "musikk": [
+                {
+                    "Nr": "1",
+                    "Tittel": "Vårens Sang",
+                    "Komponist": "Eva Hansen",
+                    "Filnavn": "Vårens Sang.mp3"
+                },
+                {
+                    "Nr": "2",
+                    "Tittel": "Sommerbris",
+                    "Komponist": "Per Olsen",
+                    "Filnavn": "Sommerbris.mp3"
+                }
+                
+            ]
+        }
+    ]
+}

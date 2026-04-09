@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kammerkoret Utsikten">
+    <meta name="description" content="Administrasjon - Kammerkoret Utsikten">
+    <title>Admin - Kammerkoret Utsikten</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Favicon og ikoner -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/icon-16.png">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/musicxml-tools.css">
+</head>
+<body>
+    <div class="wrap">
+        <!-- Header -->
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <span class="uts-brandMiniText">Kammerkoret Utsikten</span>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">🌙</button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">☰</button>
+            </div>
+        </header>
+
+        <!-- Menu overlay -->
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader">
+                    <h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+                </div>
+                <nav class="uts-menuList" id="menuList"></nav>
+            </div>
+        </div>
+
+        <!-- Page header -->
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>Administrasjon</h1>
+                    <p class="sub">Innstillinger for korportalen</p>
+                </div>
+                <div class="logoWrap">
+                    <span style="font-size: 32px;">⚙️</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Endpoint status -->
+        <section class="card content">
+            <h2 class="section__title">Endepunkt-status</h2>
+            <p class="section__description">Oversikt over konfigurerte Power Automate-endepunkter i <code>env.js</code>.</p>
+
+            <div class="data-status" id="dataStatus">
+                <span class="status-indicator" id="statusIndicator"></span>
+                <span class="status-text" id="statusText">Sjekker...</span>
+            </div>
+
+            <div class="endpoint-status" id="endpointStatus">
+                <div class="endpoint-list" id="endpointList">
+                    <!-- Filled dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Cache management -->
+        <section class="card content">
+            <h2 class="section__title">Cache</h2>
+            <p class="section__description">Tøm mellomlagrede data for å tvinge ny henting fra server.</p>
+
+            <div class="button-row">
+                <button class="admin-btn admin-btn--secondary" id="clearCacheBtn">
+                    🗑️ Tøm cache
+                </button>
+                <button class="admin-btn admin-btn--secondary" id="refreshSwBtn">
+                    🔄 Oppdater Service Worker
+                </button>
+            </div>
+        </section>
+
+        <!-- System info -->
+        <section class="card content">
+            <h2 class="section__title">Systeminformasjon</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Versjon</span>
+                    <span class="info-value" id="appVersion">1.0.0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Bruker</span>
+                    <span class="info-value" id="currentUser">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Rolle</span>
+                    <span class="info-value" id="currentRole">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Service Worker</span>
+                    <span class="info-value" id="swStatus">-</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- MusicXML: Fonetisk konvertering -->
+        <section class="card content" id="phonetic-tool">
+            <h2 class="section__title">Fonetisk konvertering (MusicXML)</h2>
+            <p class="section__description">Konverterer norsk sangtekst i MusicXML-filer til fonetisk tysk representasjon for AI-stemmer.</p>
+
+            <div class="mxml-dropzone">
+                <span class="mxml-dropzone__icon">🎵</span>
+                <div class="mxml-dropzone__text">
+                    Dra en MusicXML-fil hit, eller <strong>klikk for å velge</strong>
+                </div>
+                <input type="file" accept=".xml,.musicxml">
+            </div>
+
+            <div class="mxml-file-info" hidden>
+                <span class="mxml-file-name"></span>
+                <button class="mxml-file-remove" title="Fjern fil">&times;</button>
+            </div>
+
+            <div class="mxml-options">
+                <label for="dialectSelect">Dialekt:</label>
+                <select id="dialectSelect">
+                    <option value="bokmaal">Bokmål</option>
+                    <option value="nynorsk">Nynorsk</option>
+                </select>
+            </div>
+
+            <div class="mxml-actions">
+                <button class="mxml-btn mxml-btn--primary" disabled>
+                    <span class="spinner"></span>
+                    <span class="btn-label">Konverter</span>
+                </button>
+                <button class="mxml-btn mxml-btn--download" disabled>
+                    Last ned resultat
+                </button>
+            </div>
+
+            <div class="mxml-result" hidden></div>
+        </section>
+
+        <!-- MusicXML: Repetisjonsekspandering -->
+        <section class="card content" id="repeats-tool">
+            <h2 class="section__title">Repetisjonsekspandering (MusicXML)</h2>
+            <p class="section__description">Ekspanderer repetisjoner, D.S., D.C., Coda og Fine til en lineær taktrekkefølge.</p>
+
+            <div class="mxml-dropzone">
+                <span class="mxml-dropzone__icon">🔁</span>
+                <div class="mxml-dropzone__text">
+                    Dra en MusicXML-fil hit, eller <strong>klikk for å velge</strong>
+                </div>
+                <input type="file" accept=".xml,.musicxml">
+            </div>
+
+            <div class="mxml-file-info" hidden>
+                <span class="mxml-file-name"></span>
+                <button class="mxml-file-remove" title="Fjern fil">&times;</button>
+            </div>
+
+            <div class="mxml-actions">
+                <button class="mxml-btn mxml-btn--primary" disabled>
+                    <span class="spinner"></span>
+                    <span class="btn-label">Ekspander</span>
+                </button>
+                <button class="mxml-btn mxml-btn--download" disabled>
+                    Last ned resultat
+                </button>
+            </div>
+
+            <div class="mxml-result" hidden></div>
+        </section>
+
+        <!-- WAV til MP3 konvertering -->
+        <section class="card content" id="wav-mp3-tool">
+            <h2 class="section__title">WAV → MP3 konvertering</h2>
+            <p class="section__description">Konverterer WAV-filer til MP3 (128 kbps) og pakker dem i en ZIP-fil for nedlasting.</p>
+
+            <div class="mxml-dropzone">
+                <span class="mxml-dropzone__icon">🎧</span>
+                <div class="mxml-dropzone__text">
+                    Dra WAV-filer hit, eller <strong>klikk for å velge</strong>
+                </div>
+                <input type="file" accept=".wav" multiple>
+            </div>
+
+            <div class="wav-file-header">
+                <span class="wav-file-count">Ingen filer valgt</span>
+                <button class="wav-clear-all mxml-file-remove" hidden>Fjern alle</button>
+            </div>
+
+            <div class="wav-file-list" hidden></div>
+
+            <div class="mxml-actions">
+                <button class="mxml-btn mxml-btn--primary" disabled>
+                    <span class="spinner"></span>
+                    <span class="btn-label">Konverter</span>
+                </button>
+                <button class="mxml-btn mxml-btn--download" disabled>
+                    Last ned ZIP
+                </button>
+            </div>
+
+            <div class="wav-progress" hidden>
+                <div class="wav-progress__track">
+                    <div class="wav-progress__bar"></div>
+                </div>
+                <span class="wav-progress__text"></span>
+            </div>
+
+            <div class="mxml-result" hidden></div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="card footer">
+            <div class="footer__content">
+                <p class="footer__copyright">© <span id="currentYear"></span> Kammerkoret Utsikten</p>
+                <p class="footer__link"><a href="https://www.kammerkoretutsikten.no" target="_blank" rel="noopener">kammerkoretutsikten.no</a></p>
+                <p class="footer__link"><a href="mailto:admin@kammerkoretutsikten.no">admin@kammerkoretutsikten.no</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loader" id="loader">
+        <div class="loader__content">
+            <div class="loader__spinner"></div>
+            <p class="loader__text">Laster...</p>
+        </div>
+    </div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/admin.js"></script>
+
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

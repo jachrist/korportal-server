@@ -1,0 +1,489 @@
+/* ==========================================================================
+   Musikk - Styles
+   ========================================================================== */
+
+/* ==========================================================================
+   SKELETON LOADING
+   ========================================================================== */
+.skeleton-concert {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.skeleton-line {
+    background: linear-gradient(90deg, var(--card2) 25%, var(--line) 50%, var(--card2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-xs);
+    height: 16px;
+}
+
+.skeleton-line--title {
+    height: 28px;
+    width: 50%;
+}
+
+.skeleton-line--text {
+    width: 100%;
+}
+
+.skeleton-line--short {
+    width: 30%;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ==========================================================================
+   CONCERT CARD
+   ========================================================================== */
+.concert-music-card {
+    margin-bottom: var(--space-lg);
+}
+
+.concert-header {
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--line);
+}
+
+.concert-title {
+    font-size: var(--font-size-2xl);
+    font-weight: 800;
+    color: var(--text);
+    margin: 0 0 var(--space-sm);
+}
+
+.concert-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    font-size: var(--font-size-sm);
+    color: var(--muted);
+}
+
+.concert-meta__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+/* ==========================================================================
+   IMAGE CAROUSEL
+   ========================================================================== */
+.concert-gallery {
+    margin-bottom: var(--space-lg);
+}
+
+.gallery-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: var(--card2);
+}
+
+.gallery-track {
+    display: flex;
+    transition: transform 0.3s ease;
+}
+
+.gallery-slide {
+    flex: 0 0 100%;
+    min-width: 0;
+}
+
+.gallery-slide img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.gallery-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1px solid var(--line);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    opacity: 0.8;
+    z-index: 10;
+}
+
+.gallery-nav:hover {
+    opacity: 1;
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+}
+
+.gallery-nav--prev {
+    left: var(--space-sm);
+}
+
+.gallery-nav--next {
+    right: var(--space-sm);
+}
+
+.gallery-nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.gallery-dots {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-xs);
+    margin-top: var(--space-sm);
+}
+
+.gallery-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--line);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    padding: 0;
+}
+
+.gallery-dot--active {
+    background: var(--accent);
+    transform: scale(1.2);
+}
+
+/* Thumbnails for multiple images */
+.gallery-thumbs {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+    overflow-x: auto;
+    padding-bottom: var(--space-xs);
+}
+
+.gallery-thumb {
+    flex: 0 0 80px;
+    height: 60px;
+    border-radius: var(--radius-xs);
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all var(--transition-fast);
+    opacity: 0.6;
+}
+
+.gallery-thumb:hover {
+    opacity: 0.9;
+}
+
+.gallery-thumb--active {
+    border-color: var(--accent);
+    opacity: 1;
+}
+
+.gallery-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ==========================================================================
+   AUDIO PLAYER - Minimalist Design
+   ========================================================================== */
+.audio-player {
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: var(--space-lg);
+}
+
+.player-now-playing {
+    text-align: center;
+    margin-bottom: var(--space-lg);
+}
+
+.player-track-number {
+    font-size: var(--font-size-xs);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: var(--space-xs);
+}
+
+.player-track-title {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 var(--space-xs);
+}
+
+.player-track-composer {
+    font-size: var(--font-size-sm);
+    color: var(--muted);
+}
+
+/* Progress bar */
+.player-progress {
+    margin-bottom: var(--space-lg);
+}
+
+.player-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--line);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.player-progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+.player-time {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-xs);
+    color: var(--muted);
+    margin-top: var(--space-xs);
+}
+
+/* Controls */
+.player-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-lg);
+}
+
+.player-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    padding: var(--space-sm);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.player-btn:hover {
+    color: var(--accent);
+    background: var(--line);
+}
+
+.player-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.player-btn--skip {
+    width: 40px;
+    height: 40px;
+}
+
+.player-btn--skip svg {
+    width: 20px;
+    height: 20px;
+}
+
+.player-btn--play {
+    width: 56px;
+    height: 56px;
+    background: var(--accent);
+    color: var(--bg);
+}
+
+.player-btn--play:hover {
+    background: var(--accent-hover);
+    color: var(--bg);
+    transform: scale(1.05);
+}
+
+.player-btn--play svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Track list */
+.player-tracklist {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--line);
+}
+
+.tracklist-title {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--space-md);
+}
+
+.tracklist {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.tracklist-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-xs);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.tracklist-item:hover {
+    background: var(--line);
+}
+
+.tracklist-item--active {
+    background: rgba(93, 214, 255, 0.1);
+}
+
+[data-theme="light"] .tracklist-item--active {
+    background: rgba(0, 119, 204, 0.08);
+}
+
+.tracklist-item--playing .tracklist-number {
+    color: var(--accent);
+}
+
+.tracklist-number {
+    width: 24px;
+    font-size: var(--font-size-sm);
+    color: var(--muted);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.tracklist-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.tracklist-name {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tracklist-item--active .tracklist-name {
+    color: var(--accent);
+}
+
+.tracklist-composer {
+    font-size: var(--font-size-xs);
+    color: var(--muted);
+}
+
+.tracklist-playing-icon {
+    width: 16px;
+    height: 16px;
+    display: none;
+}
+
+.tracklist-item--playing .tracklist-playing-icon {
+    display: block;
+    color: var(--accent);
+}
+
+/* Playing animation bars */
+.playing-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 16px;
+}
+
+.playing-bars span {
+    width: 3px;
+    background: var(--accent);
+    animation: playingBars 0.8s ease-in-out infinite;
+}
+
+.playing-bars span:nth-child(1) { height: 60%; animation-delay: 0s; }
+.playing-bars span:nth-child(2) { height: 100%; animation-delay: 0.2s; }
+.playing-bars span:nth-child(3) { height: 40%; animation-delay: 0.4s; }
+
+@keyframes playingBars {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(0.5); }
+}
+
+/* ==========================================================================
+   EMPTY STATE
+   ========================================================================== */
+.music-empty {
+    text-align: center;
+    padding: var(--space-2xl);
+    color: var(--muted);
+}
+
+.music-empty__icon {
+    font-size: 48px;
+    margin-bottom: var(--space-md);
+    opacity: 0.5;
+}
+
+.music-empty__text {
+    font-size: var(--font-size-base);
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 560px) {
+    .concert-title {
+        font-size: var(--font-size-xl);
+    }
+
+    .gallery-slide img {
+        height: 160px;
+    }
+
+    .player-controls {
+        gap: var(--space-md);
+    }
+
+    .player-btn--play {
+        width: 48px;
+        height: 48px;
+    }
+
+    .player-btn--skip {
+        width: 36px;
+        height: 36px;
+    }
+
+    .gallery-nav {
+        width: 32px;
+        height: 32px;
+    }
+}

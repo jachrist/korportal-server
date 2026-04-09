@@ -1,0 +1,270 @@
+/**
+ * Dokumentasjon - stilark
+ */
+
+/* Table of contents */
+.docs-toc {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.docs-toc__item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--text);
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.docs-toc__item:hover {
+    background: var(--card);
+    border-color: var(--accent);
+}
+
+.docs-toc__icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    width: 2rem;
+    text-align: center;
+}
+
+.docs-toc__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.docs-toc__text strong {
+    font-size: var(--font-size-base);
+    color: var(--accent);
+}
+
+.docs-toc__text span {
+    font-size: var(--font-size-sm);
+    color: var(--muted);
+}
+
+/* Docs content */
+.docs-content h2 {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text);
+    margin: 2rem 0 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.docs-content h2:first-child {
+    margin-top: 0;
+}
+
+.docs-content h3 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text);
+    margin: 1.5rem 0 0.5rem;
+}
+
+.docs-content h4 {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--accent);
+    margin: 1.25rem 0 0.5rem;
+}
+
+.docs-content p {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0.5rem 0;
+}
+
+.docs-content ul,
+.docs-content ol {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.docs-content li {
+    margin: 0.25rem 0;
+}
+
+.docs-content code {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: var(--font-size-xs);
+    padding: 0.15rem 0.4rem;
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--accent);
+}
+
+.docs-content pre {
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+    padding: 1rem 1.25rem;
+    margin: 0.75rem 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.docs-content pre code {
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: var(--font-size-xs);
+    line-height: 1.6;
+}
+
+/* Tables */
+.docs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0;
+    font-size: var(--font-size-sm);
+}
+
+.docs-table th {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    border-bottom: 2px solid var(--line);
+    background: var(--card2);
+}
+
+.docs-table td {
+    padding: 0.5rem 0.75rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+}
+
+.docs-table tr:last-child td {
+    border-bottom: none;
+}
+
+.docs-table tr:hover td {
+    background: var(--card2);
+}
+
+/* Grid for reference boxes */
+.docs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.docs-ref {
+    padding: 1rem;
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+}
+
+.docs-ref h3 {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--accent);
+    margin: 0 0 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Navigation between doc pages */
+.docs-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+}
+
+.docs-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    color: var(--accent);
+    transition: border-color var(--transition-fast);
+}
+
+.docs-nav a:hover {
+    border-color: var(--accent);
+}
+
+/* Diagram / ASCII art */
+.docs-diagram {
+    background: var(--card2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+    padding: 1.25rem;
+    margin: 1rem 0;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: var(--font-size-xs);
+    line-height: 1.5;
+    color: var(--text-secondary);
+    overflow-x: auto;
+    white-space: pre;
+}
+
+/* Callout / note box */
+.docs-note {
+    padding: 0.875rem 1rem;
+    margin: 0.75rem 0;
+    border-radius: var(--radius-xs);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+    border-left: 4px solid var(--accent);
+    background: var(--card2);
+    color: var(--text-secondary);
+}
+
+.docs-note strong {
+    color: var(--accent);
+}
+
+.docs-note--warning {
+    border-left-color: #f59e0b;
+}
+
+.docs-note--warning strong {
+    color: #f59e0b;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .docs-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .docs-nav {
+        flex-direction: column;
+    }
+
+    .docs-table {
+        font-size: var(--font-size-xs);
+    }
+}

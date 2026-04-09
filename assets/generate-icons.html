@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <title>Generer PWA-ikoner</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        h1 { color: #63b3ed; }
+        .step {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        button {
+            background: #63b3ed;
+            color: #0b1220;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #4299e1;
+        }
+        #preview {
+            margin: 20px 0;
+        }
+        #preview img {
+            max-width: 200px;
+            border-radius: 8px;
+        }
+        #output {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .icon-item {
+            text-align: center;
+            background: #0f3460;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .icon-item canvas {
+            display: block;
+            margin: 0 auto 5px;
+        }
+        .icon-item span {
+            font-size: 12px;
+            color: #aaa;
+        }
+        a {
+            color: #63b3ed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generer PWA-ikoner for Korportal</h1>
+
+    <div class="step">
+        <h2>Steg 1: Last opp logo</h2>
+        <p>Velg <code>icons/utsikten-logo.png</code> (helst 512x512 eller større)</p>
+        <input type="file" id="logoInput" accept="image/*">
+        <div id="preview"></div>
+    </div>
+
+    <div class="step">
+        <h2>Steg 2: Generer ikoner</h2>
+        <button id="generateBtn" disabled>Generer alle størrelser</button>
+        <div id="output"></div>
+    </div>
+
+    <div class="step">
+        <h2>Steg 3: Last ned og plasser</h2>
+        <p>Klikk på hvert ikon for å laste ned, og plasser dem i <code>/assets/icons/</code></p>
+        <p>Ikonstørrelser som trengs:</p>
+        <ul>
+            <li>icon-16.png (favicon)</li>
+            <li>icon-32.png (favicon)</li>
+            <li>icon-72.png</li>
+            <li>icon-96.png</li>
+            <li>icon-128.png</li>
+            <li>icon-144.png</li>
+            <li>icon-152.png</li>
+            <li>icon-180.png (Apple touch icon)</li>
+            <li>icon-192.png</li>
+            <li>icon-384.png</li>
+            <li>icon-512.png</li>
+        </ul>
+    </div>
+
+    <script>
+        const sizes = [16, 32, 72, 96, 128, 144, 152, 180, 192, 384, 512];
+        let sourceImage = null;
+
+        document.getElementById('logoInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    sourceImage = img;
+                    document.getElementById('preview').innerHTML = `
+                        <img src="${event.target.result}" alt="Preview">
+                        <p>Original: ${img.width}x${img.height}px</p>
+                    `;
+                    document.getElementById('generateBtn').disabled = false;
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('generateBtn').addEventListener('click', () => {
+            if (!sourceImage) return;
+
+            const output = document.getElementById('output');
+            output.innerHTML = '';
+
+            sizes.forEach(size => {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+
+                // Tegn med hvit/transparent bakgrunn og sentrert logo
+                ctx.fillStyle = '#0b1220';
+                ctx.fillRect(0, 0, size, size);
+
+                // Beregn skalering for å beholde proporsjoner
+                const scale = Math.min(size / sourceImage.width, size / sourceImage.height) * 0.85;
+                const w = sourceImage.width * scale;
+                const h = sourceImage.height * scale;
+                const x = (size - w) / 2;
+                const y = (size - h) / 2;
+
+                ctx.drawImage(sourceImage, x, y, w, h);
+
+                const item = document.createElement('div');
+                item.className = 'icon-item';
+
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `icon-${size}.png`;
+                link.appendChild(canvas);
+
+                const label = document.createElement('span');
+                label.textContent = `icon-${size}.png`;
+
+                item.appendChild(link);
+                item.appendChild(label);
+                output.appendChild(item);
+            });
+        });
+    </script>
+</body>
+</html>

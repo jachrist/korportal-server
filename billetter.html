@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kammerkoret Utsikten">
+    <meta name="description" content="Billettadministrasjon - Kammerkoret Utsikten">
+    <title>Billetter - Kammerkoret Utsikten</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Favicon og ikoner -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/icon-16.png">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/billetter.css">
+</head>
+<body>
+    <div class="wrap">
+        <!-- Header -->
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <span class="uts-brandMiniText">Kammerkoret Utsikten</span>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">🌙</button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">☰</button>
+            </div>
+        </header>
+
+        <!-- Menu overlay -->
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader">
+                    <h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+                </div>
+                <nav class="uts-menuList" id="menuList"></nav>
+            </div>
+        </div>
+
+        <!-- Page header -->
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>Billettadministrasjon</h1>
+                    <p class="sub">Behandle ubetalte billettreservasjoner</p>
+                </div>
+                <div class="logoWrap">
+                    <span style="font-size: 32px;">🎫</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="card content">
+            <div class="ticket-stats" id="ticketStats">
+                <div class="stat-box">
+                    <span class="stat-box__value" id="statReservations">0</span>
+                    <span class="stat-box__label">Reservasjoner</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box__value" id="statTickets">0</span>
+                    <span class="stat-box__label">Billetter</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box__value" id="statTotal">0 kr</span>
+                    <span class="stat-box__label">Totalbeløp</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reservations container -->
+        <div id="reservationsContainer"></div>
+
+        <!-- Footer -->
+        <footer class="card footer">
+            <div class="footer__content">
+                <p class="footer__copyright">© <span id="currentYear"></span> Kammerkoret Utsikten</p>
+                <p class="footer__link"><a href="https://www.kammerkoretutsikten.no" target="_blank" rel="noopener">kammerkoretutsikten.no</a></p>
+                <p class="footer__link"><a href="mailto:admin@kammerkoretutsikten.no">admin@kammerkoretutsikten.no</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Submit bar -->
+    <div class="submit-bar" id="submitBar">
+        <span class="submit-bar__text"><span class="submit-bar__count" id="selectedCount">0</span> reservasjoner valgt</span>
+        <button class="submit-bar__btn" id="submitBtn">Marker som betalt</button>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loader" id="loader">
+        <div class="loader__content">
+            <div class="loader__spinner"></div>
+            <p class="loader__text">Laster...</p>
+        </div>
+    </div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/billetter.js"></script>
+
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

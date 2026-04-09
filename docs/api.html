@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <title>API-spesifikasjon - Dokumentasjon</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/docs/docs.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <a href="/docs/" style="text-decoration:none;display:flex;align-items:center;gap:8px">
+                    <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                    <span class="uts-brandMiniText">Dokumentasjon</span>
+                </a>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">&#x1F319;</button>
+            </div>
+        </header>
+
+        <section class="card">
+            <div class="titleRow">
+                <div class="titleText">
+                    <h1>API-spesifikasjon</h1>
+                    <p class="sub">Request/response-format for alle Power Automate-endepunkter</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="card content docs-content">
+
+            <h2>Generelt responseformat</h2>
+            <p>Alle GET-flows returnerer:</p>
+            <pre><code>{
+  "success": true,
+  "data": [ ... ],
+  "count": 10
+}</code></pre>
+            <p>POST-flows returnerer:</p>
+            <pre><code>{
+  "success": true,
+  "message": "Beskrivelse av resultat",
+  "id": "eventuell-ny-id"
+}</code></pre>
+            <p>Ved feil:</p>
+            <pre><code>{
+  "success": false,
+  "error": "Feilmelding som kan vises til bruker"
+}</code></pre>
+
+            <!-- ============================================================ -->
+            <h2>Autentisering</h2>
+
+            <h4>POST /auth/send-kode</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_AUTH_SEND_CODE_URL</code></p>
+            <p><strong>Request:</strong></p>
+            <pre><code>{
+  "email": "medlem@example.com"
+}</code></pre>
+            <p><strong>Response (success):</strong></p>
+            <pre><code>{
+  "success": true,
+  "message": "Kode sendt til medlem@example.com"
+}</code></pre>
+            <p><strong>Response (ukjent e-post):</strong></p>
+            <pre><code>{
+  "success": false,
+  "error": "E-postadressen er ikke registrert som medlem"
+}</code></pre>
+
+            <h4>POST /auth/verifiser-kode</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_AUTH_VERIFY_CODE_URL</code></p>
+            <p><strong>Request:</strong></p>
+            <pre><code>{
+  "email": "medlem@example.com",
+  "code": "123456"
+}</code></pre>
+            <p><strong>Response (success):</strong></p>
+            <pre><code>{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "member": {
+    "id": 42,
+    "name": "Ola Nordmann",
+    "email": "medlem@example.com",
+    "role": "medlem",
+    "voice": "tenor 1"
+  }
+}</code></pre>
+
+            <!-- ============================================================ -->
+            <h2>Navigasjon</h2>
+
+            <h4>GET /navigasjon</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_NAVIGATION_URL</code></p>
+            <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "title": "Forside",
+      "url": "/index.html",
+      "icon": "&#x1F3E0;",
+      "order": 1,
+      "openInNewTab": false,
+      "role": "anonym",
+      "hideWhenLoggedIn": false,
+      "isLogout": false
+    }
+  ]
+}</code></pre>
+            <table class="docs-table">
+                <thead><tr><th>Felt</th><th>Type</th><th>Beskrivelse</th></tr></thead>
+                <tbody>
+                    <tr><td><code>title</code></td><td>string</td><td>Menyelement-navn</td></tr>
+                    <tr><td><code>url</code></td><td>string</td><td>Lenke</td></tr>
+                    <tr><td><code>icon</code></td><td>string?</td><td>Ikon (emoji eller null)</td></tr>
+                    <tr><td><code>order</code></td><td>number</td><td>Sorteringsrekkefolge</td></tr>
+                    <tr><td><code>role</code></td><td>string</td><td>Minimum rolle: anonym, medlem, styre, admin</td></tr>
+                    <tr><td><code>hideWhenLoggedIn</code></td><td>boolean</td><td>Skjul nar bruker er innlogget</td></tr>
+                    <tr><td><code>isLogout</code></td><td>boolean</td><td>Om dette er utloggingsknapp</td></tr>
+                </tbody>
+            </table>
+
+            <!-- ============================================================ -->
+            <h2>Forside</h2>
+
+            <h4>GET /forside/artikkel</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_CONTENT_URL</code></p>
+            <pre><code>{
+  "success": true,
+  "data": {
+    "title": "Velkommen til Kammerkoret Utsikten",
+    "text": "Artikkelinnhold her...\n\n$picture\n\nMer tekst...",
+    "format": "text",
+    "imageUrl": "https://storage.blob.core.windows.net/images/forside.jpg",
+    "imagePlacement": "angitt"
+  }
+}</code></pre>
+            <div class="docs-note">
+                <strong>Bildeplassering:</strong> Teksten kan inneholde <code>$picture</code> som markerer hvor bildet skal vises. <code>imagePlacement</code> kan vere <code>"over"</code>, <code>"under"</code> eller <code>"angitt"</code>.
+            </div>
+
+            <h4>GET /forside/kontaktpersoner</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_CONTACTS_URL</code></p>
+            <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Kari Nordmann",
+      "email": "dirigent@utsiktenkor.no",
+      "phone": "99 88 77 66",
+      "kontaktrolle": "Dirigent"
+    }
+  ]
+}</code></pre>
+
+            <h4>GET /forside/hurtiglenker</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_QUICKLINKS_URL</code></p>
+            <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "title": "Konserter",
+      "url": "/konserter.html",
+      "icon": "&#x1F3AD;",
+      "description": "Se kommende konserter",
+      "order": 1,
+      "openInNewTab": false
+    }
+  ]
+}</code></pre>
+
+            <!-- ============================================================ -->
+            <h2>Meldinger</h2>
+
+            <h4>GET /meldinger/liste</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_MESSAGES_URL</code></p>
+            <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 101,
+      "title": "Viktig info om julekonserten",
+      "content": "Husk aa mote opp kl 17:00...",
+      "format": "markdown",
+      "author": "Styret",
+      "publishedAt": "2024-12-01T10:00:00Z",
+      "imageUrl": "",
+      "isImportant": true,
+      "isPinned": false,
+      "commentCount": 3,
+      "comments": [
+        {
+          "id": 201,
+          "author": "Ola Nordmann",
+          "email": "ola@example.com",
+          "text": "Takk for info!",
+          "createdAt": "2024-12-01T12:30:00Z"
+        }
+      ]
+    }
+  ]
+}</code></pre>
+
+            <h4>POST /meldinger/ny</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_CREATE_MESSAGE_URL</code></p>
+            <pre><code>// Request
+{
+  "title": "Viktig info om vaarkonserten",
+  "content": "Husk aa mote opp kl 17:00...",
+  "authorName": "Kari Nordmann",
+  "authorEmail": "kari@example.com"
+}
+
+// Response
+{
+  "success": true,
+  "message": "Melding publisert",
+  "id": 102
+}</code></pre>
+            <div class="docs-note docs-note--warning">
+                <strong>Viktig:</strong> Flyten <em>ma</em> returnere <code>{ "success": true }</code>. En tom 200-respons vil bli tolket som feil av frontend-koden.
+            </div>
+
+            <h4>POST /meldinger/kommentar</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_MESSAGE_COMMENTS_URL</code></p>
+            <pre><code>// Request
+{
+  "messageId": "101",
+  "text": "Takk for info!",
+  "authorName": "Ola Nordmann",
+  "authorEmail": "ola@example.com"
+}</code></pre>
+
+            <!-- ============================================================ -->
+            <h2>Innlegg</h2>
+
+            <h4>GET /innlegg/liste</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_POSTS_URL</code></p>
+            <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 301,
+      "title": "Noen som vil samkjore?",
+      "content": "Jeg kjorer fra Majorstuen...",
+      "author": { "id": 42, "name": "Ola Nordmann" },
+      "createdAt": "2024-11-28T14:00:00Z",
+      "commentCount": 5,
+      "comments": []
+    }
+  ]
+}</code></pre>
+
+            <h4>POST /innlegg/nytt</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_CREATE_POST_URL</code></p>
+            <pre><code>// Request
+{
+  "title": "Noen som vil samkjore?",
+  "content": "Jeg kjorer fra Majorstuen...",
+  "authorName": "Ola Nordmann",
+  "authorEmail": "ola@example.com",
+  "authorVoice": "tenor 1"
+}</code></pre>
+
+            <!-- ============================================================ -->
+            <h2>Ovelse</h2>
+
+            <h4>GET /ovelse/program</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_PRACTICE_URL</code></p>
+            <pre><code>{
+  "success": true,
+  "data": {
+    "title": "Vaarprogram 2026",
+    "voice": "tutti",
+    "baseUrls": {
+      "pdf": "https://storage.blob.core.windows.net/sanger/",
+      "audio": "https://storage.blob.core.windows.net/sanger/"
+    },
+    "notes": [
+      {
+        "id": "Sanctus",
+        "noteTitle": "Sanctus",
+        "pdfFilename": "Sanctus - Ola Gjeilo.pdf",
+        "audio": {
+          "sopran 1": "Sanctus - Sopran 1.mp3",
+          "tutti": "Sanctus - Tutti.mp3"
+        },
+        "pageTurns": [
+          { "time": 45.2, "page": 2 },
+          { "time": 92.8, "page": 3 }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+            <table class="docs-table">
+                <thead><tr><th>Felt</th><th>Type</th><th>Beskrivelse</th></tr></thead>
+                <tbody>
+                    <tr><td><code>baseUrls.pdf</code></td><td>string</td><td>Basis-URL for PDF-filer</td></tr>
+                    <tr><td><code>baseUrls.audio</code></td><td>string</td><td>Basis-URL for lydfiler</td></tr>
+                    <tr><td><code>notes[].pdfFilename</code></td><td>string</td><td>Kombineres med baseUrls.pdf</td></tr>
+                    <tr><td><code>notes[].audio</code></td><td>object</td><td>Nokkel = stemmegruppe, verdi = filnavn</td></tr>
+                    <tr><td><code>notes[].pageTurns[].time</code></td><td>number</td><td>Sekunder for sideskift</td></tr>
+                    <tr><td><code>notes[].pageTurns[].page</code></td><td>number</td><td>Sidenummer (1-indeksert)</td></tr>
+                </tbody>
+            </table>
+
+            <h4>POST /ovelse/sideskift</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_PRACTICE_PAGETURNS_URL</code></p>
+            <pre><code>// Request
+{
+  "workId": "Sanctus",
+  "pageTurns": [
+    { "time": 45.2, "page": 2 },
+    { "time": 92.8, "page": 3 }
+  ]
+}</code></pre>
+
+            <!-- ============================================================ -->
+            <h2>Konserter</h2>
+
+            <h4>GET /konserter/liste</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_CONCERTS_URL</code></p>
+            <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 701,
+      "title": "Vaarkonsert 2025",
+      "description": "Konsert med vaarens vakreste sanger",
+      "date": "2025-04-15",
+      "time": "19:00",
+      "location": "Oslo Konserthus",
+      "address": "Munkedamsveien 14, 0115 Oslo",
+      "imageUrl": "https://...",
+      "ticketPrice": 250,
+      "ticketsAvailable": 150,
+      "ticketUrl": null,
+      "isPublic": true
+    }
+  ]
+}</code></pre>
+
+            <h4>POST /konserter/billett</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_TICKET_RESERVATIONS_URL</code></p>
+            <pre><code>// Request
+{
+  "concertId": 701,
+  "name": "Per Hansen",
+  "email": "per@example.com",
+  "phone": "+47 99887766",
+  "ticketCount": 2,
+  "message": "Trenger rullestolplass"
+}
+
+// Response
+{
+  "success": true,
+  "message": "Bestilling mottatt!",
+  "referenceNumber": "UTK-2026-0042",
+  "totalPrice": 500
+}</code></pre>
+
+            <!-- ============================================================ -->
+            <h2>Billettadministrasjon</h2>
+
+            <h4>GET /billetter/ubetalte</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_TICKET_ADMIN_URL</code></p>
+            <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "ticketId": "BIL-2026-001",
+      "concertId": 1,
+      "concertTitle": "Vaarkonsert 2026",
+      "concertDate": "2026-04-18",
+      "name": "Ola Nordmann",
+      "email": "ola@example.com",
+      "phone": "+47 123 45 678",
+      "ticketCount": 2,
+      "totalPrice": 500,
+      "reservationDate": "2026-02-01T12:00:00Z",
+      "isPaid": false
+    }
+  ]
+}</code></pre>
+
+            <h4>POST /billetter/marker-betalt</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_TICKET_ADMIN_UPDATE_URL</code></p>
+            <pre><code>// Request
+{ "reservationIds": ["1", "3", "5"] }
+
+// Response
+{
+  "success": true,
+  "message": "3 reservasjoner markert som betalt",
+  "updatedIds": ["1", "3", "5"]
+}</code></pre>
+
+            <h4>POST /billetter/slett</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_TICKET_ADMIN_DELETE_URL</code></p>
+            <pre><code>// Request
+{ "reservationIds": ["2", "4"] }
+
+// Response
+{
+  "success": true,
+  "message": "2 reservasjoner slettet"
+}</code></pre>
+
+            <!-- ============================================================ -->
+            <h2>Billettkontroll</h2>
+
+            <h4>POST /billettkontroll/valider</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_TICKET_VALIDATE_URL</code></p>
+            <pre><code>// Request
+{ "referenceNumber": "UTK-2026-0042" }</code></pre>
+            <table class="docs-table">
+                <thead><tr><th>Status</th><th>Message</th><th>Farge i UI</th></tr></thead>
+                <tbody>
+                    <tr><td><code>valid</code></td><td>Gyldig billett &mdash; sjekket inn</td><td>Gronn</td></tr>
+                    <tr><td><code>already_checked_in</code></td><td>Allerede sjekket inn</td><td>Gul</td></tr>
+                    <tr><td><code>not_paid</code></td><td>Ikke betalt</td><td>Rod</td></tr>
+                    <tr><td><code>not_found</code></td><td>Ukjent billett</td><td>Rod</td></tr>
+                </tbody>
+            </table>
+
+            <!-- ============================================================ -->
+            <h2>Musikk</h2>
+
+            <h4>GET /musikk/konserter</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_MUSIC_URL</code></p>
+            <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 801,
+      "title": "Julekonsert 2024",
+      "date": "2024-12-15",
+      "location": "Vaalerenga kirke",
+      "description": "Magisk julekonsert",
+      "images": [
+        { "url": "https://...", "caption": "Koret i aksjon" }
+      ],
+      "tracks": [
+        {
+          "id": 1,
+          "title": "O Helga Natt",
+          "duration": 245,
+          "audioUrl": "https://..."
+        }
+      ]
+    }
+  ]
+}</code></pre>
+
+            <!-- ============================================================ -->
+            <h2>Medlemsside</h2>
+
+            <h4>GET /medlemmer/side</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_MEMBERS_PAGE_URL</code></p>
+            <pre><code>{
+  "success": true,
+  "data": {
+    "article": {
+      "title": "Velkommen, kormedlemmer!",
+      "text": "Her finner du informasjon...",
+      "format": "markdown",
+      "imageUrl": "https://...",
+      "imagePlacement": "angitt"
+    },
+    "events": [
+      {
+        "id": 1,
+        "title": "Korovelse",
+        "description": "Vanlig ovelse",
+        "date": "2026-02-10",
+        "startTime": "18:00",
+        "endTime": "20:30",
+        "location": "Ovingslokalet",
+        "attendees": [
+          { "name": "Ola Nordmann", "email": "ola@example.com", "status": "attending" }
+        ],
+        "totalMembers": 25
+      }
+    ]
+  }
+}</code></pre>
+
+            <h4>POST /medlemmer/rsvp</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_MEMBERS_PAGE_RSVP_URL</code></p>
+            <pre><code>// Request
+{
+  "eventId": 1,
+  "action": "attending",
+  "memberName": "Ola Nordmann",
+  "memberEmail": "ola@example.com"
+}</code></pre>
+            <p><code>action</code> er enten <code>"attending"</code> eller <code>"not_attending"</code>.</p>
+
+            <!-- ============================================================ -->
+            <h2>Min profil</h2>
+
+            <h4>GET /profil</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_PROFILE_URL</code> (med <code>&amp;epost=</code> parameter)</p>
+            <pre><code>{
+  "navn": "Ola Nordmann",
+  "epost": "ola@example.com",
+  "telefon": "99887766",
+  "stemme": "tenor 1",
+  "varsler": {
+    "innlegg": true,
+    "arrangementer": true,
+    "meldinger": true
+  },
+  "preferanser": { "tema": "dark" }
+}</code></pre>
+
+            <h4>POST /profil/oppdater</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_PROFILE_UPDATE_URL</code></p>
+            <p>Mottar samme JSON-struktur som GET returnerer. En 200-respons er nok (ingen <code>success</code>-sjekk).</p>
+
+            <!-- ============================================================ -->
+            <h2>Filbehandling</h2>
+
+            <h4>GET /filer/liste</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_FILES_URL</code></p>
+            <pre><code>{
+  "success": true,
+  "filer": [
+    {
+      "id": "1",
+      "navn": "Halleluja - Sopran ovefil.mp3",
+      "kategori": "Ovefil",
+      "url": "/filer/musikk/halleluja-sopran.mp3",
+      "sortering": 1,
+      "verk": "Halleluja fra Messias",
+      "stemme": "Sopran-1",
+      "anledning": "Julekonsert 2024"
+    }
+  ]
+}</code></pre>
+
+            <h4>POST /filer/oppdater</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_FILES_UPDATE_URL</code></p>
+            <pre><code>// Enkeltfil
+{
+  "id": "1",
+  "kategori": "Ovefil",
+  "verk": "Halleluja",
+  "stemme": "Sopran-1",
+  "sortering": 1,
+  "anledning": "Julekonsert 2024"
+}
+
+// Batch (flere filer)
+{
+  "fileIds": ["1", "3", "6"],
+  "kategori": "Ovefil",
+  "anledning": "Vaarkonsert 2026"
+}</code></pre>
+
+            <h4>POST /blob/last-opp</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_BLOB_UPLOAD_URL</code></p>
+            <pre><code>{
+  "files": [
+    { "id": "1", "url": "/filer/musikk/halleluja.mp3", "navn": "Halleluja.mp3" }
+  ]
+}</code></pre>
+
+            <h4>POST /blob/tom</h4>
+            <p><strong>Variabel:</strong> <code>POWER_AUTOMATE_BLOB_CLEAR_URL</code></p>
+            <pre><code>{ "action": "clear_all" }</code></pre>
+
+            <!-- ============================================================ -->
+            <h2>Felles datatyper</h2>
+
+            <h3>Member</h3>
+            <pre><code>{
+  "id": 42,
+  "name": "Ola Nordmann",
+  "email": "ola@example.com",
+  "role": "medlem",
+  "voice": "tenor 1",
+  "phone": "99887766"
+}</code></pre>
+            <table class="docs-table">
+                <thead><tr><th>Felt</th><th>Verdier</th></tr></thead>
+                <tbody>
+                    <tr><td><code>role</code></td><td><code>anonym</code>, <code>medlem</code>, <code>styre</code>, <code>admin</code></td></tr>
+                    <tr><td><code>voice</code></td><td><code>sopran 1</code>, <code>sopran 2</code>, <code>alt 1</code>, <code>alt 2</code>, <code>tenor 1</code>, <code>tenor 2</code>, <code>bass 1</code>, <code>bass 2</code></td></tr>
+                </tbody>
+            </table>
+
+            <h3>Tidsstempler</h3>
+            <p>Alle tidsstempler bruker ISO 8601 i UTC: <code>2025-01-26T14:30:00Z</code></p>
+
+            <h3>HTTP-feilkoder</h3>
+            <table class="docs-table">
+                <thead><tr><th>Kode</th><th>Betydning</th></tr></thead>
+                <tbody>
+                    <tr><td>200</td><td>OK</td></tr>
+                    <tr><td>400</td><td>Ugyldig request</td></tr>
+                    <tr><td>401</td><td>Ikke autentisert</td></tr>
+                    <tr><td>403</td><td>Ikke autorisert (feil rolle)</td></tr>
+                    <tr><td>404</td><td>Ressurs ikke funnet</td></tr>
+                    <tr><td>500</td><td>Serverfeil</td></tr>
+                </tbody>
+            </table>
+
+            <nav class="docs-nav">
+                <a href="/docs/env.html">&larr; Konfigurasjon</a>
+                <a href="/docs/service-worker.html">Service Worker og PWA &rarr;</a>
+            </nav>
+        </section>
+
+        <footer class="card footer">
+            <div class="footer__content">
+                <p class="footer__copyright">&copy; <span id="currentYear"></span> Kammerkoret Utsikten</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const themeBtn = document.getElementById('themeBtn');
+        const saved = localStorage.getItem('korportal-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        themeBtn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('korportal-theme', next);
+            themeBtn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+        });
+    </script>
+</body>
+</html>
