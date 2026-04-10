@@ -5,10 +5,17 @@ package-lock.json
 # Environment files
 .env
 .env.*
+!.env.example
 js/env.js
 
 # Database
 data/*.db
+**/*.db
+**/*.db-shm
+**/*.db-wal
+
+# Claude Code
+.claude/
 
 # Uploaded files (binary content)
 uploads/

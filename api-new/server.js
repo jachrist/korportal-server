@@ -1,7 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { ensureTables } = require('./lib/table-client');
+const path = require('path');
+const { ensureTables } = require('./lib/db');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -28,6 +29,10 @@ app.use((req, res, next) => {
   };
   next();
 });
+
+// --- Static file serving (uploads) ---
+const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(uploadDir));
 
 // --- Routes ---
 app.use('/api/auth', require('./routes/auth'));

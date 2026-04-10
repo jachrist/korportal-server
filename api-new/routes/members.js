@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { listEntities, getEntity, upsertEntity, buildEntity } = require('../lib/table-client');
+const { listEntities, getEntity, upsertEntity, buildEntity } = require('../lib/db');
 const { successResponse, errorResponse, validateRequired, generateId, now } = require('../lib/helpers');
 
 /**
@@ -157,7 +157,7 @@ router.patch('/arrangement/:id', async (req, res) => {
  */
 router.delete('/arrangement/:id', async (req, res) => {
   try {
-    const { deleteEntity } = require('../lib/table-client');
+    const { deleteEntity } = require('../lib/db');
     await deleteEntity('Events', 'event', req.params.id);
     return successResponse(res, { message: 'Arrangement slettet.' });
   } catch (err) {

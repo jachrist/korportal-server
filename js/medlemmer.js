@@ -127,6 +127,14 @@ class MedlemmerApp {
             eventLocation: document.getElementById('eventLocation'),
             eventSubmit: document.getElementById('eventSubmit'),
             eventCancel: document.getElementById('eventCancel'),
+            // Edit article modal
+            editArticleModal: document.getElementById('editArticleModal'),
+            editArticleModalClose: document.getElementById('editArticleModalClose'),
+            editArticleTitle: document.getElementById('editArticleTitle'),
+            editArticleContent: document.getElementById('editArticleContent'),
+            editArticleFormat: document.getElementById('editArticleFormat'),
+            editArticleSave: document.getElementById('editArticleSave'),
+            editArticleCancel: document.getElementById('editArticleCancel'),
             // Hidden fields
             memberEmail: document.getElementById('memberEmail'),
             memberName: document.getElementById('memberName')
@@ -155,14 +163,27 @@ class MedlemmerApp {
             if (e.target === this.elements.eventModal) this.closeEventModal();
         });
 
+        // Edit article modal events
+        this.elements.editArticleModalClose?.addEventListener('click', () => this.closeEditArticleModal());
+        this.elements.editArticleCancel?.addEventListener('click', () => this.closeEditArticleModal());
+        this.elements.editArticleSave?.addEventListener('click', () => this.saveArticle());
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (this.elements.modal?.classList.contains('open')) {
+                if (!this.elements.editArticleModal?.hidden) {
+                    this.closeEditArticleModal();
+                } else if (this.elements.modal?.classList.contains('open')) {
                     this.closeModal();
-                }
-                if (!this.elements.eventModal?.hidden) {
+                } else if (!this.elements.eventModal?.hidden) {
                     this.closeEventModal();
                 }
+            }
+        });
+
+        // Delegate click for article edit button
+        this.elements.articleSection?.addEventListener('click', (e) => {
+            if (e.target.id === 'editArticleBtn') {
+                this.openEditArticleModal();
             }
         });
     }
@@ -226,7 +247,12 @@ class MedlemmerApp {
         let html = '';
 
         if (title) {
+            html += `<div class="article__title-row">`;
             html += `<h2 class="article__title">${this.escapeHtml(title)}</h2>`;
+            if (hasRole(getCurrentUserRole(), ROLES.STYRE)) {
+                html += `<button class="edit-btn" id="editArticleBtn" type="button">Rediger</button>`;
+            }
+            html += `</div>`;
         }
 
         if (imageUrl && imagePlacement === 'over') {
@@ -258,6 +284,65 @@ class MedlemmerApp {
                 <img src="${this.escapeHtml(url)}" alt="${this.escapeHtml(alt || 'Artikkel-bilde')}" loading="lazy">
             </figure>
         `;
+    }
+
+    // =========================================================================
+    // ARTICLE EDITING
+    // =========================================================================
+
+    openEditArticleModal() {
+        if (!this.data?.article) return;
+
+        this.elements.editArticleTitle.value = this.data.article.title || '';
+        this.elements.editArticleContent.value = this.data.article.text || '';
+        this.elements.editArticleFormat.value = this.data.article.format || 'markdown';
+        this.elements.editArticleModal.hidden = false;
+
+        if (!this.articleEditor && this.elements.editArticleContent) {
+            this.articleEditor = new MarkdownEditor(this.elements.editArticleContent).init();
+        }
+
+        this.elements.editArticleTitle.focus();
+    }
+
+    closeEditArticleModal() {
+        this.elements.editArticleModal.hidden = true;
+    }
+
+    async saveArticle() {
+        const title = this.elements.editArticleTitle.value.trim();
+        const text = this.elements.editArticleContent.value.trim();
+        const format = this.elements.editArticleFormat.value;
+
+        if (!title || !text) {
+            alert('Vennligst fyll ut tittel og innhold.');
+            return;
+        }
+
+        this.elements.editArticleSave.disabled = true;
+        this.elements.editArticleSave.textContent = 'Lagrer...';
+
+        try {
+            try {
+                await sharePointAPI.updateItem('articles', this.data.article.id || 'members', {
+                    title, text, format
+                });
+            } catch (apiError) {
+                console.log('API update not available, updating locally:', apiError.message);
+            }
+
+            this.data.article.title = title;
+            this.data.article.text = text;
+            this.data.article.format = format;
+            this.renderArticle(this.data.article);
+            this.closeEditArticleModal();
+        } catch (error) {
+            console.error('Error saving article:', error);
+            alert('Kunne ikke lagre artikkelen. Prøv igjen.');
+        } finally {
+            this.elements.editArticleSave.disabled = false;
+            this.elements.editArticleSave.textContent = 'Lagre';
+        }
     }
 
     formatContent(text, format) {

@@ -1,8 +1,8 @@
 /**
- * Migreringsscript: JSON-filer → Azure Table Storage
+ * Migreringsscript: JSON-filer → SQLite
  *
  * Leser ferdigtransformert JSON (output fra Power Automate GET-flytene)
- * og skriver til Azure Table Storage.
+ * og skriver til SQLite-databasen.
  *
  * Steg:
  *   1. Kjør hver GET-flyt (via nettleser/Postman/REST Client)
@@ -22,7 +22,7 @@
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const { upsertEntity, buildEntity, ensureTables } = require('./lib/table-client');
+const { upsertEntity, buildEntity, ensureTables } = require('./lib/db');
 const { generateId } = require('./lib/helpers');
 
 const args = process.argv.slice(2);
@@ -483,15 +483,10 @@ function readJsonFile(filename) {
 // --- Hovedfunksjon ---
 
 async function migrate() {
-  console.log('=== Migrering: JSON-filer → Azure Table Storage ===');
+  console.log('=== Migrering: JSON-filer → SQLite ===');
   console.log(`Modus: ${DRY_RUN ? 'DRY RUN (ingen skriving)' : 'LIVE'}`);
   console.log(`Data-mappe: ${DATA_DIR}`);
   console.log('');
-
-  if (!process.env.AZURE_STORAGE_CONNECTION_STRING) {
-    console.error('FEIL: AZURE_STORAGE_CONNECTION_STRING mangler i .env');
-    process.exit(1);
-  }
 
   // Sjekk at data-mappen finnes
   if (!fs.existsSync(DATA_DIR)) {

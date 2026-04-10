@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { listEntities, upsertEntity, deleteEntity, buildEntity } = require('../lib/table-client');
+const { listEntities, upsertEntity, deleteEntity, buildEntity } = require('../lib/db');
 const { successResponse, errorResponse, validateRequired, generateId, now } = require('../lib/helpers');
 const crypto = require('crypto');
 

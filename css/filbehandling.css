@@ -533,3 +533,188 @@
         flex-direction: column;
     }
 }
+
+/* Anledning Section
+   ========================================================================== */
+.anledning-section__label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: var(--space-sm);
+}
+
+.anledning-section__row {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+}
+
+.anledning-section__row .form-select {
+    flex: 1;
+    max-width: 400px;
+}
+
+.anledning-section__status {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: var(--space-xs) 0 0;
+}
+
+/* Import Section
+   ========================================================================== */
+.import-section__toggle {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text);
+    padding: var(--space-sm) 0;
+}
+
+.import-section__body {
+    margin-top: var(--space-md);
+}
+
+.import-section__hint {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 0 0 var(--space-md);
+}
+
+.import-section__row {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+}
+
+.import-section__row .form-input {
+    flex: 1;
+}
+
+.import-section__status {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: var(--space-sm) 0 0;
+    min-height: 1.2em;
+}
+
+/* Dropzone
+   ========================================================================== */
+.dropzone {
+    border: 2px dashed var(--line);
+    border-radius: var(--radius);
+    padding: var(--space-xl);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.dropzone:hover,
+.dropzone--active {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.dropzone__icon {
+    font-size: 2rem;
+    margin-bottom: var(--space-sm);
+}
+
+.dropzone__text {
+    font-size: 0.95rem;
+    color: var(--text);
+    margin: 0 0 var(--space-xs);
+}
+
+.dropzone__link {
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.dropzone__hint {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin: 0;
+}
+
+/* Upload Progress
+   ========================================================================== */
+.upload-progress {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+}
+
+.upload-progress__bar {
+    flex: 1;
+    height: 6px;
+    background: var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.upload-progress__fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.3s;
+    width: 0%;
+}
+
+.upload-progress__text {
+    font-size: 0.8rem;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+/* Upload Status Badges
+   ========================================================================== */
+.file-row__icon {
+    position: relative;
+}
+
+.file-row__badge {
+    position: absolute;
+    bottom: -2px;
+    right: -4px;
+    font-size: 0.65rem;
+    line-height: 1;
+}
+
+.file-row__badge--uploaded {
+    color: #22c55e;
+}
+
+.file-row__badge--missing {
+    color: var(--muted);
+}
+
+.file-row--not-uploaded {
+    opacity: 0.7;
+}
+
+/* Remove button */
+.file-row__action-btn--remove {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    color: var(--muted);
+    cursor: pointer;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.file-row__action-btn--remove:hover {
+    color: #ef4444;
+    border-color: #ef4444;
+}
+
+/* Filter separator */
+.filter-chips__separator {
+    display: inline-block;
+    width: 1px;
+    height: 20px;
+    background: var(--line);
+    margin: 0 var(--space-xs);
+    vertical-align: middle;
+}

@@ -59,6 +59,51 @@
             </div>
         </section>
 
+        <!-- Active anledning selector -->
+        <section class="card content">
+            <div class="anledning-section">
+                <label class="anledning-section__label" for="anledningSelect">Aktiv anledning for øvelse</label>
+                <div class="anledning-section__row">
+                    <select id="anledningSelect" class="form-select">
+                        <option value="">Laster...</option>
+                    </select>
+                    <button class="btn btn--primary" id="anledningBtn">Sett aktiv</button>
+                </div>
+                <p class="anledning-section__status" id="anledningStatus"></p>
+            </div>
+        </section>
+
+        <!-- Metadata import -->
+        <section class="card content">
+            <details class="import-section">
+                <summary class="import-section__toggle">Importer metadata fra ekstern kilde</summary>
+                <div class="import-section__body">
+                    <p class="import-section__hint">Lim inn URL til en flyt eller et endepunkt som returnerer filmetadata som JSON-array.</p>
+                    <div class="import-section__row">
+                        <input type="url" id="importUrl" class="form-input" placeholder="https://...">
+                        <button class="btn btn--primary" id="importBtn">Hent metadata</button>
+                    </div>
+                    <p class="import-section__status" id="importStatus"></p>
+                </div>
+            </details>
+        </section>
+
+        <!-- Upload dropzone -->
+        <section class="card content">
+            <div class="dropzone" id="dropzone">
+                <div class="dropzone__content">
+                    <div class="dropzone__icon">📂</div>
+                    <p class="dropzone__text">Dra filer hit, eller <label for="fileInput" class="dropzone__link">velg filer</label></p>
+                    <p class="dropzone__hint">PDF, MP3, WAV, JSON — filene kobles automatisk til eksisterende metadata</p>
+                </div>
+                <input type="file" id="fileInput" multiple accept=".pdf,.mp3,.wav,.ogg,.json,.xml,.musicxml,.png,.jpg,.jpeg" hidden>
+            </div>
+            <div class="upload-progress" id="uploadProgress" hidden>
+                <div class="upload-progress__bar"><div class="upload-progress__fill" id="uploadFill"></div></div>
+                <span class="upload-progress__text" id="uploadText"></span>
+            </div>
+        </section>
+
         <!-- Filters -->
         <section class="card content filters-section">
             <!-- Search -->
@@ -84,6 +129,9 @@
                     <button class="filter-chip" data-category="opptak">Opptak</button>
                     <button class="filter-chip" data-category="ovefil">Øvefil</button>
                     <button class="filter-chip" data-category="sideskift">Sideskift</button>
+                    <span class="filter-chips__separator"></span>
+                    <button class="filter-chip" data-category="uploaded">På server</button>
+                    <button class="filter-chip" data-category="not-uploaded">Ikke lastet opp</button>
                 </div>
             </div>
 
