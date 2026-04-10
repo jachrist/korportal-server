@@ -1,0 +1,24 @@
+[Unit]
+Description=Korportal API (Node.js/Express + SQLite)
+After=network.target
+
+[Service]
+Type=simple
+User=korportal
+Group=korportal
+WorkingDirectory=/opt/korportal/api-new
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+EnvironmentFile=/opt/korportal/api-new/.env
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/data/korportal
+ReadWritePaths=/opt/korportal/api-new/data
+
+[Install]
+WantedBy=multi-user.target
