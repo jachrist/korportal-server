@@ -395,7 +395,9 @@ function renderFiles() {
 
         const actionBtn = file.uploaded
             ? `<button class="file-row__action-btn file-row__action-btn--remove" data-id="${file.id}" data-action="remove" title="Fjern fra server">✕</button>`
-            : '';
+            : `<label class="file-row__action-btn file-row__action-btn--upload" title="Last opp fil">
+                 ⬆ <input type="file" data-id="${file.id}" data-navn="${escapeHtml(file.navn)}" data-action="upload-single" hidden>
+               </label>`;
 
         return `
             <div class="file-row ${uploadedClass}" data-id="${file.id}">
@@ -587,6 +589,20 @@ function initEventListeners() {
             if (file && confirm(`Fjerne "${file.navn}" fra server?\nMetadata beholdes.`)) {
                 removeFromServer(id);
             }
+        }
+
+        const uploadInput = e.target.closest('[data-action="upload-single"]');
+        if (uploadInput) {
+            uploadInput.addEventListener('change', async function handler() {
+                uploadInput.removeEventListener('change', handler);
+                if (!this.files.length) return;
+                const file = this.files[0];
+                const expectedName = this.dataset.navn;
+                if (file.name !== expectedName) {
+                    if (!confirm(`Filnavnet "${file.name}" stemmer ikke med "${expectedName}".\nLast opp likevel?`)) return;
+                }
+                await uploadFiles(this.files);
+            }, { once: true });
         }
     });
 

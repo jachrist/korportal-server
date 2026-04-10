@@ -709,6 +709,25 @@
     border-color: #ef4444;
 }
 
+/* Upload button on non-uploaded rows */
+.file-row__action-btn--upload {
+    display: inline-flex;
+    align-items: center;
+    background: none;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    color: var(--accent);
+    cursor: pointer;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    transition: background 0.2s, color 0.2s;
+}
+
+.file-row__action-btn--upload:hover {
+    background: var(--accent);
+    color: var(--bg);
+}
+
 /* Filter separator */
 .filter-chips__separator {
     display: inline-block;
