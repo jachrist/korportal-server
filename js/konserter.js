@@ -266,6 +266,28 @@ class ConcertsApp {
                 this.openEditConcertModal(concertId);
             });
         });
+
+        // Bind delete buttons
+        this.elements.concertsSection.querySelectorAll('.btn--delete-concert').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const concertId = btn.dataset.concertId;
+                const concert = this.concerts.find(c => c.id === concertId);
+                if (concert && confirm(`Slette "${concert.title}"?`)) {
+                    this.deleteConcert(concertId);
+                }
+            });
+        });
+    }
+
+    async deleteConcert(concertId) {
+        try {
+            await sharePointAPI.deleteItem('concerts', concertId);
+            this.concerts = this.concerts.filter(c => c.id !== concertId);
+            this.renderConcerts();
+        } catch (error) {
+            console.error('Error deleting concert:', error);
+            alert('Kunne ikke slette konserten.');
+        }
     }
 
     createConcertCard(concert) {
@@ -301,12 +323,18 @@ class ConcertsApp {
             ? '<span class="concert-card__price-value concert-card__price-value--free">Gratis</span>'
             : `<span class="concert-card__price-value">${concert.ticketPrice} kr</span>`;
 
-        return `
-            <article class="concert-card card">
-                <div class="concert-card__image">
+        const imageHtml = concert.imageUrl
+            ? `<div class="concert-card__image">
                     <img src="${this.escapeHtml(concert.imageUrl)}" alt="${this.escapeHtml(concert.title)}" loading="lazy">
                     ${badge}
-                </div>
+                </div>`
+            : (badge ? `<div class="concert-card__badge-wrap">${badge}</div>` : '');
+
+        const descriptionHtml = concert.description ? this.parseMarkdown(concert.description) : '';
+
+        return `
+            <article class="concert-card card">
+                ${imageHtml}
                 <div class="concert-card__content">
                     <div class="concert-card__header">
                         <div class="concert-card__date-box">
@@ -329,15 +357,16 @@ class ConcertsApp {
                         </div>
                     </div>
 
-                    ${concert.description ? `
+                    ${descriptionHtml ? `
                     <div class="concert-card__description">
-                        <p>${this.escapeHtml(concert.description)}</p>
+                        ${descriptionHtml}
                     </div>
                     ` : ''}
 
                     ${isLoggedIn() && hasRole(getCurrentUserRole(), ROLES.STYRE) ? `
                     <div class="concert-card__edit">
                         <button class="edit-btn btn--edit-concert" data-concert-id="${concert.id}" type="button">Rediger</button>
+                        <button class="edit-btn btn--delete-concert" data-concert-id="${concert.id}" type="button" style="color:#ef4444">Slett</button>
                     </div>
                     ` : ''}
 
@@ -677,6 +706,23 @@ class ConcertsApp {
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+    }
+
+    parseMarkdown(text) {
+        if (!text) return '';
+        return text
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+            .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+            .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;border-radius:8px">')
+            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.+?)\*/g, '<em>$1</em>')
+            .replace(/^- (.+)$/gm, '<li>$1</li>')
+            .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br>')
+            .replace(/^(.+)$/, '<p>$1</p>');
     }
 }
 
