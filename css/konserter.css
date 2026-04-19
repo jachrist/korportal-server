@@ -6,9 +6,14 @@
 /* Concerts Section
    ========================================================================== */
 .concerts-section {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: var(--space-lg);
+}
+
+.concerts-section__header {
+    grid-column: 1 / -1;
+    text-align: right;
 }
 
 /* Concert Card

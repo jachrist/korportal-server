@@ -232,7 +232,7 @@ class ConcertsApp {
 
         let headerHtml = '';
         if (isLoggedIn() && hasRole(getCurrentUserRole(), ROLES.STYRE)) {
-            headerHtml = `<div class="card content" style="text-align:right"><button class="btn btn--primary" id="newConcertBtn">Ny konsert</button></div>`;
+            headerHtml = `<div class="concerts-section__header"><button class="btn btn--primary" id="newConcertBtn">Ny konsert</button></div>`;
         }
 
         if (this.concerts.length === 0) {
