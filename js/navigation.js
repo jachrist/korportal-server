@@ -317,7 +317,7 @@ export class MenuManager {
         const items = filterNavItemsByRole(userRole, allItems);
         const currentPath = window.location.pathname;
 
-        this.menuList.innerHTML = items.map(item => {
+        let html = items.map(item => {
             const isActive = currentPath === item.url ||
                 (item.url !== '/' && currentPath.startsWith(item.url.replace('.html', '')));
             const activeClass = isActive ? ' uts-menuItem--active' : '';
@@ -333,6 +333,18 @@ export class MenuManager {
             `;
         }).join('');
 
+        // Add guest login option for anonymous users
+        if (!isLoggedIn()) {
+            html += `
+                <a href="#" class="uts-menuItem" data-guest-login="true">
+                    <span class="uts-menuItem__icon">🔑</span>
+                    <span>Gjestepålogging - krever passord</span>
+                </a>
+            `;
+        }
+
+        this.menuList.innerHTML = html;
+
         // Håndter klikk på menyelementer
         this.menuList.querySelectorAll('.uts-menuItem').forEach(el => {
             el.addEventListener('click', (e) => {
@@ -340,6 +352,13 @@ export class MenuManager {
                 if (el.dataset.logout === 'true') {
                     e.preventDefault();
                     this.handleLogout();
+                }
+                // Håndter gjestepålogging
+                if (el.dataset.guestLogin === 'true') {
+                    e.preventDefault();
+                    this.close();
+                    openGuestLoginModal();
+                    return;
                 }
                 this.close();
             });
@@ -398,6 +417,128 @@ function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+}
+
+// ==========================================================================
+// GUEST LOGIN MODAL
+// ==========================================================================
+
+function openGuestLoginModal() {
+    // Remove existing modal if any
+    document.getElementById('guestLoginModal')?.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'guestLoginModal';
+    modal.className = 'post-modal';
+    modal.innerHTML = `
+        <div class="post-modal-content">
+            <div class="post-modal-header">
+                <h3>Gjestepålogging</h3>
+                <button class="post-modal-close" id="guestModalClose" title="Lukk">&#10005;</button>
+            </div>
+            <div class="post-modal-body">
+                <div id="guestStep1">
+                    <div class="form-group">
+                        <label for="guestPassword">Passord</label>
+                        <input type="password" id="guestPassword" placeholder="Skriv inn gjestepassordet">
+                    </div>
+                    <div class="form-group">
+                        <label for="guestEmail">E-postadresse</label>
+                        <input type="email" id="guestEmail" placeholder="din.epost@example.com">
+                    </div>
+                </div>
+                <div id="guestStep2" hidden>
+                    <p style="margin-bottom:0.5rem">En kode er sendt til <strong id="guestSentTo"></strong></p>
+                    <div class="form-group">
+                        <label for="guestCode">Påloggingskode</label>
+                        <input type="text" id="guestCode" placeholder="123456" inputmode="numeric" maxlength="6">
+                    </div>
+                </div>
+                <p id="guestMessage" style="color:var(--muted);margin-top:0.5rem" hidden></p>
+            </div>
+            <div class="post-modal-footer">
+                <button class="post-cancel-btn" id="guestCancel">Avbryt</button>
+                <button class="post-submit-btn" id="guestSubmit">Send kode</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    let step = 1;
+    let currentEmail = '';
+
+    const close = () => modal.remove();
+    document.getElementById('guestModalClose').addEventListener('click', close);
+    document.getElementById('guestCancel').addEventListener('click', close);
+
+    const msgEl = document.getElementById('guestMessage');
+    const showMsg = (text, isError) => {
+        msgEl.textContent = text;
+        msgEl.style.color = isError ? '#ef4444' : 'var(--muted)';
+        msgEl.hidden = false;
+    };
+
+    document.getElementById('guestSubmit').addEventListener('click', async () => {
+        const btn = document.getElementById('guestSubmit');
+        btn.disabled = true;
+        msgEl.hidden = true;
+
+        if (step === 1) {
+            const password = document.getElementById('guestPassword').value.trim();
+            const email = document.getElementById('guestEmail').value.trim().toLowerCase();
+            if (!password || !email) { btn.disabled = false; return showMsg('Fyll inn passord og e-post.', true); }
+
+            try {
+                const res = await fetch('/api/auth/gjest-send-kode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                });
+                const data = await res.json();
+                const result = data.body || data;
+                if (!res.ok || result.success === false) {
+                    showMsg(result.error || 'Feil ved sending.', true);
+                    btn.disabled = false;
+                    return;
+                }
+                currentEmail = email;
+                step = 2;
+                document.getElementById('guestStep1').hidden = true;
+                document.getElementById('guestStep2').hidden = false;
+                document.getElementById('guestSentTo').textContent = email;
+                btn.textContent = 'Bekreft kode';
+                document.getElementById('guestCode').focus();
+            } catch (err) {
+                showMsg('Nettverksfeil.', true);
+            }
+            btn.disabled = false;
+        } else {
+            const code = document.getElementById('guestCode').value.trim();
+            if (!code) { btn.disabled = false; return showMsg('Skriv inn koden.', true); }
+
+            try {
+                const res = await fetch('/api/auth/verifiser-kode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: currentEmail, code }),
+                });
+                const data = await res.json();
+                const result = data.body || data;
+                if (!res.ok || result.success === false) {
+                    showMsg(result.error || 'Feil kode.', true);
+                    btn.disabled = false;
+                    return;
+                }
+                localStorage.setItem('korportal-member', JSON.stringify(result.member));
+                window.location.href = '/ovelse.html';
+            } catch (err) {
+                showMsg('Nettverksfeil.', true);
+                btn.disabled = false;
+            }
+        }
+    });
+
+    document.getElementById('guestPassword').focus();
 }
 
 // ==========================================================================
