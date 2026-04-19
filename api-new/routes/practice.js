@@ -34,18 +34,22 @@ router.get('/program', async (req, res) => {
     const allFiles = await listEntities('Files');
     const files = allFiles.filter(f => f.anledning === anledning && f.uploaded);
 
-    // 3. Group by verk
-    const verkMap = new Map();
+    // 3. Group by verk (case-insensitive matching)
+    const verkMap = new Map();       // lowercase key → group
+    const verkDisplay = new Map();   // lowercase key → display name (from first occurrence)
     for (const file of files) {
       if (!file.verk) continue;
-      if (!verkMap.has(file.verk)) {
-        verkMap.set(file.verk, { noter: null, øvefiler: [], sortering: file.sortering || 999 });
+      const key = file.verk.toLowerCase();
+      if (!verkMap.has(key)) {
+        verkMap.set(key, { noter: null, øvefiler: [], sortering: file.sortering || 999 });
+        verkDisplay.set(key, file.verk);
       }
-      const group = verkMap.get(file.verk);
+      const group = verkMap.get(key);
 
       const t = (file.type || '').toLowerCase();
       if (t === 'noter' || t === 'note') {
         group.noter = file;
+        verkDisplay.set(key, file.verk); // prefer note title as display name
         if (file.sortering !== undefined) group.sortering = file.sortering;
       } else if (t === 'øvefil') {
         group.øvefiler.push(file);
@@ -70,11 +74,13 @@ router.get('/program', async (req, res) => {
     ];
 
     const notes = [];
-    for (const [verk, group] of verkMap) {
+    for (const [key, group] of verkMap) {
+      const displayName = verkDisplay.get(key);
       const audio = {};
       for (const øvefil of group.øvefiler) {
-        if (øvefil.stemme) {
-          audio[øvefil.stemme] = øvefil.navn;
+        const stemme = (øvefil.stemme || '').replace(/-/g, ' ').toLowerCase().trim();
+        if (stemme) {
+          audio[stemme] = øvefil.navn;
         }
       }
 
@@ -87,11 +93,11 @@ router.get('/program', async (req, res) => {
       }
 
       notes.push({
-        id: verk,
-        noteTitle: verk,
+        id: displayName,
+        noteTitle: displayName,
         pdfFilename: group.noter ? group.noter.navn : '',
         audio,
-        pageTurns: pageTurnsMap.get(verk) || [],
+        pageTurns: pageTurnsMap.get(displayName) || pageTurnsMap.get(key) || [],
         sortOrder: group.sortering,
       });
     }
