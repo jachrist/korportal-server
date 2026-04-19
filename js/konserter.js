@@ -111,9 +111,17 @@ class ConcertsApp {
             closeSuccess: document.getElementById('close-success'),
             // Edit concert modal
             editConcertModal: document.getElementById('editConcertModal'),
+            editConcertHeading: document.getElementById('editConcertHeading'),
             editConcertModalClose: document.getElementById('editConcertModalClose'),
             editConcertTitle: document.getElementById('editConcertTitle'),
+            editConcertDate: document.getElementById('editConcertDate'),
+            editConcertTime: document.getElementById('editConcertTime'),
+            editConcertLocation: document.getElementById('editConcertLocation'),
+            editConcertAddress: document.getElementById('editConcertAddress'),
             editConcertDescription: document.getElementById('editConcertDescription'),
+            editConcertImageUrl: document.getElementById('editConcertImageUrl'),
+            editConcertTicketPrice: document.getElementById('editConcertTicketPrice'),
+            editConcertTicketsAvailable: document.getElementById('editConcertTicketsAvailable'),
             editConcertSave: document.getElementById('editConcertSave'),
             editConcertCancel: document.getElementById('editConcertCancel'),
             editConcertDelete: document.getElementById('editConcertDelete')
@@ -222,16 +230,26 @@ class ConcertsApp {
     renderConcerts() {
         if (!this.elements.concertsSection) return;
 
+        let headerHtml = '';
+        if (isLoggedIn() && hasRole(getCurrentUserRole(), ROLES.STYRE)) {
+            headerHtml = `<div class="card content" style="text-align:right"><button class="btn btn--primary" id="newConcertBtn">Ny konsert</button></div>`;
+        }
+
         if (this.concerts.length === 0) {
-            this.elements.concertsSection.innerHTML = '';
+            this.elements.concertsSection.innerHTML = headerHtml;
             if (this.elements.emptyState) {
-                this.elements.emptyState.hidden = false;
+                this.elements.emptyState.hidden = !headerHtml;
             }
+            // Bind new concert button
+            document.getElementById('newConcertBtn')?.addEventListener('click', () => this.openNewConcertModal());
             return;
         }
 
-        const html = this.concerts.map(concert => this.createConcertCard(concert)).join('');
+        const html = headerHtml + this.concerts.map(concert => this.createConcertCard(concert)).join('');
         this.elements.concertsSection.innerHTML = html;
+
+        // Bind new concert button
+        document.getElementById('newConcertBtn')?.addEventListener('click', () => this.openNewConcertModal());
 
         // Bind book buttons
         this.elements.concertsSection.querySelectorAll('.btn--book').forEach(btn => {
@@ -516,16 +534,48 @@ class ConcertsApp {
     // EDIT CONCERT MODAL
     // =========================================================================
 
+    openNewConcertModal() {
+        this.editingConcert = null;
+        this.isCreatingConcert = true;
+        this.elements.editConcertHeading.textContent = 'Ny konsert';
+        this.elements.editConcertTitle.value = '';
+        this.elements.editConcertDate.value = '';
+        this.elements.editConcertTime.value = '';
+        this.elements.editConcertLocation.value = '';
+        this.elements.editConcertAddress.value = '';
+        this.elements.editConcertDescription.value = '';
+        this.elements.editConcertImageUrl.value = '';
+        this.elements.editConcertTicketPrice.value = '';
+        this.elements.editConcertTicketsAvailable.value = '100';
+        this.elements.editConcertDelete.hidden = true;
+        this.elements.editConcertModal.hidden = false;
+
+        if (!this.concertEditor && this.elements.editConcertDescription) {
+            this.concertEditor = new MarkdownEditor(this.elements.editConcertDescription).init();
+        }
+
+        this.elements.editConcertTitle.focus();
+    }
+
     openEditConcertModal(concertId) {
         const concert = this.concerts.find(c => c.id === concertId);
         if (!concert) return;
 
         this.editingConcert = concert;
+        this.isCreatingConcert = false;
+        this.elements.editConcertHeading.textContent = 'Rediger konsert';
         this.elements.editConcertTitle.value = concert.title || '';
+        this.elements.editConcertDate.value = concert.date || '';
+        this.elements.editConcertTime.value = concert.time || '';
+        this.elements.editConcertLocation.value = concert.location || '';
+        this.elements.editConcertAddress.value = concert.address || '';
         this.elements.editConcertDescription.value = concert.description || '';
+        this.elements.editConcertImageUrl.value = concert.imageUrl || '';
+        this.elements.editConcertTicketPrice.value = concert.ticketPrice || '';
+        this.elements.editConcertTicketsAvailable.value = concert.ticketsAvailable ?? '';
+        this.elements.editConcertDelete.hidden = false;
         this.elements.editConcertModal.hidden = false;
 
-        // Initialize markdown editor on first open
         if (!this.concertEditor && this.elements.editConcertDescription) {
             this.concertEditor = new MarkdownEditor(this.elements.editConcertDescription).init();
         }
@@ -538,14 +588,29 @@ class ConcertsApp {
         this.editingConcert = null;
     }
 
+    getConcertFormData() {
+        return {
+            title: this.elements.editConcertTitle.value.trim(),
+            date: this.elements.editConcertDate.value,
+            time: this.elements.editConcertTime.value.trim(),
+            location: this.elements.editConcertLocation.value.trim(),
+            address: this.elements.editConcertAddress.value.trim(),
+            description: this.elements.editConcertDescription.value.trim(),
+            imageUrl: this.elements.editConcertImageUrl.value.trim(),
+            ticketPrice: parseInt(this.elements.editConcertTicketPrice.value) || 0,
+            ticketsAvailable: parseInt(this.elements.editConcertTicketsAvailable.value) || 100,
+        };
+    }
+
     async saveEditConcert() {
-        if (!this.editingConcert) return;
+        const data = this.getConcertFormData();
 
-        const title = this.elements.editConcertTitle.value.trim();
-        const description = this.elements.editConcertDescription.value.trim();
-
-        if (!title) {
+        if (!data.title) {
             alert('Vennligst fyll ut tittel.');
+            return;
+        }
+        if (!data.date) {
+            alert('Vennligst velg en dato.');
             return;
         }
 
@@ -553,18 +618,18 @@ class ConcertsApp {
         this.elements.editConcertSave.textContent = 'Lagrer...';
 
         try {
-            try {
-                await sharePointAPI.updateItem('concerts', this.editingConcert.id, {
-                    title,
-                    description
-                });
-            } catch (apiError) {
-                console.log('API update not available, updating locally:', apiError.message);
+            if (this.isCreatingConcert) {
+                // Create new concert
+                const result = await sharePointAPI.createItem('concerts', data);
+                const newConcert = { ...data, id: result?.id || Date.now() };
+                this.concerts.push(newConcert);
+                this.concerts.sort((a, b) => new Date(a.date) - new Date(b.date));
+            } else if (this.editingConcert) {
+                // Update existing
+                await sharePointAPI.updateItem('concerts', this.editingConcert.id, data);
+                Object.assign(this.editingConcert, data);
             }
 
-            // Update local data and re-render
-            this.editingConcert.title = title;
-            this.editingConcert.description = description;
             this.renderConcerts();
             this.closeEditConcertModal();
 

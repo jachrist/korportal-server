@@ -149,11 +149,11 @@
         </div>
     </div>
 
-    <!-- Edit concert modal -->
+    <!-- Edit/create concert modal -->
     <div class="post-modal" id="editConcertModal" hidden>
         <div class="post-modal-content">
             <div class="post-modal-header">
-                <h3>Rediger konsert</h3>
+                <h3 id="editConcertHeading">Rediger konsert</h3>
                 <button class="post-modal-close" id="editConcertModalClose" title="Lukk">&#10005;</button>
             </div>
             <div class="post-modal-body">
@@ -162,8 +162,36 @@
                     <input type="text" id="editConcertTitle" placeholder="Konserttittel..." maxlength="200">
                 </div>
                 <div class="form-group">
-                    <label for="editConcertDescription">Beskrivelse</label>
+                    <label for="editConcertDate">Dato</label>
+                    <input type="date" id="editConcertDate">
+                </div>
+                <div class="form-group">
+                    <label for="editConcertTime">Tidspunkt</label>
+                    <input type="text" id="editConcertTime" placeholder="F.eks. 19:00" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label for="editConcertLocation">Sted</label>
+                    <input type="text" id="editConcertLocation" placeholder="F.eks. Vålerenga kirke" maxlength="200">
+                </div>
+                <div class="form-group">
+                    <label for="editConcertAddress">Adresse</label>
+                    <input type="text" id="editConcertAddress" placeholder="Gateadresse" maxlength="200">
+                </div>
+                <div class="form-group">
+                    <label for="editConcertDescription">Beskrivelse (markdown)</label>
                     <textarea id="editConcertDescription" placeholder="Beskriv konserten..." maxlength="5000"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editConcertImageUrl">Bilde-URL (valgfritt)</label>
+                    <input type="url" id="editConcertImageUrl" placeholder="https://..." maxlength="500">
+                </div>
+                <div class="form-group">
+                    <label for="editConcertTicketPrice">Billettpris (kr)</label>
+                    <input type="number" id="editConcertTicketPrice" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="editConcertTicketsAvailable">Antall billetter</label>
+                    <input type="number" id="editConcertTicketsAvailable" placeholder="100" min="0">
                 </div>
             </div>
             <div class="post-modal-footer">

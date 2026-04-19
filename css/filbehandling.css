@@ -728,6 +728,61 @@
     color: var(--bg);
 }
 
+/* Checkbox in file rows */
+.file-row__checkbox {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--accent);
+}
+
+/* Batch toolbar */
+.batch-toolbar__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.batch-toolbar__count {
+    font-weight: 600;
+    color: var(--accent);
+    min-width: 60px;
+}
+
+.batch-toolbar__fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--line);
+}
+
+.batch-toolbar__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 120px;
+}
+
+.batch-toolbar__field label {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+.btn--sm {
+    padding: 4px 12px;
+    font-size: 0.8rem;
+}
+
+.form-select--sm,
+.form-input--sm {
+    padding: 4px 8px;
+    font-size: 0.85rem;
+}
+
 /* Filter separator */
 .filter-chips__separator {
     display: inline-block;

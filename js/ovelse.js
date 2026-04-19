@@ -261,6 +261,8 @@ class PracticeApp {
         // Update autoblading button state
         this.updateAutoTurnButton();
 
+        // Load anledninger and then data
+        await this.loadAnledninger();
         await this.loadData();
 
         // Check offline status after data is loaded
@@ -273,6 +275,7 @@ class PracticeApp {
             programTitle: document.getElementById('programTitle'),
 
             // Control bar
+            anledningSelect: document.getElementById('anledningSelect'),
             voiceSelect: document.getElementById('voiceSelect'),
 
             // PDF elements
@@ -353,6 +356,11 @@ class PracticeApp {
             btn.addEventListener('click', () => this.selectMode(btn.dataset.mode));
         });
 
+        // Anledning select
+        this.elements.anledningSelect?.addEventListener('change', (e) => {
+            this.selectAnledning(e.target.value);
+        });
+
         // Voice select
         this.elements.voiceSelect?.addEventListener('change', (e) => {
             this.selectVoice(e.target.value);
@@ -423,6 +431,46 @@ class PracticeApp {
     }
 
     // ==========================================================================
+    // ANLEDNING SELECTION
+    // ==========================================================================
+    async loadAnledninger() {
+        if (useMock()) return;
+        try {
+            const practiceUrl = window.ENV?.POWER_AUTOMATE_PRACTICE_URL || '';
+            const apiBase = practiceUrl.replace(/\/ovelse\/program\/?$/, '');
+            const [anledningerRes, metaRes] = await Promise.all([
+                fetch(`${apiBase}/filer/anledninger`).then(r => r.json()),
+                fetch(`${apiBase}/ovelse/meta`).then(r => r.json()),
+            ]);
+            const anledninger = (anledningerRes.body || anledningerRes).anledninger || [];
+            const meta = metaRes.body || metaRes;
+            const activeAnledning = meta.anledning || '';
+
+            const select = this.elements.anledningSelect;
+            if (!select) return;
+            select.innerHTML = '';
+            for (const a of anledninger) {
+                const opt = document.createElement('option');
+                opt.value = a;
+                opt.textContent = a;
+                if (a === activeAnledning) opt.selected = true;
+                select.appendChild(opt);
+            }
+            this.selectedAnledning = select.value || activeAnledning;
+        } catch (err) {
+            console.error('Load anledninger error:', err);
+        }
+    }
+
+    async selectAnledning(anledning) {
+        this.selectedAnledning = anledning;
+        this.currentWorkIndex = 0;
+        this.currentPage = 1;
+        await this.loadData();
+        this.checkOfflineStatus();
+    }
+
+    // ==========================================================================
     // DATA LOADING
     // ==========================================================================
     async loadData() {
@@ -434,8 +482,8 @@ class PracticeApp {
                 await new Promise(resolve => setTimeout(resolve, 300));
                 this.data = MOCK_DATA;
             } else {
-                // Bruk SharePoint API
-                this.data = await sharePointAPI.getPracticeData();
+                // Bruk SharePoint API med valgt anledning
+                this.data = await sharePointAPI.getPracticeData(this.selectedAnledning);
                 if (!this.data) {
                     throw new Error('Ingen data mottatt');
                 }

@@ -433,13 +433,17 @@ class SharePointAPI {
      * Henter øvelsesdata fra SharePoint/Power Automate
      * @returns {Promise<Object>} - Øvelsesdata med noter og lydfiler
      */
-    async getPracticeData() {
+    async getPracticeData(anledning) {
         if (!CONFIG.endpoints.practice) {
             console.warn('[SharePointAPI] Practice endpoint not configured');
             return null;
         }
 
-        const response = await this.fetch(CONFIG.endpoints.practice);
+        let url = CONFIG.endpoints.practice;
+        if (anledning) {
+            url += (url.includes('?') ? '&' : '?') + 'anledning=' + encodeURIComponent(anledning);
+        }
+        const response = await this.fetch(url);
         return this.transformPracticeData(response);
     }
 

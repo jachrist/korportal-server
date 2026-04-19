@@ -11,6 +11,7 @@ let filteredFiles = [];
 let activeCategories = new Set(['alle']);
 let searchQuery = '';
 let editingFile = null;
+let selectedFileIds = new Set();
 
 // ============================================================================
 // DOM Elements
@@ -42,6 +43,18 @@ const elements = {
     menuClose: document.getElementById('menuClose'),
     menuList: document.getElementById('menuList'),
     currentYear: document.getElementById('currentYear'),
+    batchToolbar: document.getElementById('batchToolbar'),
+    batchCount: document.getElementById('batchCount'),
+    batchSelectAll: document.getElementById('batchSelectAll'),
+    batchDeselectAll: document.getElementById('batchDeselectAll'),
+    batchSetMeta: document.getElementById('batchSetMeta'),
+    batchFields: document.getElementById('batchFields'),
+    batchApply: document.getElementById('batchApply'),
+    batchKategori: document.getElementById('batchKategori'),
+    batchStemme: document.getElementById('batchStemme'),
+    batchVerk: document.getElementById('batchVerk'),
+    batchAnledning: document.getElementById('batchAnledning'),
+    batchSortering: document.getElementById('batchSortering'),
     dropzone: document.getElementById('dropzone'),
     fileInput: document.getElementById('fileInput'),
     uploadProgress: document.getElementById('uploadProgress'),
@@ -96,12 +109,12 @@ async function apiPost(path, body) {
 // ============================================================================
 
 function getFileIcon(kategori) {
-    const icons = { 'Note': '📄', 'Opptak': '🎵', 'Øvefil': '🎧', 'Sideskift': '📋' };
+    const icons = { 'Note': '📄', 'Opptak': '🎵', 'Øvefil': '🎧', 'Sideskift': '📋', 'Dokument': '📑' };
     return icons[kategori] || '📁';
 }
 
 function filterCategoryFromKategori(kategori) {
-    const map = { 'Note': 'note', 'Opptak': 'opptak', 'Øvefil': 'ovefil', 'Sideskift': 'sideskift' };
+    const map = { 'Note': 'note', 'Opptak': 'opptak', 'Øvefil': 'ovefil', 'Sideskift': 'sideskift', 'Dokument': 'dokument' };
     return map[kategori] || '';
 }
 
@@ -308,7 +321,7 @@ function applyFilters() {
             if (activeCategories.has('not-uploaded') && file.uploaded) return false;
 
             // Category filters (only if a category chip is active)
-            const categoryChips = ['tom', 'note', 'opptak', 'ovefil', 'sideskift'];
+            const categoryChips = ['tom', 'note', 'opptak', 'ovefil', 'sideskift', 'dokument'];
             const activeCats = categoryChips.filter(c => activeCategories.has(c));
             if (activeCats.length > 0) {
                 if (isEmpty) {
@@ -399,8 +412,11 @@ function renderFiles() {
                  ⬆ <input type="file" data-id="${file.id}" data-navn="${escapeHtml(file.navn)}" data-action="upload-single" hidden>
                </label>`;
 
+        const checked = selectedFileIds.has(file.id) ? 'checked' : '';
+
         return `
             <div class="file-row ${uploadedClass}" data-id="${file.id}">
+                <input type="checkbox" class="file-row__checkbox" data-id="${file.id}" ${checked}>
                 <div class="file-row__icon">${icon}${uploadedBadge}</div>
                 <div class="file-row__info">
                     <div class="file-row__title">${title}</div>
@@ -473,6 +489,75 @@ async function saveEditForm(event) {
         console.error('Error saving:', error);
         showToast('Kunne ikke lagre endringer', 'error');
     }
+}
+
+// ============================================================================
+// Batch Metadata
+// ============================================================================
+
+function updateBatchToolbar() {
+    const count = selectedFileIds.size;
+    if (elements.batchToolbar) {
+        elements.batchToolbar.hidden = count === 0;
+    }
+    if (elements.batchCount) {
+        elements.batchCount.textContent = `${count} valgt`;
+    }
+    if (count === 0 && elements.batchFields) {
+        elements.batchFields.hidden = true;
+    }
+}
+
+async function applyBatchMetadata() {
+    const ids = Array.from(selectedFileIds);
+    if (ids.length === 0) return showToast('Ingen filer valgt', 'error');
+
+    const kategori = elements.batchKategori?.value;
+    const stemme = elements.batchStemme?.value;
+    const verk = elements.batchVerk?.value?.trim();
+    const anledning = elements.batchAnledning?.value?.trim();
+    const sorteringVal = elements.batchSortering?.value?.trim();
+
+    // Check that at least one field is set
+    if (!kategori && !stemme && !verk && !anledning && !sorteringVal) {
+        return showToast('Fyll inn minst ett felt', 'error');
+    }
+
+    showLoader();
+    let success = 0;
+    let failed = 0;
+
+    for (const id of ids) {
+        const updatedData = { id };
+        if (kategori) updatedData.kategori = kategori;
+        if (stemme) updatedData.stemme = stemme;
+        if (verk) updatedData.verk = verk;
+        if (anledning) updatedData.anledning = anledning;
+        if (sorteringVal) updatedData.sortering = Number(sorteringVal);
+
+        try {
+            await apiPost('/filer/oppdater', updatedData);
+            success++;
+        } catch (err) {
+            console.error('Batch update error for', id, err);
+            failed++;
+        }
+    }
+
+    hideLoader();
+    selectedFileIds.clear();
+    elements.batchFields.hidden = true;
+    updateBatchToolbar();
+
+    // Reset batch fields
+    if (elements.batchKategori) elements.batchKategori.value = '';
+    if (elements.batchStemme) elements.batchStemme.value = '';
+    if (elements.batchVerk) elements.batchVerk.value = '';
+    if (elements.batchAnledning) elements.batchAnledning.value = '';
+    if (elements.batchSortering) elements.batchSortering.value = '';
+
+    showToast(`${success} filer oppdatert${failed ? `, ${failed} feilet` : ''}`);
+    await loadFiles();
 }
 
 // ============================================================================
@@ -576,6 +661,32 @@ function initEventListeners() {
     });
 
     elements.resetFilters.addEventListener('click', resetFilters);
+
+    // Checkbox selection
+    elements.filesList.addEventListener('change', (e) => {
+        const cb = e.target.closest('.file-row__checkbox');
+        if (!cb) return;
+        const id = cb.dataset.id;
+        if (cb.checked) selectedFileIds.add(id);
+        else selectedFileIds.delete(id);
+        updateBatchToolbar();
+    });
+
+    // Batch actions
+    elements.batchSelectAll?.addEventListener('click', () => {
+        filteredFiles.forEach(f => selectedFileIds.add(f.id));
+        renderFiles();
+        updateBatchToolbar();
+    });
+    elements.batchDeselectAll?.addEventListener('click', () => {
+        selectedFileIds.clear();
+        renderFiles();
+        updateBatchToolbar();
+    });
+    elements.batchSetMeta?.addEventListener('click', () => {
+        elements.batchFields.hidden = !elements.batchFields.hidden;
+    });
+    elements.batchApply?.addEventListener('click', () => applyBatchMetadata());
 
     // File list — edit and remove buttons
     elements.filesList.addEventListener('click', (e) => {

@@ -23,7 +23,8 @@ router.get('/program', async (req, res) => {
     // 1. Get practice meta (active anledning, title, etc.)
     const practiceItems = await listEntities('Practice');
     const meta = practiceItems.find(i => i.partitionKey === 'program') || {};
-    const anledning = meta.anledning || '';
+    // Allow overriding anledning via query parameter
+    const anledning = req.query.anledning || meta.anledning || '';
 
     if (!anledning) {
       return res.json({ title: meta.title || '', voice: meta.voice || 'tutti', baseUrls: { pdf: '', audio: '' }, notes: [] });

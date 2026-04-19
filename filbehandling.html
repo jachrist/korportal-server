@@ -129,6 +129,7 @@
                     <button class="filter-chip" data-category="opptak">Opptak</button>
                     <button class="filter-chip" data-category="ovefil">Øvefil</button>
                     <button class="filter-chip" data-category="sideskift">Sideskift</button>
+                    <button class="filter-chip" data-category="dokument">Dokument</button>
                     <span class="filter-chips__separator"></span>
                     <button class="filter-chip" data-category="uploaded">På server</button>
                     <button class="filter-chip" data-category="not-uploaded">Ikke lastet opp</button>
@@ -141,6 +142,62 @@
                 <button class="filter-status__reset" id="resetFilters" hidden>
                     ↺ Nullstill filtre
                 </button>
+            </div>
+        </section>
+
+        <!-- Batch actions toolbar -->
+        <section class="card content batch-toolbar" id="batchToolbar" hidden>
+            <div class="batch-toolbar__row">
+                <span class="batch-toolbar__count" id="batchCount">0 valgt</span>
+                <button class="btn btn--secondary btn--sm" id="batchSelectAll">Velg alle synlige</button>
+                <button class="btn btn--secondary btn--sm" id="batchDeselectAll">Fjern valg</button>
+                <button class="btn btn--primary btn--sm" id="batchSetMeta">Sett metadata</button>
+            </div>
+            <div class="batch-toolbar__fields" id="batchFields" hidden>
+                <div class="batch-toolbar__field">
+                    <label>Kategori</label>
+                    <select id="batchKategori" class="form-select form-select--sm">
+                        <option value="">(Ikke endre)</option>
+                        <option value="Note">Note</option>
+                        <option value="Opptak">Opptak</option>
+                        <option value="Øvefil">Øvefil</option>
+                        <option value="Sideskift">Sideskift</option>
+                        <option value="Dokument">Dokument</option>
+                    </select>
+                </div>
+                <div class="batch-toolbar__field">
+                    <label>Stemme</label>
+                    <select id="batchStemme" class="form-select form-select--sm">
+                        <option value="">(Ikke endre)</option>
+                        <option value="sopran">sopran</option>
+                        <option value="sopran 1">sopran 1</option>
+                        <option value="sopran 2">sopran 2</option>
+                        <option value="alt">alt</option>
+                        <option value="alt 1">alt 1</option>
+                        <option value="alt 2">alt 2</option>
+                        <option value="tenor">tenor</option>
+                        <option value="tenor 1">tenor 1</option>
+                        <option value="tenor 2">tenor 2</option>
+                        <option value="bass">bass</option>
+                        <option value="bass 1">bass 1</option>
+                        <option value="bass 2">bass 2</option>
+                        <option value="tutti">tutti</option>
+                        <option value="partitur">partitur</option>
+                    </select>
+                </div>
+                <div class="batch-toolbar__field">
+                    <label>Verk</label>
+                    <input type="text" id="batchVerk" class="form-input form-input--sm" placeholder="(Ikke endre)">
+                </div>
+                <div class="batch-toolbar__field">
+                    <label>Anledning</label>
+                    <input type="text" id="batchAnledning" class="form-input form-input--sm" placeholder="(Ikke endre)">
+                </div>
+                <div class="batch-toolbar__field">
+                    <label>Sortering</label>
+                    <input type="number" id="batchSortering" class="form-input form-input--sm" placeholder="(Ikke endre)">
+                </div>
+                <button class="btn btn--primary btn--sm" id="batchApply">Lagre for valgte</button>
             </div>
         </section>
 
@@ -206,6 +263,7 @@
                         <option value="Opptak">Opptak</option>
                         <option value="Øvefil">Øvefil</option>
                         <option value="Sideskift">Sideskift</option>
+                        <option value="Dokument">Dokument</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -216,14 +274,18 @@
                     <label class="form-label" for="editStemme">Stemme</label>
                     <select id="editStemme" class="form-select">
                         <option value="">Velg stemme...</option>
-                        <option value="sopran-1">sopran 1</option>
-                        <option value="sopran-2">sopran 2</option>
-                        <option value="alt-1">alt 1</option>
-                        <option value="alt-2">alt 2</option>
-                        <option value="tenor-1">tenor 1</option>
-                        <option value="tenor-2">tenor 2</option>
-                        <option value="bass-1">bass 1</option>
-                        <option value="bass-2">bass 2</option>
+                        <option value="sopran">sopran</option>
+                        <option value="sopran 1">sopran 1</option>
+                        <option value="sopran 2">sopran 2</option>
+                        <option value="alt">alt</option>
+                        <option value="alt 1">alt 1</option>
+                        <option value="alt 2">alt 2</option>
+                        <option value="tenor">tenor</option>
+                        <option value="tenor 1">tenor 1</option>
+                        <option value="tenor 2">tenor 2</option>
+                        <option value="bass">bass</option>
+                        <option value="bass 1">bass 1</option>
+                        <option value="bass 2">bass 2</option>
                         <option value="tutti">tutti</option>
                         <option value="partitur">partitur</option>
                     </select>

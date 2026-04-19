@@ -25,14 +25,10 @@ const MOCK_ARTICLE = {
     title: 'Velkommen til Kammerkoret Utsikten',
     text: `Kammerkoret Utsikten er et ambisiøst blandakor med base i Oslo. Vi synger et bredt repertoar fra renessanse til samtidsmusikk, og holder flere konserter i året.
 
-$picture
-
 Koret ble stiftet i 2010 og har siden den gang vokst til å bli et av Oslos mest aktive kammerkor. Vi øver hver tirsdag klokken 19:00-21:30 i Vålerenga kirke.
 
 Er du interessert i å synge med oss? Ta kontakt med en av våre kontaktpersoner nedenfor.`,
-    format: 'text',
-    imageUrl: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=1200&q=80',
-    imagePlacement: 'angitt'
+    format: 'markdown'
 };
 
 const MOCK_CONTACTS = [
@@ -188,12 +184,12 @@ class KorportalApp {
         if (!this.elements.articleContent) return;
 
         this.currentArticle = article;
-        const { title, text, format, imageUrl, imagePlacement } = article;
+        const { title, text, format } = article;
 
         // Konverter tekst basert på format
         let contentHtml = this.formatContent(text, format);
 
-        // Bygg HTML med bildeplassering
+        // Bygg HTML
         let html = '';
 
         // Tittel with optional edit button
@@ -206,30 +202,7 @@ class KorportalApp {
             html += `</div>`;
         }
 
-        // Bilde over teksten
-        if (imageUrl && imagePlacement === 'over') {
-            html += this.createImageHtml(imageUrl, title);
-        }
-
-        // Innhold med eventuelt innfelt bilde
-        if (imageUrl && imagePlacement === 'angitt' && text.includes('$picture')) {
-            // Split tekst på $picture og sett inn bilde
-            const parts = contentHtml.split('$picture');
-            html += `<div class="article__text">${parts[0]}</div>`;
-            html += this.createImageHtml(imageUrl, title);
-            if (parts[1]) {
-                html += `<div class="article__text">${parts[1]}</div>`;
-            }
-        } else {
-            // Fjern $picture-markør hvis den finnes men bildeplassering ikke er 'angitt'
-            contentHtml = contentHtml.replace(/\$picture/g, '');
-            html += `<div class="article__text">${contentHtml}</div>`;
-        }
-
-        // Bilde under teksten
-        if (imageUrl && imagePlacement === 'under') {
-            html += this.createImageHtml(imageUrl, title);
-        }
+        html += `<div class="article__text">${contentHtml}</div>`;
 
         this.elements.articleContent.innerHTML = html;
 
