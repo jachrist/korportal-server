@@ -436,11 +436,9 @@ class PracticeApp {
     async loadAnledninger() {
         if (useMock()) return;
         try {
-            const practiceUrl = window.ENV?.POWER_AUTOMATE_PRACTICE_URL || '';
-            const apiBase = practiceUrl.replace(/\/ovelse\/program\/?$/, '');
             const [anledningerRes, metaRes] = await Promise.all([
-                fetch(`${apiBase}/filer/anledninger`).then(r => r.json()),
-                fetch(`${apiBase}/ovelse/meta`).then(r => r.json()),
+                fetch('/api/filer/anledninger').then(r => r.json()),
+                fetch('/api/ovelse/meta').then(r => r.json()),
             ]);
             const anledninger = (anledningerRes.body || anledningerRes).anledninger || [];
             const meta = metaRes.body || metaRes;
@@ -459,6 +457,9 @@ class PracticeApp {
             this.selectedAnledning = select.value || activeAnledning;
         } catch (err) {
             console.error('Load anledninger error:', err);
+            if (this.elements.anledningSelect) {
+                this.elements.anledningSelect.innerHTML = '<option value="">Kunne ikke laste</option>';
+            }
         }
     }
 
