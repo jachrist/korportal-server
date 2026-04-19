@@ -253,7 +253,7 @@ class SharePointAPI {
             icon: typeof item.icon === 'string' ? item.icon.trim() : null,
             order: item.order || 0,
             openInNewTab: item.openInNewTab === true || item.openInNewTab === 'true',
-            minRole: (typeof item.role === 'object' ? item.role?.Value : item.role) || 'anonym',
+            minRole: item.minRole || (typeof item.role === 'object' ? item.role?.Value : item.role) || 'anonym',
             hideWhenLoggedIn: item.hideWhenLoggedIn === true || item.hideWhenLoggedIn === 'true',
             isLogout: item.isLogout === true || item.isLogout === 'true'
         })).sort((a, b) => a.order - b.order);
