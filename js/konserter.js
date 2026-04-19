@@ -254,7 +254,7 @@ class ConcertsApp {
         // Bind book buttons
         this.elements.concertsSection.querySelectorAll('.btn--book').forEach(btn => {
             btn.addEventListener('click', () => {
-                const concertId = parseInt(btn.dataset.concertId);
+                const concertId = btn.dataset.concertId;
                 this.openBookingModal(concertId);
             });
         });
@@ -262,7 +262,7 @@ class ConcertsApp {
         // Bind edit buttons
         this.elements.concertsSection.querySelectorAll('.btn--edit-concert').forEach(btn => {
             btn.addEventListener('click', () => {
-                const concertId = parseInt(btn.dataset.concertId);
+                const concertId = btn.dataset.concertId;
                 this.openEditConcertModal(concertId);
             });
         });

@@ -14,8 +14,8 @@ if (!fs.existsSync(uploadDir)) {
 
 // --- Kategori ↔ type mapping ---
 // Frontend uses "kategori" (Norwegian labels), DB uses "type" (lowercase)
-const kategoriToType = { 'Note': 'noter', 'Opptak': 'opptak', 'Øvefil': 'øvefil', 'Sideskift': 'sideskift', 'Dokument': 'dokument' };
-const typeToKategori = { 'noter': 'Note', 'opptak': 'Opptak', 'øvefil': 'Øvefil', 'sideskift': 'Sideskift', 'dokument': 'Dokument' };
+const kategoriToType = { 'Note': 'noter', 'Opptak': 'opptak', 'Øvefil': 'øvefil', 'Sideskift': 'sideskift', 'Dokument': 'dokument', 'Bilde': 'bilde' };
+const typeToKategori = { 'noter': 'Note', 'opptak': 'Opptak', 'øvefil': 'Øvefil', 'sideskift': 'Sideskift', 'dokument': 'Dokument', 'bilde': 'Bilde' };
 
 function toType(kategori) { return kategoriToType[kategori] || kategori || ''; }
 function toKategori(type) { return typeToKategori[type] || type || ''; }

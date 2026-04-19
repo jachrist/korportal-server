@@ -109,12 +109,12 @@ async function apiPost(path, body) {
 // ============================================================================
 
 function getFileIcon(kategori) {
-    const icons = { 'Note': '📄', 'Opptak': '🎵', 'Øvefil': '🎧', 'Sideskift': '📋', 'Dokument': '📑' };
+    const icons = { 'Note': '📄', 'Opptak': '🎵', 'Øvefil': '🎧', 'Sideskift': '📋', 'Dokument': '📑', 'Bilde': '🖼️' };
     return icons[kategori] || '📁';
 }
 
 function filterCategoryFromKategori(kategori) {
-    const map = { 'Note': 'note', 'Opptak': 'opptak', 'Øvefil': 'ovefil', 'Sideskift': 'sideskift', 'Dokument': 'dokument' };
+    const map = { 'Note': 'note', 'Opptak': 'opptak', 'Øvefil': 'ovefil', 'Sideskift': 'sideskift', 'Dokument': 'dokument', 'Bilde': 'bilde' };
     return map[kategori] || '';
 }
 
@@ -321,7 +321,7 @@ function applyFilters() {
             if (activeCategories.has('not-uploaded') && file.uploaded) return false;
 
             // Category filters (only if a category chip is active)
-            const categoryChips = ['tom', 'note', 'opptak', 'ovefil', 'sideskift', 'dokument'];
+            const categoryChips = ['tom', 'note', 'opptak', 'ovefil', 'sideskift', 'dokument', 'bilde'];
             const activeCats = categoryChips.filter(c => activeCategories.has(c));
             if (activeCats.length > 0) {
                 if (isEmpty) {
@@ -423,6 +423,7 @@ function renderFiles() {
                     <div class="file-row__meta">${metaItems.join('')}</div>
                 </div>
                 <div class="file-row__actions">
+                    ${file.uploaded ? `<button class="file-row__action-btn file-row__action-btn--url" data-navn="${escapeHtml(file.navn)}" data-action="copy-url" title="Kopier URL">🔗</button>` : ''}
                     <button class="file-row__edit-btn" data-id="${file.id}">Rediger</button>
                     ${actionBtn}
                 </div>
@@ -700,6 +701,20 @@ function initEventListeners() {
             if (file && confirm(`Fjerne "${file.navn}" fra server?\nMetadata beholdes.`)) {
                 removeFromServer(id);
             }
+        }
+
+        const copyBtn = e.target.closest('[data-action="copy-url"]');
+        if (copyBtn) {
+            const navn = copyBtn.dataset.navn;
+            const url = `/uploads/${encodeURIComponent(navn)}`;
+            const fullUrl = `${location.origin}${url}`;
+            navigator.clipboard.writeText(fullUrl).then(() => {
+                showToast('URL kopiert til utklippstavle');
+            }).catch(() => {
+                // Fallback: show in prompt
+                prompt('Kopier URL:', fullUrl);
+            });
+            return;
         }
 
         const uploadInput = e.target.closest('[data-action="upload-single"]');

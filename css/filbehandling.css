@@ -728,6 +728,23 @@
     color: var(--bg);
 }
 
+/* Copy URL button */
+.file-row__action-btn--url {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    color: var(--muted);
+    cursor: pointer;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.file-row__action-btn--url:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
 /* Checkbox in file rows */
 .file-row__checkbox {
     flex-shrink: 0;
