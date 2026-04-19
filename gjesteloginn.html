@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kammerkoret Utsikten">
+    <meta name="description" content="Gjesteinnlogging - Kammerkoret Utsikten">
+    <title>Gjesteinnlogging - Kammerkoret Utsikten</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/icon-16.png">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <header class="uts-topbar">
+        <div class="uts-brandMini">
+            <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+            <span class="uts-brandMiniText">Kammerkoret Utsikten</span>
+        </div>
+        <div class="uts-topActions">
+            <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">🌙</button>
+        </div>
+    </header>
+
+    <main class="login-main">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Gjesteinnlogging</h1>
+                <p>Logg inn som gjest for tilgang til øvefiler</p>
+            </div>
+
+            <!-- Step 1: Password -->
+            <form class="login-form" id="passwordForm">
+                <div class="form-group">
+                    <label for="passwordInput">Passord</label>
+                    <input type="password" id="passwordInput" placeholder="Skriv inn gjestepassordet" required>
+                </div>
+                <div class="form-group">
+                    <label for="guestEmailInput">E-postadresse</label>
+                    <input type="email" id="guestEmailInput" placeholder="din.epost@example.com" autocomplete="email" required>
+                </div>
+                <button type="submit" class="login-btn" id="guestSendCodeBtn">
+                    <span class="btn-text">Send påloggingskode</span>
+                    <span class="btn-spinner" hidden></span>
+                </button>
+            </form>
+
+            <!-- Step 2: Code verification -->
+            <form class="login-form" id="codeForm" hidden>
+                <div class="form-group">
+                    <label for="codeInput">Påloggingskode</label>
+                    <p class="form-hint">En kode er sendt til <span id="sentToEmail"></span></p>
+                    <input type="text" id="codeInput" placeholder="123456" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" required>
+                </div>
+                <button type="submit" class="login-btn" id="verifyCodeBtn">
+                    <span class="btn-text">Bekreft kode</span>
+                    <span class="btn-spinner" hidden></span>
+                </button>
+                <button type="button" class="login-btn login-btn--secondary" id="backBtn">Tilbake</button>
+            </form>
+
+            <div class="login-message" id="loginMessage" hidden>
+                <p id="messageText"></p>
+            </div>
+
+            <div class="login-info">
+                <p>Som gjest har du tilgang til øvefiler. <a href="/login.html">Medlem? Logg inn her.</a></p>
+            </div>
+        </div>
+    </main>
+
+    <div class="loader" id="loader">
+        <div class="loader__content">
+            <div class="loader__spinner"></div>
+            <p class="loader__text">Vennligst vent...</p>
+        </div>
+    </div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/gjesteloginn.js"></script>
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

@@ -114,19 +114,162 @@ router.post('/verifiser-kode', async (req, res) => {
     }
 
     const member = members[0];
-    return successResponse(res, {
-      member: {
-        id: member.id,
-        email: member.email,
-        name: member.name,
-        voice: member.voice,
-        phone: member.phone,
-        role: member.role,
-      },
-    });
+    const memberData = {
+      id: member.id,
+      email: member.email,
+      name: member.name,
+      voice: member.voice,
+      phone: member.phone,
+      role: member.role,
+    };
+    if (member.role === 'gjest' && member.guestAnledning) {
+      memberData.guestAnledning = member.guestAnledning;
+    }
+    return successResponse(res, { member: memberData });
   } catch (err) {
     console.error('verifiser-kode error:', err);
     return errorResponse(res, 'Kunne ikke verifisere kode.', 500);
+  }
+});
+
+/**
+ * POST /api/auth/gjest-send-kode
+ * Request:  { "email": "guest@example.com", "password": "shared-password" }
+ * Response: { "success": true }
+ *
+ * Validates guest password, creates member with role='gjest' if not exists,
+ * then sends verification code.
+ */
+router.post('/gjest-send-kode', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const err = validateRequired(req.body, ['email', 'password']);
+    if (err) return errorResponse(res, err);
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Get guest config
+    const { getEntity } = require('../lib/db');
+    const config = await getEntity('GuestConfig', 'config', 'active');
+    if (!config || !config.password) {
+      return errorResponse(res, 'Gjestetilgang er ikke konfigurert.');
+    }
+
+    // Check password
+    if (password !== config.password) {
+      return errorResponse(res, 'Feil passord.');
+    }
+
+    // Check expiry
+    if (config.expiresAt && new Date(config.expiresAt) < new Date()) {
+      return errorResponse(res, 'Gjestetilgangen har utløpt.');
+    }
+
+    // Check if member exists
+    const members = await listEntities('Members', {
+      filter: `email eq '${normalizedEmail}'`,
+    });
+
+    if (members.length === 0) {
+      // Create guest member
+      const id = generateId('GJEST');
+      await upsertEntity('Members', buildEntity('member', id, {
+        email: normalizedEmail,
+        role: 'gjest',
+        voice: '',
+      }, {
+        id, email: normalizedEmail, name: '', role: 'gjest',
+        voice: '', phone: '',
+        guestAnledning: config.anledning || '',
+        createdAt: now(),
+      }));
+    } else {
+      // Update existing member to ensure guest anledning is current
+      const member = members[0];
+      if (member.role === 'gjest') {
+        const updated = { ...member, guestAnledning: config.anledning || '' };
+        await upsertEntity('Members', buildEntity('member', member.id, {
+          email: normalizedEmail, role: 'gjest', voice: member.voice || '',
+        }, updated));
+      }
+    }
+
+    // Generate and send code (same as regular flow)
+    const code = crypto.randomInt(100000, 999999).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+
+    const rowKey = generateId();
+    await upsertEntity('AuthCodes', buildEntity('authcode', rowKey, {
+      email: normalizedEmail, expiresAt,
+    }, {
+      email: normalizedEmail, code, expiresAt, createdAt: now(),
+    }));
+
+    try {
+      const nodemailer = require('nodemailer');
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT) || 587,
+        secure: false,
+        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      });
+
+      await transporter.sendMail({
+        from: process.env.SMTP_FROM,
+        to: normalizedEmail,
+        subject: 'Din innloggingskode for Korportal (gjest)',
+        text: `Din kode er: ${code}\n\nKoden er gyldig i 10 minutter.`,
+        html: `<p>Din kode er: <strong>${code}</strong></p><p>Koden er gyldig i 10 minutter.</p>`,
+      });
+    } catch (mailErr) {
+      console.error('Kunne ikke sende e-post:', mailErr.message);
+    }
+
+    return successResponse(res, { message: 'Kode sendt til e-post.' });
+  } catch (err) {
+    console.error('gjest-send-kode error:', err);
+    return errorResponse(res, 'Kunne ikke sende kode.', 500);
+  }
+});
+
+/**
+ * GET /api/auth/gjest-config
+ * Returns guest configuration (for admin panel)
+ */
+router.get('/gjest-config', async (req, res) => {
+  try {
+    const { getEntity } = require('../lib/db');
+    const config = await getEntity('GuestConfig', 'config', 'active');
+    return res.json({
+      anledning: config?.anledning || '',
+      password: config?.password || '',
+      expiresAt: config?.expiresAt || '',
+    });
+  } catch (err) {
+    console.error('gjest-config error:', err);
+    return errorResponse(res, 'Kunne ikke hente gjestekonfig.', 500);
+  }
+});
+
+/**
+ * POST /api/auth/gjest-config
+ * Request: { anledning, password, expiresAt }
+ * Sets guest configuration (admin only)
+ */
+router.post('/gjest-config', async (req, res) => {
+  try {
+    const { anledning, password, expiresAt } = req.body;
+    const err = validateRequired(req.body, ['anledning', 'password']);
+    if (err) return errorResponse(res, err);
+
+    await upsertEntity('GuestConfig', buildEntity('config', 'active', {}, {
+      anledning, password, expiresAt: expiresAt || '',
+    }));
+
+    return successResponse(res, { message: 'Gjestekonfig oppdatert.' });
+  } catch (err) {
+    console.error('gjest-config update error:', err);
+    return errorResponse(res, 'Kunne ikke oppdatere gjestekonfig.', 500);
   }
 });
 

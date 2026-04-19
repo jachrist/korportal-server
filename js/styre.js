@@ -140,6 +140,7 @@ class StyreApp {
         this.setupEventListeners();
 
         await this.loadMembers();
+        await this.loadGuestConfig();
         this.hideLoader();
     }
 
@@ -221,6 +222,9 @@ class StyreApp {
         });
         this.elements.emailRecipientType?.addEventListener('change', () => this.updateRecipientUI());
         this.elements.emailFormSubmit?.addEventListener('click', () => this.sendEmail());
+
+        // Guest config
+        document.getElementById('saveGuestConfig')?.addEventListener('click', () => this.saveGuestConfig());
     }
 
     hideLoader() {
@@ -615,6 +619,56 @@ class StyreApp {
             });
         } catch {
             return dateStr;
+        }
+    }
+
+    // ==========================================================================
+    // GUEST CONFIG
+    // ==========================================================================
+    async loadGuestConfig() {
+        try {
+            const response = await fetch('/api/auth/gjest-config');
+            const data = await response.json();
+            const config = data.body || data;
+
+            const anledningInput = document.getElementById('guestAnledning');
+            const passwordInput = document.getElementById('guestPassword');
+            const expiryInput = document.getElementById('guestExpiry');
+
+            if (anledningInput) anledningInput.value = config.anledning || '';
+            if (passwordInput) passwordInput.value = config.password || '';
+            if (expiryInput) expiryInput.value = config.expiresAt || '';
+        } catch (err) {
+            console.error('Load guest config error:', err);
+        }
+    }
+
+    async saveGuestConfig() {
+        const anledning = document.getElementById('guestAnledning')?.value.trim();
+        const password = document.getElementById('guestPassword')?.value.trim();
+        const expiresAt = document.getElementById('guestExpiry')?.value || '';
+        const status = document.getElementById('guestConfigStatus');
+
+        if (!anledning || !password) {
+            this.showToast('Fyll inn anledning og passord', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/auth/gjest-config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ anledning, password, expiresAt }),
+            });
+            const data = await response.json();
+            const result = data.body || data;
+
+            if (status) status.textContent = 'Lagret!';
+            this.showToast('Gjestekonfig lagret');
+            setTimeout(() => { if (status) status.textContent = ''; }, 3000);
+        } catch (err) {
+            console.error('Save guest config error:', err);
+            this.showToast('Kunne ikke lagre gjestekonfig', 'error');
         }
     }
 

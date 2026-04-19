@@ -436,13 +436,24 @@ class PracticeApp {
     async loadAnledninger() {
         if (useMock()) return;
         try {
+            // Check if guest with restricted anledning
+            const memberData = localStorage.getItem('korportal-member');
+            const member = memberData ? JSON.parse(memberData) : null;
+            const isGuest = member?.role === 'gjest';
+            const guestAnledning = member?.guestAnledning;
+
             const [anledningerRes, metaRes] = await Promise.all([
                 fetch('/api/filer/anledninger').then(r => r.json()),
                 fetch('/api/ovelse/meta').then(r => r.json()),
             ]);
-            const anledninger = (anledningerRes.body || anledningerRes).anledninger || [];
+            let anledninger = (anledningerRes.body || anledningerRes).anledninger || [];
             const meta = metaRes.body || metaRes;
             const activeAnledning = meta.anledning || '';
+
+            // Guests only see their assigned anledning
+            if (isGuest && guestAnledning) {
+                anledninger = anledninger.filter(a => a === guestAnledning);
+            }
 
             const select = this.elements.anledningSelect;
             if (!select) return;
@@ -451,10 +462,19 @@ class PracticeApp {
                 const opt = document.createElement('option');
                 opt.value = a;
                 opt.textContent = a;
-                if (a === activeAnledning) opt.selected = true;
+                if (isGuest && guestAnledning) {
+                    opt.selected = a === guestAnledning;
+                } else if (a === activeAnledning) {
+                    opt.selected = true;
+                }
                 select.appendChild(opt);
             }
-            this.selectedAnledning = select.value || activeAnledning;
+            this.selectedAnledning = select.value || (isGuest ? guestAnledning : activeAnledning);
+
+            // Hide selector for guests with only one option
+            if (isGuest && anledninger.length <= 1) {
+                select.closest('.control-bar__group')?.style.setProperty('display', 'none');
+            }
         } catch (err) {
             console.error('Load anledninger error:', err);
             if (this.elements.anledningSelect) {

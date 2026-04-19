@@ -44,6 +44,7 @@ const TABLE_SCHEMAS = {
   Events: 'date TEXT',
   Files: 'type TEXT, stemme TEXT, verk TEXT, anledning TEXT, sortering INTEGER, uploaded INTEGER DEFAULT 0',
   AuthCodes: 'email TEXT, expiresAt TEXT',
+  GuestConfig: '',
 };
 
 // Cache of column names per table (populated by ensureTables)

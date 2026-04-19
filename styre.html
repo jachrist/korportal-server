@@ -85,6 +85,32 @@
             </div>
         </section>
 
+        <!-- Guest config -->
+        <section class="card content">
+            <details class="guest-config" id="guestConfig">
+                <summary class="guest-config__toggle">Gjestetilgang</summary>
+                <div class="guest-config__body">
+                    <p class="guest-config__hint">Konfigurer tilgang for gjester (f.eks. gjestekor). Gjester bruker <a href="/gjesteloginn.html">/gjesteloginn.html</a> for å logge inn.</p>
+                    <div class="styre-form-group">
+                        <label for="guestAnledning">Anledning</label>
+                        <input type="text" id="guestAnledning" class="styre-input" placeholder="F.eks. Felleskonsert 2026">
+                    </div>
+                    <div class="styre-form-group">
+                        <label for="guestPassword">Passord for gjester</label>
+                        <input type="text" id="guestPassword" class="styre-input" placeholder="Delt passord">
+                    </div>
+                    <div class="styre-form-group">
+                        <label for="guestExpiry">Utløpsdato</label>
+                        <input type="date" id="guestExpiry" class="styre-input">
+                    </div>
+                    <div class="styre-actions">
+                        <button class="styre-btn styre-btn--primary" id="saveGuestConfig">Lagre gjestekonfig</button>
+                        <span class="guest-config__status" id="guestConfigStatus"></span>
+                    </div>
+                </div>
+            </details>
+        </section>
+
         <!-- Members table -->
         <section class="card content">
             <div class="styre-filter-bar">
@@ -97,6 +123,7 @@
                     <option value="admin">Admin</option>
                     <option value="styre">Styre</option>
                     <option value="medlem">Medlem</option>
+                    <option value="gjest">Gjest</option>
                 </select>
             </div>
             <div id="membersTableContainer">

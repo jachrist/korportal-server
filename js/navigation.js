@@ -22,6 +22,7 @@ import badgeManager from './badge-manager.js';
  */
 export const ROLES = {
     ANONYM: 'anonym',
+    GJEST: 'gjest',
     MEDLEM: 'medlem',
     STYRE: 'styre',
     ADMIN: 'admin'
@@ -29,11 +30,13 @@ export const ROLES = {
 
 /**
  * Rollehierarki - hvilke roller som inkluderer andre
+ * Gjest har begrenset tilgang (kun øvelse og profil)
  */
 const ROLE_HIERARCHY = {
-    'admin': ['admin', 'styre', 'medlem', 'anonym'],
-    'styre': ['styre', 'medlem', 'anonym'],
-    'medlem': ['medlem', 'anonym'],
+    'admin': ['admin', 'styre', 'medlem', 'gjest', 'anonym'],
+    'styre': ['styre', 'medlem', 'gjest', 'anonym'],
+    'medlem': ['medlem', 'gjest', 'anonym'],
+    'gjest': ['gjest', 'anonym'],
     'anonym': ['anonym']
 };
 
