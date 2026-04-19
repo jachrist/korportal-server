@@ -11,7 +11,7 @@ import { initPage } from './navigation.js';
 // ============================================================================
 // Access control
 // ============================================================================
-const result = initPage({ requireAuth: true, requiredRole: 'medlem' });
+const result = initPage({ requireAuth: true, requiredRole: 'gjest' });
 if (!result) {
     document.getElementById('loader')?.classList.remove('active');
 }

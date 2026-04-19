@@ -423,119 +423,172 @@ function escapeHtml(str) {
 // GUEST LOGIN MODAL
 // ==========================================================================
 
-function openGuestLoginModal() {
+async function openGuestLoginModal() {
     // Remove existing modal if any
     document.getElementById('guestLoginModal')?.remove();
 
+    // Fetch guest config for info display
+    let guestInfo = '';
+    try {
+        const cfgRes = await fetch('/api/auth/gjest-config');
+        const cfgData = await cfgRes.json();
+        const cfg = cfgData.body || cfgData;
+        const parts = [];
+        if (cfg.anledning) parts.push(`<strong>${escapeHtml(cfg.anledning)}</strong>`);
+        if (cfg.expiresAt) {
+            const d = new Date(cfg.expiresAt);
+            parts.push(`Tilgang utløper ${d.toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' })}`);
+        }
+        if (parts.length) guestInfo = `<p class="login-guest-info">${parts.join(' — ')}</p>`;
+    } catch (e) { /* ignore */ }
+
     const modal = document.createElement('div');
     modal.id = 'guestLoginModal';
-    modal.className = 'post-modal';
+    modal.className = 'guest-modal-overlay';
     modal.innerHTML = `
-        <div class="post-modal-content">
-            <div class="post-modal-header">
-                <h3>Gjestepålogging</h3>
-                <button class="post-modal-close" id="guestModalClose" title="Lukk">&#10005;</button>
+        <div class="login-card" style="position:relative;max-width:420px;margin:auto;">
+            <button class="guest-modal-close" id="guestModalClose" title="Lukk">&#10005;</button>
+            <div class="login-header">
+                <h1>Gjestepålogging</h1>
+                <p>Logg inn som gjest for tilgang til øvefiler</p>
+                ${guestInfo}
             </div>
-            <div class="post-modal-body">
-                <div id="guestStep1">
-                    <div class="form-group">
-                        <label for="guestPassword">Passord</label>
-                        <input type="password" id="guestPassword" placeholder="Skriv inn gjestepassordet">
-                    </div>
-                    <div class="form-group">
-                        <label for="guestEmail">E-postadresse</label>
-                        <input type="email" id="guestEmail" placeholder="din.epost@example.com">
-                    </div>
+
+            <form class="login-form" id="guestStep1">
+                <div class="form-group">
+                    <label for="guestPassword">Passord</label>
+                    <input type="password" id="guestPassword" placeholder="Skriv inn gjestepassordet" required>
                 </div>
-                <div id="guestStep2" hidden>
-                    <p style="margin-bottom:0.5rem">En kode er sendt til <strong id="guestSentTo"></strong></p>
-                    <div class="form-group">
-                        <label for="guestCode">Påloggingskode</label>
-                        <input type="text" id="guestCode" placeholder="123456" inputmode="numeric" maxlength="6">
-                    </div>
+                <div class="form-group">
+                    <label for="guestEmail">E-postadresse</label>
+                    <input type="email" id="guestEmail" placeholder="din.epost@example.com" autocomplete="email" required>
                 </div>
-                <p id="guestMessage" style="color:var(--muted);margin-top:0.5rem" hidden></p>
+                <button type="submit" class="login-btn" id="guestSubmitStep1">
+                    <span class="btn-text">Send påloggingskode</span>
+                    <span class="btn-spinner" hidden></span>
+                </button>
+            </form>
+
+            <form class="login-form" id="guestStep2" hidden>
+                <div class="form-group">
+                    <label for="guestCode">Påloggingskode</label>
+                    <p class="form-hint">En kode er sendt til <span id="guestSentTo"></span></p>
+                    <input type="text" id="guestCode" placeholder="123456" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" required>
+                </div>
+                <button type="submit" class="login-btn" id="guestSubmitStep2">
+                    <span class="btn-text">Bekreft kode</span>
+                    <span class="btn-spinner" hidden></span>
+                </button>
+                <button type="button" class="login-btn login-btn--secondary" id="guestBack">Tilbake</button>
+            </form>
+
+            <div class="login-message" id="guestMessage" hidden>
+                <p id="guestMessageText"></p>
             </div>
-            <div class="post-modal-footer">
-                <button class="post-cancel-btn" id="guestCancel">Avbryt</button>
-                <button class="post-submit-btn" id="guestSubmit">Send kode</button>
+
+            <div class="login-info">
+                <p>Som gjest får du tilgang til øvefiler for den aktuelle konserten.</p>
             </div>
         </div>
     `;
     document.body.appendChild(modal);
 
-    let step = 1;
     let currentEmail = '';
 
     const close = () => modal.remove();
     document.getElementById('guestModalClose').addEventListener('click', close);
-    document.getElementById('guestCancel').addEventListener('click', close);
+    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
 
     const msgEl = document.getElementById('guestMessage');
+    const msgText = document.getElementById('guestMessageText');
     const showMsg = (text, isError) => {
-        msgEl.textContent = text;
-        msgEl.style.color = isError ? '#ef4444' : 'var(--muted)';
+        msgText.textContent = text;
         msgEl.hidden = false;
+        msgEl.className = `login-message ${isError ? 'login-message--error' : 'login-message--success'}`;
     };
+    const hideMsg = () => { msgEl.hidden = true; };
 
-    document.getElementById('guestSubmit').addEventListener('click', async () => {
-        const btn = document.getElementById('guestSubmit');
+    // Step 1: Password + email
+    document.getElementById('guestStep1').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideMsg();
+        const password = document.getElementById('guestPassword').value.trim();
+        const email = document.getElementById('guestEmail').value.trim().toLowerCase();
+        if (!password || !email) return showMsg('Fyll inn passord og e-post.', true);
+
+        const btn = document.getElementById('guestSubmitStep1');
         btn.disabled = true;
-        msgEl.hidden = true;
+        btn.querySelector('.btn-text').textContent = 'Sender...';
+        btn.querySelector('.btn-spinner').hidden = false;
 
-        if (step === 1) {
-            const password = document.getElementById('guestPassword').value.trim();
-            const email = document.getElementById('guestEmail').value.trim().toLowerCase();
-            if (!password || !email) { btn.disabled = false; return showMsg('Fyll inn passord og e-post.', true); }
-
-            try {
-                const res = await fetch('/api/auth/gjest-send-kode', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password }),
-                });
-                const data = await res.json();
-                const result = data.body || data;
-                if (!res.ok || result.success === false) {
-                    showMsg(result.error || 'Feil ved sending.', true);
-                    btn.disabled = false;
-                    return;
-                }
-                currentEmail = email;
-                step = 2;
-                document.getElementById('guestStep1').hidden = true;
-                document.getElementById('guestStep2').hidden = false;
-                document.getElementById('guestSentTo').textContent = email;
-                btn.textContent = 'Bekreft kode';
-                document.getElementById('guestCode').focus();
-            } catch (err) {
-                showMsg('Nettverksfeil.', true);
+        try {
+            const res = await fetch('/api/auth/gjest-send-kode', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
+            const data = await res.json();
+            const result = data.body || data;
+            if (!res.ok || result.success === false) {
+                showMsg(result.error || 'Feil ved sending.', true);
+                return;
             }
+            currentEmail = email;
+            document.getElementById('guestStep1').hidden = true;
+            document.getElementById('guestStep2').hidden = false;
+            document.getElementById('guestSentTo').textContent = email;
+            document.getElementById('guestCode').focus();
+        } catch (err) {
+            showMsg('Nettverksfeil. Prøv igjen.', true);
+        } finally {
             btn.disabled = false;
-        } else {
-            const code = document.getElementById('guestCode').value.trim();
-            if (!code) { btn.disabled = false; return showMsg('Skriv inn koden.', true); }
-
-            try {
-                const res = await fetch('/api/auth/verifiser-kode', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: currentEmail, code }),
-                });
-                const data = await res.json();
-                const result = data.body || data;
-                if (!res.ok || result.success === false) {
-                    showMsg(result.error || 'Feil kode.', true);
-                    btn.disabled = false;
-                    return;
-                }
-                localStorage.setItem('korportal-member', JSON.stringify(result.member));
-                window.location.href = '/ovelse.html';
-            } catch (err) {
-                showMsg('Nettverksfeil.', true);
-                btn.disabled = false;
-            }
+            btn.querySelector('.btn-text').textContent = 'Send påloggingskode';
+            btn.querySelector('.btn-spinner').hidden = true;
         }
+    });
+
+    // Step 2: Verify code
+    document.getElementById('guestStep2').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideMsg();
+        const code = document.getElementById('guestCode').value.trim();
+        if (!code) return showMsg('Skriv inn koden.', true);
+
+        const btn = document.getElementById('guestSubmitStep2');
+        btn.disabled = true;
+        btn.querySelector('.btn-text').textContent = 'Verifiserer...';
+        btn.querySelector('.btn-spinner').hidden = false;
+
+        try {
+            const res = await fetch('/api/auth/verifiser-kode', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: currentEmail, code }),
+            });
+            const data = await res.json();
+            const result = data.body || data;
+            if (!res.ok || result.success === false) {
+                showMsg(result.error || 'Feil kode. Prøv igjen.', true);
+                return;
+            }
+            localStorage.setItem('korportal-member', JSON.stringify(result.member));
+            // Redirect to profile page so guest can set name and voice
+            window.location.href = '/minprofil.html';
+        } catch (err) {
+            showMsg('Nettverksfeil. Prøv igjen.', true);
+        } finally {
+            btn.disabled = false;
+            btn.querySelector('.btn-text').textContent = 'Bekreft kode';
+            btn.querySelector('.btn-spinner').hidden = true;
+        }
+    });
+
+    // Back button
+    document.getElementById('guestBack').addEventListener('click', () => {
+        document.getElementById('guestStep2').hidden = true;
+        document.getElementById('guestStep1').hidden = false;
+        document.getElementById('guestCode').value = '';
+        hideMsg();
     });
 
     document.getElementById('guestPassword').focus();
