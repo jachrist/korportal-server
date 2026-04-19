@@ -315,6 +315,7 @@ export class MenuManager {
         const userRole = getCurrentUserRole();
         const allItems = navItems || cachedNavItems || FALLBACK_NAV_ITEMS;
         const items = filterNavItemsByRole(userRole, allItems);
+        console.log('[MenuManager] buildMenu: role=', userRole, 'total=', allItems.length, 'filtered=', items.length);
         const currentPath = window.location.pathname;
 
         let html = items.map(item => {
