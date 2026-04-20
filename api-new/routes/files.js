@@ -292,7 +292,7 @@ router.get('/filer/synk', async (req, res) => {
 });
 
 // ==========================================================================
-// GET /api/filer/anledninger — List unique anledninger from noter/øvefil
+// GET /api/filer/anledninger — List unique anledninger where a Note exists
 // ==========================================================================
 router.get('/filer/anledninger', async (req, res) => {
   try {
@@ -300,7 +300,7 @@ router.get('/filer/anledninger', async (req, res) => {
     const anledninger = new Set();
     for (const item of items) {
       const t = (item.type || '').toLowerCase();
-      if (item.anledning && (t === 'noter' || t === 'øvefil' || t === 'note')) {
+      if (item.anledning && (t === 'noter' || t === 'note')) {
         anledninger.add(item.anledning);
       }
     }
