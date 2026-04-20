@@ -219,11 +219,11 @@ class AdminApp {
             </div>
         </div>`;
 
-        modal.hidden = false;
+        modal.classList.add('open');
     }
 
     closeEditModal() {
-        document.getElementById('dbEditModal').hidden = true;
+        document.getElementById('dbEditModal').classList.remove('open');
     }
 
     async saveRow() {

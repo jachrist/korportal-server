@@ -119,23 +119,6 @@
             </div>
         </section>
 
-        <!-- Row editor modal -->
-        <div class="db-modal-overlay" id="dbEditModal" hidden>
-            <div class="db-modal">
-                <div class="db-modal__header">
-                    <h3 id="dbEditTitle">Rediger rad</h3>
-                    <button class="uts-closeBtn" id="dbEditClose" title="Lukk">&#10005;</button>
-                </div>
-                <div class="db-modal__body" id="dbEditBody">
-                    <!-- Fields generated dynamically -->
-                </div>
-                <div class="db-modal__footer">
-                    <button class="admin-btn admin-btn--secondary" id="dbEditCancel">Avbryt</button>
-                    <button class="admin-btn admin-btn--primary" id="dbEditSave">Lagre</button>
-                </div>
-            </div>
-        </div>
-
         <!-- Cache management -->
         <section class="card content">
             <h2 class="section__title">Cache</h2>
@@ -274,6 +257,21 @@
         <div class="loader__content">
             <div class="loader__spinner"></div>
             <p class="loader__text">Laster...</p>
+        </div>
+    </div>
+
+    <!-- Row editor modal (outside .wrap for proper overlay) -->
+    <div class="db-modal-overlay" id="dbEditModal">
+        <div class="db-modal">
+            <div class="db-modal__header">
+                <h3 id="dbEditTitle">Rediger rad</h3>
+                <button class="uts-closeBtn" id="dbEditClose" title="Lukk">&#10005;</button>
+            </div>
+            <div class="db-modal__body" id="dbEditBody"></div>
+            <div class="db-modal__footer">
+                <button class="admin-btn admin-btn--secondary" id="dbEditCancel">Avbryt</button>
+                <button class="admin-btn admin-btn--primary" id="dbEditSave">Lagre</button>
+            </div>
         </div>
     </div>
 
