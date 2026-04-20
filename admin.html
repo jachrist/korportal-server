@@ -119,6 +119,34 @@
             </div>
         </section>
 
+        <!-- CSV Import: Events -->
+        <section class="card content">
+            <h2 class="section__title">Importer arrangementer (CSV)</h2>
+            <p class="section__description">Last opp en CSV-fil med arrangementer. Kolonner:</p>
+            <table class="db-table" style="margin-bottom:var(--space-md);font-size:0.8rem">
+                <thead><tr><th>Kolonne</th><th>Påkrevd</th><th>Beskrivelse</th></tr></thead>
+                <tbody>
+                    <tr><td>title</td><td>Ja</td><td>Arrangement-tittel</td></tr>
+                    <tr><td>date</td><td>Ja</td><td>Dato (YYYY-MM-DD). Flere datoer separert med semikolon</td></tr>
+                    <tr><td>startTime</td><td>Nei</td><td>Starttid (f.eks. 19:00)</td></tr>
+                    <tr><td>endTime</td><td>Nei</td><td>Sluttid (f.eks. 21:30)</td></tr>
+                    <tr><td>location</td><td>Nei</td><td>Sted (f.eks. Vålerenga kirke)</td></tr>
+                    <tr><td>description</td><td>Nei</td><td>Beskrivelse (fritekst)</td></tr>
+                </tbody>
+            </table>
+            <div class="button-row">
+                <label class="admin-btn admin-btn--primary" style="cursor:pointer">
+                    Velg CSV-fil
+                    <input type="file" id="eventCsvInput" accept=".csv" hidden>
+                </label>
+                <span id="eventCsvStatus" style="color:var(--muted);font-size:0.9rem"></span>
+            </div>
+            <div id="eventCsvPreview" hidden style="margin-top:var(--space-md)">
+                <p id="eventCsvCount" style="font-weight:600;margin-bottom:var(--space-sm)"></p>
+                <button class="admin-btn admin-btn--primary" id="eventCsvImportBtn">Importer</button>
+            </div>
+        </section>
+
         <!-- Cache management -->
         <section class="card content">
             <h2 class="section__title">Cache</h2>

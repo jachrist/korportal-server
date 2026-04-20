@@ -166,4 +166,48 @@ router.get('/disk', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/admin/import-events
+ * Import events from CSV data
+ * CSV columns: title, date, startTime, endTime, location, description
+ * Multiple dates can be separated with semicolons in the date field
+ */
+router.post('/import-events', async (req, res) => {
+  try {
+    const { rows } = req.body;
+    if (!rows || !Array.isArray(rows) || rows.length === 0) {
+      return errorResponse(res, 'Ingen rader å importere.');
+    }
+
+    let created = 0;
+    for (const row of rows) {
+      if (!row.title || !row.date) continue;
+
+      const dates = row.date.split(';').map(d => d.trim()).filter(Boolean);
+      for (const date of dates) {
+        const id = require('../lib/helpers').generateId('EVT');
+        const event = {
+          id,
+          title: row.title,
+          date,
+          startTime: row.startTime || '',
+          endTime: row.endTime || '',
+          location: row.location || '',
+          description: row.description || '',
+          attendees: [],
+          createdAt: new Date().toISOString(),
+        };
+
+        await upsertEntity('Events', buildEntity('event', id, { date }, event));
+        created++;
+      }
+    }
+
+    return successResponse(res, { message: `${created} arrangement importert.`, created });
+  } catch (err) {
+    console.error('import events error:', err);
+    return errorResponse(res, 'Kunne ikke importere arrangementer.', 500);
+  }
+});
+
 module.exports = router;

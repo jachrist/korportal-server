@@ -218,10 +218,10 @@ class MedlemmerApp {
                 this.renderArticle(this.data.article);
             }
 
-            if (this.data.events && this.data.events.length > 0) {
+            if (this.data.events?.length > 0) {
                 badgeManager.markSeen('medlemmer');
-                this.renderEvents(this.data.events);
             }
+            this.renderEvents(this.data.events || []);
 
         } catch (error) {
             console.error('Feil ved lasting av medlemsside:', error);

@@ -42,6 +42,8 @@ class AdminApp {
     }
 
     setupEventListeners() {
+        document.getElementById('eventCsvInput')?.addEventListener('change', (e) => this.handleEventCsv(e));
+        document.getElementById('eventCsvImportBtn')?.addEventListener('click', () => this.importEventCsv());
         document.getElementById('clearCacheBtn')?.addEventListener('click', () => this.clearCache());
         document.getElementById('refreshSwBtn')?.addEventListener('click', () => this.refreshServiceWorker());
         document.getElementById('dbTableSelect')?.addEventListener('change', (e) => this.selectTable(e.target.value));
@@ -304,6 +306,84 @@ class AdminApp {
         } catch (err) {
             console.error('Delete row error:', err);
             this.showToast('Kunne ikke slette', 'error');
+        }
+    }
+
+    // =========================================================================
+    // CSV EVENT IMPORT
+    // =========================================================================
+    handleEventCsv(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const text = ev.target.result;
+            this.parsedEventRows = this.parseCsv(text);
+            const count = this.parsedEventRows.length;
+            document.getElementById('eventCsvStatus').textContent = `${file.name} lastet`;
+            document.getElementById('eventCsvCount').textContent = `${count} arrangement(er) funnet`;
+            document.getElementById('eventCsvPreview').hidden = count === 0;
+        };
+        reader.readAsText(file, 'UTF-8');
+    }
+
+    parseCsv(text) {
+        const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+        if (lines.length < 2) return [];
+
+        // Parse header
+        const headers = this.parseCsvLine(lines[0]);
+        const rows = [];
+        for (let i = 1; i < lines.length; i++) {
+            const values = this.parseCsvLine(lines[i]);
+            const row = {};
+            headers.forEach((h, idx) => { row[h.trim()] = (values[idx] || '').trim(); });
+            if (row.title && row.date) rows.push(row);
+        }
+        return rows;
+    }
+
+    parseCsvLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        for (const ch of line) {
+            if (ch === '"') { inQuotes = !inQuotes; continue; }
+            if ((ch === ',' || ch === ';') && !inQuotes) { result.push(current); current = ''; continue; }
+            current += ch;
+        }
+        result.push(current);
+        return result;
+    }
+
+    async importEventCsv() {
+        if (!this.parsedEventRows?.length) return;
+
+        const btn = document.getElementById('eventCsvImportBtn');
+        btn.disabled = true;
+        btn.textContent = 'Importerer...';
+
+        try {
+            const res = await fetch('/api/admin/import-events', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rows: this.parsedEventRows }),
+            });
+            const data = await res.json();
+            const result = data.body || data;
+
+            this.showToast(result.message || `${result.created} arrangement importert`);
+            document.getElementById('eventCsvPreview').hidden = true;
+            document.getElementById('eventCsvStatus').textContent = '';
+            document.getElementById('eventCsvInput').value = '';
+            this.parsedEventRows = null;
+        } catch (err) {
+            console.error('Import events error:', err);
+            this.showToast('Kunne ikke importere', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Importer';
         }
     }
 
