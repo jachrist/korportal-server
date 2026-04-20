@@ -704,6 +704,26 @@ function initEventListeners() {
     });
     elements.batchApply?.addEventListener('click', () => applyBatchMetadata());
 
+    // Batch upload
+    document.getElementById('batchUpload')?.addEventListener('click', () => {
+        const notUploaded = Array.from(selectedFileIds).filter(id => {
+            const file = allFiles.find(f => f.id === id);
+            return file && !file.uploaded;
+        });
+        if (notUploaded.length === 0) {
+            return showToast('Ingen av de valgte filene mangler opplasting', 'error');
+        }
+        // Create a temporary file input
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.multiple = true;
+        input.accept = '.pdf,.mp3,.wav,.ogg,.json,.xml,.musicxml,.png,.jpg,.jpeg';
+        input.addEventListener('change', () => {
+            if (input.files.length > 0) uploadFiles(input.files);
+        });
+        input.click();
+    });
+
     // File list — edit and remove buttons
     elements.filesList.addEventListener('click', (e) => {
         const editBtn = e.target.closest('.file-row__edit-btn');
