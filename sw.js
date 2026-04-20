@@ -3,9 +3,9 @@
  * Håndterer caching og offline-funksjonalitet
  */
 
-const CACHE_NAME = 'korportal-v44';
-const STATIC_CACHE = 'korportal-static-v39';
-const DYNAMIC_CACHE = 'korportal-dynamic-v39';
+const CACHE_NAME = 'korportal-v45';
+const STATIC_CACHE = 'korportal-static-v40';
+const DYNAMIC_CACHE = 'korportal-dynamic-v40';
 
 // Filer som skal caches ved installasjon (kun filer som garantert finnes)
 const STATIC_ASSETS = [
@@ -208,9 +208,9 @@ async function networkFirst(request) {
 
 // Sjekk om URL er en statisk asset
 function isStaticAsset(pathname) {
-  // env.js er konfigurasjon og skal alltid hentes fra nettverk
-  if (pathname === '/js/env.js') return false;
-  const staticExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.woff', '.woff2'];
+  // JS og CSS skal bruke network-first for å sikre oppdateringer
+  if (pathname.endsWith('.js') || pathname.endsWith('.css')) return false;
+  const staticExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.woff', '.woff2'];
   return staticExtensions.some(ext => pathname.endsWith(ext));
 }
 
