@@ -277,6 +277,7 @@ class PracticeApp {
             // Control bar
             anledningSelect: document.getElementById('anledningSelect'),
             voiceSelect: document.getElementById('voiceSelect'),
+            downloadPdfBtn: document.getElementById('downloadPdfBtn'),
 
             // PDF elements
             pdfViewer: document.getElementById('pdfViewer'),
@@ -410,6 +411,9 @@ class PracticeApp {
                 else this.nextPage();
             }
         }, { passive: true });
+
+        // Download PDF button
+        this.elements.downloadPdfBtn?.addEventListener('click', () => this.downloadCurrentPdf());
 
         // Offline buttons
         this.elements.offlineDownloadBtn?.addEventListener('click', () => this.downloadForOffline());
@@ -1133,6 +1137,22 @@ class PracticeApp {
     // ==========================================================================
     // OFFLINE DOWNLOAD
     // ==========================================================================
+    downloadCurrentPdf() {
+        const work = this.data?.notes?.[this.currentWorkIndex];
+        if (!work?.pdfFilename) {
+            alert('Ingen noter å laste ned for dette verket.');
+            return;
+        }
+        const url = this.data.baseUrls.pdf + encodeURIComponent(work.pdfFilename);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = work.pdfFilename;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    }
+
     async downloadForOffline() {
         if (this.isDownloading || !this.data?.notes?.length || !this.currentVoice) return;
         if (!('caches' in window)) {
