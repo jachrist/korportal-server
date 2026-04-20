@@ -171,6 +171,7 @@
                     <label>Stemme</label>
                     <select id="batchStemme" class="form-select form-select--sm">
                         <option value="">(Ikke endre)</option>
+                        <option value="__clear__">(Tøm feltet)</option>
                         <option value="sopran">sopran</option>
                         <option value="sopran 1">sopran 1</option>
                         <option value="sopran 2">sopran 2</option>
@@ -193,7 +194,10 @@
                 </div>
                 <div class="batch-toolbar__field">
                     <label>Anledning</label>
-                    <input type="text" id="batchAnledning" class="form-input form-input--sm" placeholder="(Ikke endre)">
+                    <select id="batchAnledning" class="form-select form-select--sm">
+                        <option value="">(Ikke endre)</option>
+                        <option value="__clear__">(Tøm feltet)</option>
+                    </select>
                 </div>
                 <div class="batch-toolbar__field">
                     <label>Sortering</label>

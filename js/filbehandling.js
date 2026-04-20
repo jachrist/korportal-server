@@ -201,6 +201,17 @@ async function loadAnledninger() {
         elements.anledningStatus.textContent = activeAnledning
             ? `Aktiv: ${activeAnledning}`
             : 'Ingen aktiv anledning';
+
+        // Populate batch anledning dropdown
+        if (elements.batchAnledning) {
+            elements.batchAnledning.innerHTML = '<option value="">(Ikke endre)</option><option value="__clear__">(Tøm feltet)</option>';
+            for (const a of anledninger) {
+                const opt = document.createElement('option');
+                opt.value = a;
+                opt.textContent = a;
+                elements.batchAnledning.appendChild(opt);
+            }
+        }
     } catch (err) {
         console.error('Load anledninger error:', err);
         elements.anledningSelect.innerHTML = '<option value="">Kunne ikke laste</option>';
@@ -516,11 +527,12 @@ async function applyBatchMetadata() {
     const kategori = elements.batchKategori?.value;
     const stemme = elements.batchStemme?.value;
     const verk = elements.batchVerk?.value?.trim();
-    const anledning = elements.batchAnledning?.value?.trim();
+    const anledning = elements.batchAnledning?.value;
     const sorteringVal = elements.batchSortering?.value?.trim();
 
-    // Check that at least one field is set
-    if (!kategori && !stemme && !verk && !anledning && !sorteringVal) {
+    // Check that at least one field is set or cleared
+    const hasChange = kategori || stemme || verk || anledning || sorteringVal;
+    if (!hasChange) {
         return showToast('Fyll inn minst ett felt', 'error');
     }
 
@@ -530,10 +542,13 @@ async function applyBatchMetadata() {
 
     for (const id of ids) {
         const updatedData = { id };
-        if (kategori) updatedData.kategori = kategori;
-        if (stemme) updatedData.stemme = stemme;
+        if (kategori && kategori !== '__clear__') updatedData.kategori = kategori;
+        else if (kategori === '__clear__') updatedData.kategori = '';
+        if (stemme && stemme !== '__clear__') updatedData.stemme = stemme;
+        else if (stemme === '__clear__') updatedData.stemme = '';
         if (verk) updatedData.verk = verk;
-        if (anledning) updatedData.anledning = anledning;
+        if (anledning && anledning !== '__clear__') updatedData.anledning = anledning;
+        else if (anledning === '__clear__') updatedData.anledning = '';
         if (sorteringVal) updatedData.sortering = Number(sorteringVal);
 
         try {
