@@ -347,8 +347,11 @@
 }
 
 .db-browser__table-wrap {
-    overflow-x: auto;
+    overflow: auto;
     -webkit-overflow-scrolling: touch;
+    max-height: 60vh;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
 }
 
 .db-table {
@@ -365,6 +368,23 @@
     white-space: nowrap;
     font-weight: 600;
     color: var(--text);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.db-table th:last-child,
+.db-table td:last-child {
+    position: sticky;
+    right: 0;
+    background: var(--card);
+    z-index: 1;
+    border-left: 1px solid var(--line);
+}
+
+.db-table th:last-child {
+    background: var(--card2);
+    z-index: 3;
 }
 
 .db-table td {

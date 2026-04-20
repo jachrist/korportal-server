@@ -53,6 +53,15 @@ class AdminApp {
         document.getElementById('dbEditModal')?.addEventListener('click', (e) => {
             if (e.target.id === 'dbEditModal') this.closeEditModal();
         });
+
+        // Database table row actions (delegated, bound once)
+        document.getElementById('dbTableBody')?.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const id = btn.dataset.id;
+            if (btn.dataset.action === 'edit') this.openEditModal(id);
+            if (btn.dataset.action === 'delete') this.deleteRow(id);
+        });
     }
 
     // =========================================================================
@@ -135,11 +144,7 @@ class AdminApp {
         }
         // Put id first, then sort rest
         const keys = ['id', ...Array.from(allKeys).filter(k => k !== 'id').sort()];
-
-        // Limit visible columns to keep table readable
-        const maxCols = 8;
-        const visibleKeys = keys.slice(0, maxCols);
-        const hasMore = keys.length > maxCols;
+        const visibleKeys = keys;
 
         document.getElementById('dbTableHead').innerHTML = '<tr>' +
             visibleKeys.map(k => `<th>${this.escapeHtml(k)}</th>`).join('') +
@@ -163,15 +168,6 @@ class AdminApp {
                 </td>
             </tr>`;
         }).join('');
-
-        // Bind action buttons
-        document.getElementById('dbTableBody').addEventListener('click', (e) => {
-            const btn = e.target.closest('[data-action]');
-            if (!btn) return;
-            const id = btn.dataset.id;
-            if (btn.dataset.action === 'edit') this.openEditModal(id);
-            if (btn.dataset.action === 'delete') this.deleteRow(id);
-        });
     }
 
     openEditModal(rowId) {
