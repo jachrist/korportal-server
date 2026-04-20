@@ -53,6 +53,7 @@ app.use('/api', require('./routes/files'));
 app.use('/api/blob', require('./routes/blob'));
 app.use('/api/styre', require('./routes/styre'));
 app.use('/api/profil', require('./routes/profile'));
+app.use('/api/admin', require('./routes/admin'));
 
 // --- Health check ---
 app.get('/api/health', (req, res) => {

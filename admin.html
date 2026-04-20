@@ -60,58 +60,92 @@
             </div>
         </section>
 
-        <!-- Endpoint status -->
+        <!-- Disk & system info -->
         <section class="card content">
-            <h2 class="section__title">Endepunkt-status</h2>
-            <p class="section__description">Oversikt over konfigurerte Power Automate-endepunkter i <code>env.js</code>.</p>
-
-            <div class="data-status" id="dataStatus">
-                <span class="status-indicator" id="statusIndicator"></span>
-                <span class="status-text" id="statusText">Sjekker...</span>
-            </div>
-
-            <div class="endpoint-status" id="endpointStatus">
-                <div class="endpoint-list" id="endpointList">
-                    <!-- Filled dynamically -->
+            <h2 class="section__title">Server og diskplass</h2>
+            <div class="info-grid" id="diskInfo">
+                <div class="info-item">
+                    <span class="info-label">Disk total</span>
+                    <span class="info-value" id="diskSize">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Brukt</span>
+                    <span class="info-value" id="diskUsed">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Tilgjengelig</span>
+                    <span class="info-value" id="diskAvailable">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Bruk %</span>
+                    <span class="info-value" id="diskPercent">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Opplastede filer</span>
+                    <span class="info-value" id="uploadsInfo">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Database</span>
+                    <span class="info-value" id="dbSize">-</span>
                 </div>
             </div>
         </section>
+
+        <!-- Database browser -->
+        <section class="card content">
+            <h2 class="section__title">Database</h2>
+            <p class="section__description">Bla gjennom og rediger innhold i databasen.</p>
+
+            <div class="db-browser">
+                <div class="db-browser__tables">
+                    <label class="form-label">Tabell</label>
+                    <select id="dbTableSelect" class="form-select">
+                        <option value="">Velg tabell...</option>
+                    </select>
+                </div>
+
+                <div id="dbTableView" hidden>
+                    <div class="db-browser__toolbar">
+                        <span id="dbRowCount" class="db-browser__count"></span>
+                        <button class="admin-btn admin-btn--primary admin-btn--sm" id="dbNewRowBtn">+ Ny rad</button>
+                    </div>
+                    <div class="db-browser__table-wrap">
+                        <table class="db-table" id="dbTable">
+                            <thead id="dbTableHead"></thead>
+                            <tbody id="dbTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Row editor modal -->
+        <div class="db-modal-overlay" id="dbEditModal" hidden>
+            <div class="db-modal">
+                <div class="db-modal__header">
+                    <h3 id="dbEditTitle">Rediger rad</h3>
+                    <button class="uts-closeBtn" id="dbEditClose" title="Lukk">&#10005;</button>
+                </div>
+                <div class="db-modal__body" id="dbEditBody">
+                    <!-- Fields generated dynamically -->
+                </div>
+                <div class="db-modal__footer">
+                    <button class="admin-btn admin-btn--secondary" id="dbEditCancel">Avbryt</button>
+                    <button class="admin-btn admin-btn--primary" id="dbEditSave">Lagre</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Cache management -->
         <section class="card content">
             <h2 class="section__title">Cache</h2>
-            <p class="section__description">Tøm mellomlagrede data for å tvinge ny henting fra server.</p>
-
             <div class="button-row">
                 <button class="admin-btn admin-btn--secondary" id="clearCacheBtn">
-                    🗑️ Tøm cache
+                    Tøm cache
                 </button>
                 <button class="admin-btn admin-btn--secondary" id="refreshSwBtn">
-                    🔄 Oppdater Service Worker
+                    Oppdater Service Worker
                 </button>
-            </div>
-        </section>
-
-        <!-- System info -->
-        <section class="card content">
-            <h2 class="section__title">Systeminformasjon</h2>
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="info-label">Versjon</span>
-                    <span class="info-value" id="appVersion">1.0.0</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Bruker</span>
-                    <span class="info-value" id="currentUser">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Rolle</span>
-                    <span class="info-value" id="currentRole">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Service Worker</span>
-                    <span class="info-value" id="swStatus">-</span>
-                </div>
             </div>
         </section>
 

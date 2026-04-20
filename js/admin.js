@@ -1,9 +1,6 @@
 /**
  * Admin Page - Kammerkoret Utsikten
- * Administrasjonsside for konfigurasjon av korportalen
- *
- * @module Admin
- * @version 1.0.0
+ * Database-browser, diskplass-oversikt og verktøy
  */
 
 import {
@@ -16,219 +13,314 @@ import { getCurrentMember } from './member-utils.js';
 import { initMusicXMLTools } from './musicxml-tools.js';
 import { initWavMp3Tool } from './wav-mp3-tool.js';
 
-
-// ==========================================================================
-// CONSTANTS
-// ==========================================================================
-const APP_VERSION = '1.0.0';
-
-// All Power Automate endpoints to check (env variable name -> display name)
-const ENDPOINTS = [
-    { name: 'Navigasjon', envKey: 'POWER_AUTOMATE_NAVIGATION_URL' },
-    { name: 'Hurtiglenker', envKey: 'POWER_AUTOMATE_QUICKLINKS_URL' },
-    { name: 'Kontaktpersoner', envKey: 'POWER_AUTOMATE_CONTACTS_URL' },
-    { name: 'Konserter', envKey: 'POWER_AUTOMATE_CONCERTS_URL' },
-    { name: 'Billettbestilling', envKey: 'POWER_AUTOMATE_TICKET_RESERVATIONS_URL' },
-    { name: 'Musikk', envKey: 'POWER_AUTOMATE_MUSIC_URL' },
-    { name: 'Meldinger', envKey: 'POWER_AUTOMATE_MESSAGES_URL' },
-    { name: 'Ny melding', envKey: 'POWER_AUTOMATE_CREATE_MESSAGE_URL' },
-    { name: 'Meldingskommentarer', envKey: 'POWER_AUTOMATE_MESSAGE_COMMENTS_URL' },
-    { name: 'Innlegg', envKey: 'POWER_AUTOMATE_POSTS_URL' },
-    { name: 'Nytt innlegg', envKey: 'POWER_AUTOMATE_CREATE_POST_URL' },
-    { name: 'Innleggskommentarer', envKey: 'POWER_AUTOMATE_POST_COMMENTS_URL' },
-    { name: 'Ovelsesdata', envKey: 'POWER_AUTOMATE_PRACTICE_URL' },
-    { name: 'Sideskift', envKey: 'POWER_AUTOMATE_PRACTICE_PAGETURNS_URL' },
-    { name: 'Nedlastinger', envKey: 'POWER_AUTOMATE_DOWNLOADS_URL' },
-    { name: 'Medlemsside', envKey: 'POWER_AUTOMATE_MEMBERS_PAGE_URL' },
-    { name: 'RSVP', envKey: 'POWER_AUTOMATE_MEMBERS_PAGE_RSVP_URL' },
-    { name: 'Profil (hent)', envKey: 'POWER_AUTOMATE_PROFILE_URL' },
-    { name: 'Profil (oppdater)', envKey: 'POWER_AUTOMATE_PROFILE_UPDATE_URL' },
-    { name: 'Auth - Send kode', envKey: 'POWER_AUTOMATE_AUTH_SEND_CODE_URL' },
-    { name: 'Auth - Verifiser', envKey: 'POWER_AUTOMATE_AUTH_VERIFY_CODE_URL' },
-    { name: 'Billettadmin (hent)', envKey: 'POWER_AUTOMATE_TICKET_ADMIN_URL' },
-    { name: 'Billettadmin (betalt)', envKey: 'POWER_AUTOMATE_TICKET_ADMIN_UPDATE_URL' },
-    { name: 'Billettadmin (slett)', envKey: 'POWER_AUTOMATE_TICKET_ADMIN_DELETE_URL' },
-    { name: 'Billettkontroll', envKey: 'POWER_AUTOMATE_TICKET_VALIDATE_URL' },
-    { name: 'Filer (hent)', envKey: 'POWER_AUTOMATE_FILES_URL' },
-    { name: 'Filer (oppdater)', envKey: 'POWER_AUTOMATE_FILES_UPDATE_URL' },
-    { name: 'Filer (last opp)', envKey: 'POWER_AUTOMATE_FILES_UPLOAD_URL' },
-    { name: 'Blob (last opp)', envKey: 'POWER_AUTOMATE_BLOB_UPLOAD_URL' },
-    { name: 'Blob (tom)', envKey: 'POWER_AUTOMATE_BLOB_CLEAR_URL' },
-    { name: 'Nytt arrangement', envKey: 'POWER_AUTOMATE_CREATE_EVENT_URL' },
-    { name: 'Artikler', envKey: 'POWER_AUTOMATE_ARTICLES_URL' },
-];
-
-// ==========================================================================
-// ADMIN APPLICATION
-// ==========================================================================
 class AdminApp {
     constructor() {
         this.themeManager = new ThemeManager();
         this.menuManager = new MenuManager();
-        this.elements = {};
+        this.currentTable = '';
+        this.tableRows = [];
     }
 
     async init() {
-        // Check admin access
-        if (!this.checkAdminAccess()) {
+        if (getCurrentUserRole() !== ROLES.ADMIN) {
+            window.location.href = '/';
             return;
         }
 
-        this.cacheElements();
-        this.setCurrentYear();
         this.themeManager.init();
         this.menuManager.init();
 
+        const yearEl = document.getElementById('currentYear');
+        if (yearEl) yearEl.textContent = new Date().getFullYear();
+
         this.setupEventListeners();
-        this.updateSystemInfo();
-        this.checkEndpoints();
+        await this.loadDiskInfo();
+        await this.loadTables();
 
-        // Initialiser MusicXML-verktøy
         initMusicXMLTools();
-
-        // Initialiser WAV→MP3-verktøy
         initWavMp3Tool();
     }
 
-    checkAdminAccess() {
-        const role = getCurrentUserRole();
-        if (role !== ROLES.ADMIN) {
-            // Redirect non-admins to home
-            window.location.href = '/';
-            return false;
-        }
-        return true;
-    }
-
-    cacheElements() {
-        this.elements = {
-            loader: document.getElementById('loader'),
-            currentYear: document.getElementById('currentYear'),
-            dataStatus: document.getElementById('dataStatus'),
-            statusIndicator: document.getElementById('statusIndicator'),
-            statusText: document.getElementById('statusText'),
-            endpointStatus: document.getElementById('endpointStatus'),
-            endpointList: document.getElementById('endpointList'),
-            clearCacheBtn: document.getElementById('clearCacheBtn'),
-            refreshSwBtn: document.getElementById('refreshSwBtn'),
-            appVersion: document.getElementById('appVersion'),
-            currentUser: document.getElementById('currentUser'),
-            currentRole: document.getElementById('currentRole'),
-            swStatus: document.getElementById('swStatus'),
-        };
-    }
-
-    setCurrentYear() {
-        if (this.elements.currentYear) {
-            this.elements.currentYear.textContent = new Date().getFullYear();
-        }
-    }
-
     setupEventListeners() {
-        // Clear cache button
-        this.elements.clearCacheBtn?.addEventListener('click', () => {
-            this.clearCache();
-        });
+        document.getElementById('clearCacheBtn')?.addEventListener('click', () => this.clearCache());
+        document.getElementById('refreshSwBtn')?.addEventListener('click', () => this.refreshServiceWorker());
+        document.getElementById('dbTableSelect')?.addEventListener('change', (e) => this.selectTable(e.target.value));
+        document.getElementById('dbNewRowBtn')?.addEventListener('click', () => this.openEditModal(null));
+        document.getElementById('dbEditClose')?.addEventListener('click', () => this.closeEditModal());
+        document.getElementById('dbEditCancel')?.addEventListener('click', () => this.closeEditModal());
+        document.getElementById('dbEditSave')?.addEventListener('click', () => this.saveRow());
 
-        // Refresh service worker button
-        this.elements.refreshSwBtn?.addEventListener('click', () => {
-            this.refreshServiceWorker();
+        document.getElementById('dbEditModal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'dbEditModal') this.closeEditModal();
         });
     }
 
-    checkEndpoints() {
-        const env = window.ENV || {};
+    // =========================================================================
+    // DISK INFO
+    // =========================================================================
+    async loadDiskInfo() {
+        try {
+            const res = await fetch('/api/admin/disk');
+            const data = await res.json();
+            const info = data.body || data;
 
-        let configured = 0;
-        let total = ENDPOINTS.length;
+            document.getElementById('diskSize').textContent = info.disk?.size || '-';
+            document.getElementById('diskUsed').textContent = info.disk?.used || '-';
+            document.getElementById('diskAvailable').textContent = info.disk?.available || '-';
+            document.getElementById('diskPercent').textContent = info.disk?.usePercent || '-';
+            document.getElementById('uploadsInfo').textContent =
+                `${info.uploads?.size || '0'} (${info.uploads?.fileCount || 0} filer)`;
+            document.getElementById('dbSize').textContent = info.database?.size || '-';
+        } catch (err) {
+            console.error('Disk info error:', err);
+        }
+    }
 
-        this.elements.endpointList.innerHTML = ENDPOINTS.map(ep => {
-            const url = env[ep.envKey];
-            const isConfigured = !!url;
-            if (isConfigured) configured++;
+    // =========================================================================
+    // DATABASE BROWSER
+    // =========================================================================
+    async loadTables() {
+        try {
+            const res = await fetch('/api/admin/tables');
+            const data = await res.json();
+            const tables = data.body || data;
 
-            const badgeClass = isConfigured ? 'badge--ok' : 'badge--missing';
-            const badgeText = isConfigured ? 'Konfigurert' : 'Ikke konfigurert';
+            const select = document.getElementById('dbTableSelect');
+            select.innerHTML = '<option value="">Velg tabell...</option>';
+            for (const t of tables) {
+                const opt = document.createElement('option');
+                opt.value = t.name;
+                opt.textContent = `${t.name} (${t.rows} rader)`;
+                select.appendChild(opt);
+            }
+        } catch (err) {
+            console.error('Load tables error:', err);
+        }
+    }
 
-            return `
-                <div class="endpoint-item">
-                    <span class="endpoint-name">${ep.name}</span>
-                    <span class="endpoint-badge ${badgeClass}">${badgeText}</span>
-                </div>
-            `;
+    async selectTable(table) {
+        if (!table) {
+            document.getElementById('dbTableView').hidden = true;
+            return;
+        }
+
+        this.currentTable = table;
+
+        try {
+            const res = await fetch(`/api/admin/tables/${encodeURIComponent(table)}?limit=500`);
+            const data = await res.json();
+            const result = data.body || data;
+            this.tableRows = result.rows || [];
+
+            document.getElementById('dbRowCount').textContent = `${result.total} rader`;
+            this.renderTable();
+            document.getElementById('dbTableView').hidden = false;
+        } catch (err) {
+            console.error('Load table error:', err);
+        }
+    }
+
+    renderTable() {
+        const rows = this.tableRows;
+        if (rows.length === 0) {
+            document.getElementById('dbTableHead').innerHTML = '<tr><th>Ingen data</th></tr>';
+            document.getElementById('dbTableBody').innerHTML = '';
+            return;
+        }
+
+        // Collect all unique keys across rows
+        const allKeys = new Set();
+        for (const row of rows) {
+            Object.keys(row).forEach(k => allKeys.add(k));
+        }
+        // Put id first, then sort rest
+        const keys = ['id', ...Array.from(allKeys).filter(k => k !== 'id').sort()];
+
+        // Limit visible columns to keep table readable
+        const maxCols = 8;
+        const visibleKeys = keys.slice(0, maxCols);
+        const hasMore = keys.length > maxCols;
+
+        document.getElementById('dbTableHead').innerHTML = '<tr>' +
+            visibleKeys.map(k => `<th>${this.escapeHtml(k)}</th>`).join('') +
+            '<th>Handlinger</th></tr>';
+
+        document.getElementById('dbTableBody').innerHTML = rows.map(row => {
+            const cells = visibleKeys.map(k => {
+                let val = row[k];
+                if (val === null || val === undefined) val = '';
+                if (typeof val === 'object') val = JSON.stringify(val);
+                const str = String(val);
+                const display = str.length > 50 ? str.substring(0, 50) + '...' : str;
+                return `<td title="${this.escapeHtml(str)}">${this.escapeHtml(display)}</td>`;
+            }).join('');
+
+            return `<tr>
+                ${cells}
+                <td class="db-table__actions">
+                    <button class="admin-btn admin-btn--sm" data-action="edit" data-id="${this.escapeHtml(row.id)}">Rediger</button>
+                    <button class="admin-btn admin-btn--sm admin-btn--danger" data-action="delete" data-id="${this.escapeHtml(row.id)}">Slett</button>
+                </td>
+            </tr>`;
         }).join('');
 
-        // Update summary
-        if (configured === total) {
-            this.elements.statusIndicator.className = 'status-indicator status--live';
-            this.elements.statusText.textContent = `Alle ${total} endepunkter er konfigurert`;
+        // Bind action buttons
+        document.getElementById('dbTableBody').addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const id = btn.dataset.id;
+            if (btn.dataset.action === 'edit') this.openEditModal(id);
+            if (btn.dataset.action === 'delete') this.deleteRow(id);
+        });
+    }
+
+    openEditModal(rowId) {
+        const modal = document.getElementById('dbEditModal');
+        const body = document.getElementById('dbEditBody');
+        const title = document.getElementById('dbEditTitle');
+
+        let row = {};
+        if (rowId) {
+            row = this.tableRows.find(r => r.id === rowId) || {};
+            title.textContent = `Rediger rad: ${rowId}`;
         } else {
-            this.elements.statusIndicator.className = 'status-indicator status--partial';
-            this.elements.statusText.textContent = `${configured} av ${total} endepunkter konfigurert`;
+            title.textContent = `Ny rad i ${this.currentTable}`;
         }
-    }
 
-    updateSystemInfo() {
-        // App version
-        this.elements.appVersion.textContent = APP_VERSION;
+        // Collect all keys from all rows for field list
+        const allKeys = new Set(['id']);
+        for (const r of this.tableRows) {
+            Object.keys(r).forEach(k => allKeys.add(k));
+        }
+        const keys = ['id', ...Array.from(allKeys).filter(k => k !== 'id' && k !== 'partitionKey').sort()];
 
-        // Current user
-        const member = getCurrentMember();
-        this.elements.currentUser.textContent = member?.name || '-';
-        this.elements.currentRole.textContent = this.formatRole(member?.role);
+        body.innerHTML = keys.map(k => {
+            let val = row[k];
+            if (val === null || val === undefined) val = '';
+            if (typeof val === 'object') val = JSON.stringify(val, null, 2);
 
-        // Service worker status
-        this.checkServiceWorkerStatus();
-    }
+            const isLong = String(val).length > 80 || String(val).includes('\n');
+            const readOnly = (k === 'id' && rowId) ? 'readonly' : '';
 
-    formatRole(role) {
-        const roleNames = {
-            admin: 'Administrator',
-            styre: 'Styremedlem',
-            medlem: 'Medlem',
-            anonym: 'Ikke innlogget'
-        };
-        return roleNames[role] || role || '-';
-    }
-
-    async checkServiceWorkerStatus() {
-        if ('serviceWorker' in navigator) {
-            const registration = await navigator.serviceWorker.getRegistration();
-            if (registration) {
-                if (registration.waiting) {
-                    this.elements.swStatus.textContent = 'Oppdatering venter';
-                } else if (registration.active) {
-                    this.elements.swStatus.textContent = 'Aktiv';
-                } else {
-                    this.elements.swStatus.textContent = 'Installerer...';
-                }
-            } else {
-                this.elements.swStatus.textContent = 'Ikke registrert';
+            if (isLong) {
+                return `<div class="db-field">
+                    <label>${this.escapeHtml(k)}</label>
+                    <textarea data-key="${this.escapeHtml(k)}" rows="4" ${readOnly}>${this.escapeHtml(String(val))}</textarea>
+                </div>`;
             }
-        } else {
-            this.elements.swStatus.textContent = 'Ikke støttet';
+            return `<div class="db-field">
+                <label>${this.escapeHtml(k)}</label>
+                <input type="text" data-key="${this.escapeHtml(k)}" value="${this.escapeHtml(String(val))}" ${readOnly}>
+            </div>`;
+        }).join('');
+
+        // Add field for new keys
+        body.innerHTML += `<div class="db-field db-field--new">
+            <label>Nytt felt (valgfritt)</label>
+            <div style="display:flex;gap:8px">
+                <input type="text" id="dbNewFieldName" placeholder="Feltnavn" style="flex:0 0 120px">
+                <input type="text" id="dbNewFieldValue" placeholder="Verdi" style="flex:1">
+            </div>
+        </div>`;
+
+        modal.hidden = false;
+    }
+
+    closeEditModal() {
+        document.getElementById('dbEditModal').hidden = true;
+    }
+
+    async saveRow() {
+        const body = document.getElementById('dbEditBody');
+        const fields = {};
+
+        body.querySelectorAll('[data-key]').forEach(el => {
+            const key = el.dataset.key;
+            let val = el.value;
+
+            // Try to parse JSON values
+            if (val.startsWith('[') || val.startsWith('{')) {
+                try { val = JSON.parse(val); } catch { /* keep as string */ }
+            }
+            // Parse numbers
+            else if (val !== '' && !isNaN(val) && key !== 'id' && key !== 'email' && key !== 'phone') {
+                val = Number(val);
+            }
+            // Parse booleans
+            else if (val === 'true') val = true;
+            else if (val === 'false') val = false;
+
+            fields[key] = val;
+        });
+
+        // Add new field if specified
+        const newName = document.getElementById('dbNewFieldName')?.value.trim();
+        const newValue = document.getElementById('dbNewFieldValue')?.value.trim();
+        if (newName && newValue) {
+            fields[newName] = newValue;
+        }
+
+        if (!fields.id) {
+            this.showToast('ID er påkrevd', 'error');
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/admin/tables/${encodeURIComponent(this.currentTable)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(fields),
+            });
+            const data = await res.json();
+            const result = data.body || data;
+
+            if (!res.ok || result.success === false) {
+                this.showToast(result.error || 'Feil ved lagring', 'error');
+                return;
+            }
+
+            this.closeEditModal();
+            this.showToast('Rad lagret');
+            await this.selectTable(this.currentTable);
+        } catch (err) {
+            console.error('Save row error:', err);
+            this.showToast('Kunne ikke lagre', 'error');
         }
     }
 
+    async deleteRow(id) {
+        if (!confirm(`Slette rad "${id}" fra ${this.currentTable}?`)) return;
+
+        try {
+            const res = await fetch(`/api/admin/tables/${encodeURIComponent(this.currentTable)}/${encodeURIComponent(id)}`, {
+                method: 'DELETE',
+            });
+            const data = await res.json();
+            const result = data.body || data;
+
+            if (!res.ok || result.success === false) {
+                this.showToast(result.error || 'Feil ved sletting', 'error');
+                return;
+            }
+
+            this.showToast('Rad slettet');
+            await this.selectTable(this.currentTable);
+        } catch (err) {
+            console.error('Delete row error:', err);
+            this.showToast('Kunne ikke slette', 'error');
+        }
+    }
+
+    // =========================================================================
+    // CACHE
+    // =========================================================================
     async clearCache() {
         try {
-            // Clear all caches
             const cacheNames = await caches.keys();
             await Promise.all(cacheNames.map(name => caches.delete(name)));
-
-            // Clear localStorage API cache (if any)
-            const keysToRemove = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key?.startsWith('korportal_cache_')) {
-                    keysToRemove.push(key);
-                }
-            }
-            keysToRemove.forEach(key => localStorage.removeItem(key));
-
-            this.showToast('Cache er tømt', 'success');
-        } catch (error) {
-            console.error('Failed to clear cache:', error);
+            this.showToast('Cache er tømt');
+        } catch (err) {
+            console.error('Clear cache error:', err);
             this.showToast('Kunne ikke tømme cache', 'error');
         }
     }
@@ -236,45 +328,36 @@ class AdminApp {
     async refreshServiceWorker() {
         try {
             if ('serviceWorker' in navigator) {
-                const registration = await navigator.serviceWorker.getRegistration();
-                if (registration) {
-                    // Tell waiting SW to skip waiting
-                    if (registration.waiting) {
-                        registration.waiting.postMessage('skipWaiting');
-                    }
-                    // Force update check
-                    await registration.update();
-                    this.showToast('Service Worker oppdatert. Last siden på nytt.', 'success');
-                    this.checkServiceWorkerStatus();
-                } else {
-                    this.showToast('Ingen Service Worker registrert', 'error');
+                const reg = await navigator.serviceWorker.getRegistration();
+                if (reg) {
+                    if (reg.waiting) reg.waiting.postMessage('skipWaiting');
+                    await reg.update();
+                    this.showToast('Service Worker oppdatert. Last siden på nytt.');
                 }
             }
-        } catch (error) {
-            console.error('Failed to refresh SW:', error);
+        } catch (err) {
+            console.error('SW refresh error:', err);
             this.showToast('Kunne ikke oppdatere Service Worker', 'error');
         }
     }
 
-    showToast(message, type = 'success') {
-        // Remove existing toast
-        const existingToast = document.querySelector('.toast');
-        if (existingToast) {
-            existingToast.remove();
-        }
+    // =========================================================================
+    // UTILS
+    // =========================================================================
+    escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
 
-        // Create new toast
+    showToast(message, type = 'success') {
+        document.querySelector('.toast')?.remove();
         const toast = document.createElement('div');
         toast.className = `toast toast--${type}`;
         toast.textContent = message;
         document.body.appendChild(toast);
-
-        // Show toast
-        requestAnimationFrame(() => {
-            toast.classList.add('toast--visible');
-        });
-
-        // Hide and remove after delay
+        requestAnimationFrame(() => toast.classList.add('toast--visible'));
         setTimeout(() => {
             toast.classList.remove('toast--visible');
             setTimeout(() => toast.remove(), 300);
@@ -282,10 +365,8 @@ class AdminApp {
     }
 }
 
-// Initialize app
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new AdminApp();
-    app.init();
+    new AdminApp().init();
 });
 
 export { AdminApp };
