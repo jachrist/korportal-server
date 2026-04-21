@@ -360,7 +360,32 @@ class MedlemmerApp {
     }
 
     parseMarkdown(text) {
-        let html = this.escapeHtml(text);
+        if (!text) return '';
+
+        // Process markdown on raw text (before escaping)
+        // Extract images and links first, replace with placeholders
+        const placeholders = [];
+        let raw = text;
+
+        // Images (must come before links)
+        raw = raw.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) => {
+            const idx = placeholders.length;
+            placeholders.push(`<img src="${this.escapeHtml(src)}" alt="${this.escapeHtml(alt)}" loading="lazy" style="max-width:100%;border-radius:8px">`);
+            return `%%PH${idx}%%`;
+        });
+
+        // Links
+        raw = raw.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
+            const idx = placeholders.length;
+            placeholders.push(`<a href="${this.escapeHtml(href)}" target="_blank" rel="noopener">${this.escapeHtml(label)}</a>`);
+            return `%%PH${idx}%%`;
+        });
+
+        // Now escape remaining text
+        let html = this.escapeHtml(raw);
+
+        // Restore placeholders
+        html = html.replace(/%%PH(\d+)%%/g, (_, i) => placeholders[parseInt(i)]);
 
         // Headers
         html = html.replace(/^### (.+)$/gm, '<h4>$1</h4>');
@@ -371,19 +396,13 @@ class MedlemmerApp {
         html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
         html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
 
-        // Bilder (må komme før lenker)
-        html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" loading="lazy">');
-
-        // Lenker
-        html = html.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-
         // Unordered lists
         html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
         html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
 
         // Paragraphs
         html = html.split(/\n\n+/).map(p => {
-            if (p.startsWith('<h') || p.startsWith('$picture') || p.startsWith('<ul>')) return p;
+            if (p.startsWith('<h') || p.startsWith('<ul>') || p.startsWith('<img')) return p;
             return `<p>${p.replace(/\n/g, '<br>')}</p>`;
         }).join('');
 
@@ -428,7 +447,7 @@ class MedlemmerApp {
         // Bind event handlers
         this.elements.eventsSection.querySelectorAll('.event-card__btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const eventId = parseInt(btn.dataset.eventId);
+                const eventId = btn.dataset.eventId;
                 const action = btn.dataset.action;
                 this.handleAttendance(eventId, action);
             });
@@ -437,7 +456,7 @@ class MedlemmerApp {
         // Bind edit/delete buttons
         this.elements.eventsSection.querySelectorAll('.edit-event-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const eventId = parseInt(btn.dataset.eventId);
+                const eventId = btn.dataset.eventId;
                 this.openEditEventModal(eventId);
             });
         });
@@ -467,6 +486,7 @@ class MedlemmerApp {
     createEventCard(event) {
         const date = new Date(event.date);
         const day = date.getDate();
+        const weekday = date.toLocaleDateString('no-NO', { weekday: 'short' });
         const month = date.toLocaleDateString('no-NO', { month: 'short' });
 
         const timeStr = event.startTime && event.endTime
@@ -494,6 +514,7 @@ class MedlemmerApp {
             <article class="event-card">
                 <div class="event-card__header">
                     <div class="event-card__date-box">
+                        <span class="event-card__date-weekday">${weekday}</span>
                         <span class="event-card__date-day">${day}</span>
                         <span class="event-card__date-month">${month}</span>
                     </div>
