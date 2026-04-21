@@ -133,102 +133,43 @@ router.post('/verifiser-kode', async (req, res) => {
 });
 
 /**
- * POST /api/auth/gjest-send-kode
- * Request:  { "email": "guest@example.com", "password": "shared-password" }
- * Response: { "success": true }
+ * POST /api/auth/gjest-login
+ * Request:  { "password": "shared-password" }
+ * Response: { "success": true, "member": { role, guestAnledning } }
  *
- * Validates guest password, creates member with role='gjest' if not exists,
- * then sends verification code.
+ * Simple password check — no email, no code, no member registration.
  */
-router.post('/gjest-send-kode', async (req, res) => {
+router.post('/gjest-login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const err = validateRequired(req.body, ['email', 'password']);
+    const { password } = req.body;
+    const err = validateRequired(req.body, ['password']);
     if (err) return errorResponse(res, err);
 
-    const normalizedEmail = email.toLowerCase().trim();
-
-    // Get guest config
     const { getEntity } = require('../lib/db');
     const config = await getEntity('GuestConfig', 'config', 'active');
     if (!config || !config.password) {
       return errorResponse(res, 'Gjestetilgang er ikke konfigurert.');
     }
 
-    // Check password
     if (password !== config.password) {
       return errorResponse(res, 'Feil passord.');
     }
 
-    // Check expiry
     if (config.expiresAt && new Date(config.expiresAt) < new Date()) {
       return errorResponse(res, 'Gjestetilgangen har utløpt.');
     }
 
-    // Check if member exists
-    const members = await listEntities('Members', {
-      filter: `email eq '${normalizedEmail}'`,
-    });
-
-    if (members.length === 0) {
-      // Create guest member
-      const id = generateId('GJEST');
-      await upsertEntity('Members', buildEntity('member', id, {
-        email: normalizedEmail,
+    return successResponse(res, {
+      member: {
+        id: 'gjest',
         role: 'gjest',
-        voice: '',
-      }, {
-        id, email: normalizedEmail, name: '', role: 'gjest',
-        voice: '', phone: '',
+        name: 'Gjest',
         guestAnledning: config.anledning || '',
-        createdAt: now(),
-      }));
-    } else {
-      // Update existing member to ensure guest anledning is current
-      const member = members[0];
-      if (member.role === 'gjest') {
-        const updated = { ...member, guestAnledning: config.anledning || '' };
-        await upsertEntity('Members', buildEntity('member', member.id, {
-          email: normalizedEmail, role: 'gjest', voice: member.voice || '',
-        }, updated));
-      }
-    }
-
-    // Generate and send code (same as regular flow)
-    const code = crypto.randomInt(100000, 999999).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-
-    const rowKey = generateId();
-    await upsertEntity('AuthCodes', buildEntity('authcode', rowKey, {
-      email: normalizedEmail, expiresAt,
-    }, {
-      email: normalizedEmail, code, expiresAt, createdAt: now(),
-    }));
-
-    try {
-      const nodemailer = require('nodemailer');
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT) || 587,
-        secure: false,
-        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-      });
-
-      await transporter.sendMail({
-        from: process.env.SMTP_FROM,
-        to: normalizedEmail,
-        subject: 'Din innloggingskode for Korportal (gjest)',
-        text: `Din kode er: ${code}\n\nKoden er gyldig i 10 minutter.`,
-        html: `<p>Din kode er: <strong>${code}</strong></p><p>Koden er gyldig i 10 minutter.</p>`,
-      });
-    } catch (mailErr) {
-      console.error('Kunne ikke sende e-post:', mailErr.message);
-    }
-
-    return successResponse(res, { message: 'Kode sendt til e-post.' });
+      },
+    });
   } catch (err) {
-    console.error('gjest-send-kode error:', err);
-    return errorResponse(res, 'Kunne ikke sende kode.', 500);
+    console.error('gjest-login error:', err);
+    return errorResponse(res, 'Kunne ikke logge inn.', 500);
   }
 });
 
