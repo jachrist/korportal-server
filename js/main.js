@@ -251,7 +251,29 @@ class KorportalApp {
      * Enkel markdown-parser
      */
     parseMarkdown(text) {
-        let html = this.escapeHtml(text);
+        if (!text) return '';
+
+        const placeholders = [];
+        let raw = text;
+
+        // Images (before escaping)
+        raw = raw.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) => {
+            const idx = placeholders.length;
+            placeholders.push(`<img src="${src}" alt="${this.escapeHtml(alt)}" loading="lazy" style="max-width:100%;border-radius:8px">`);
+            return `%%PH${idx}%%`;
+        });
+
+        // Links (before escaping)
+        raw = raw.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
+            const idx = placeholders.length;
+            placeholders.push(`<a href="${href}" target="_blank" rel="noopener">${this.escapeHtml(label)}</a>`);
+            return `%%PH${idx}%%`;
+        });
+
+        let html = this.escapeHtml(raw);
+
+        // Restore placeholders
+        html = html.replace(/%%PH(\d+)%%/g, (_, i) => placeholders[parseInt(i)]);
 
         // Headers
         html = html.replace(/^### (.+)$/gm, '<h4>$1</h4>');
@@ -262,15 +284,13 @@ class KorportalApp {
         html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
         html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
 
-        // Bilder (må komme før lenker)
-        html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" loading="lazy">');
+        // Unordered lists
+        html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+        html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
 
-        // Lenker
-        html = html.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-
-        // Linjeskift til paragrafer
+        // Paragraphs
         html = html.split(/\n\n+/).map(p => {
-            if (p.startsWith('<h') || p.startsWith('$picture')) return p;
+            if (p.startsWith('<h') || p.startsWith('<ul>') || p.startsWith('<img')) return p;
             return `<p>${p.replace(/\n/g, '<br>')}</p>`;
         }).join('');
 

@@ -370,14 +370,14 @@ class MedlemmerApp {
         // Images (must come before links)
         raw = raw.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) => {
             const idx = placeholders.length;
-            placeholders.push(`<img src="${this.escapeHtml(src)}" alt="${this.escapeHtml(alt)}" loading="lazy" style="max-width:100%;border-radius:8px">`);
+            placeholders.push(`<img src="${src}" alt="${this.escapeHtml(alt)}" loading="lazy" style="max-width:100%;border-radius:8px">`);
             return `%%PH${idx}%%`;
         });
 
         // Links
         raw = raw.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
             const idx = placeholders.length;
-            placeholders.push(`<a href="${this.escapeHtml(href)}" target="_blank" rel="noopener">${this.escapeHtml(label)}</a>`);
+            placeholders.push(`<a href="${href}" target="_blank" rel="noopener">${this.escapeHtml(label)}</a>`);
             return `%%PH${idx}%%`;
         });
 
