@@ -55,6 +55,72 @@ document.addEventListener('DOMContentLoaded', () => {
         badge.className = `o2-settings__badge${isOn ? ' o2-settings__badge--on' : ''}`;
     }
 
+    // Wake Lock - keep screen on
+    let wakeLock = null;
+    const wakeLockBtn = document.getElementById('wakeLockBtn');
+    const wakeLockBadge = document.getElementById('wakeLockBadge');
+
+    function updateWakeLockBadge() {
+        if (!wakeLockBadge) return;
+        const isOn = wakeLock !== null;
+        wakeLockBadge.textContent = isOn ? 'På' : 'Av';
+        wakeLockBadge.className = `o2-settings__badge${isOn ? ' o2-settings__badge--on' : ''}`;
+    }
+
+    async function toggleWakeLock() {
+        if (!('wakeLock' in navigator)) {
+            alert('Denne nettleseren støtter ikke skjermlås-funksjon.');
+            return;
+        }
+
+        if (wakeLock) {
+            await wakeLock.release();
+            wakeLock = null;
+        } else {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                wakeLock.addEventListener('release', () => {
+                    wakeLock = null;
+                    updateWakeLockBadge();
+                });
+            } catch (err) {
+                console.error('Wake lock error:', err);
+                alert('Kunne ikke holde skjermen på: ' + err.message);
+            }
+        }
+        updateWakeLockBadge();
+    }
+
+    wakeLockBtn?.addEventListener('click', () => {
+        toggleWakeLock();
+    });
+
+    // Re-acquire wake lock when page becomes visible again (iOS releases it on tab switch)
+    document.addEventListener('visibilitychange', async () => {
+        if (document.visibilityState === 'visible' && wakeLock === null && localStorage.getItem('korportal-wakelock') === 'true') {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                wakeLock.addEventListener('release', () => { wakeLock = null; updateWakeLockBadge(); });
+                updateWakeLockBadge();
+            } catch { /* ignore */ }
+        }
+    });
+
+    // Persist wake lock preference
+    const origToggle = toggleWakeLock;
+    wakeLockBtn?.addEventListener('click', () => {
+        localStorage.setItem('korportal-wakelock', wakeLock ? 'true' : 'false');
+    });
+
+    // Auto-enable if previously on
+    if ('wakeLock' in navigator && localStorage.getItem('korportal-wakelock') === 'true') {
+        navigator.wakeLock.request('screen').then(wl => {
+            wakeLock = wl;
+            wl.addEventListener('release', () => { wakeLock = null; updateWakeLockBadge(); });
+            updateWakeLockBadge();
+        }).catch(() => {});
+    }
+
     // Initial state
-    setTimeout(() => { updateModeHighlight(); updateAutoTurnBadge(); }, 500);
+    setTimeout(() => { updateModeHighlight(); updateAutoTurnBadge(); updateWakeLockBadge(); }, 500);
 });
