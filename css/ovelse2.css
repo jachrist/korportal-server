@@ -1,0 +1,321 @@
+/* ==========================================================================
+   Ovelse2 - Compact layout for maximum note space
+   ========================================================================== */
+
+.ovelse2-body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+/* Top bar - single compact line */
+.o2-topbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.o2-topbar__settings-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.o2-topbar__settings-btn:hover {
+    color: var(--accent);
+}
+
+.o2-topbar__select {
+    padding: 4px 8px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    max-width: 160px;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.o2-topbar__title {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-left: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Settings panel - slide from left */
+.o2-settings-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+}
+
+.o2-settings-overlay[hidden] {
+    display: none;
+}
+
+.o2-settings {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    max-width: 80vw;
+    background: var(--card);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+    animation: slideInLeft 0.2s ease-out;
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+.o2-settings__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+}
+
+.o2-settings__header h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.o2-settings__close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.o2-settings__close:hover {
+    color: var(--text);
+}
+
+.o2-settings__list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.o2-settings__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+}
+
+.o2-settings__item:hover {
+    background: var(--card2);
+}
+
+.o2-settings__item--active {
+    color: var(--accent);
+    background: rgba(93, 214, 255, 0.08);
+}
+
+.o2-settings__icon {
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+}
+
+.o2-settings__badge {
+    margin-left: auto;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--card2);
+    color: var(--muted);
+}
+
+.o2-settings__badge--on {
+    background: var(--accent);
+    color: var(--bg);
+}
+
+.o2-settings__divider {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 4px 16px;
+}
+
+/* Main content - takes all available space */
+.o2-main {
+    flex: 1;
+    min-height: 0;
+}
+
+/* Bottom bar - compact */
+.o2-bottombar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--card);
+    border-top: 1px solid var(--line);
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.o2-bottombar__nav-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 4px 6px;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.o2-bottombar__nav-btn:hover {
+    opacity: 1;
+    color: var(--accent);
+}
+
+.o2-bottombar__center {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.o2-bottombar__title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.o2-bottombar__player {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.o2-bottombar__play {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 2px 4px;
+    flex-shrink: 0;
+}
+
+.o2-bottombar__progress {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    min-width: 0;
+}
+
+.o2-bottombar__progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.o2-bottombar__progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.3s linear;
+}
+
+.o2-bottombar__time {
+    font-size: 0.7rem;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.o2-bottombar__page {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+.o2-bottombar__page-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0 2px;
+}
+
+.o2-bottombar__page-btn:hover {
+    color: var(--accent);
+}
+
+/* Hide original ovelse header and control bar when ovelse2 is active */
+.ovelse2-body .ovelse-header,
+.ovelse2-body .control-bar,
+.ovelse2-body .bottom-controls {
+    display: none !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+    .o2-topbar__select {
+        max-width: 120px;
+        font-size: 0.8rem;
+    }
+
+    .o2-topbar__title {
+        display: none;
+    }
+
+    .o2-bottombar__time {
+        display: none;
+    }
+}
