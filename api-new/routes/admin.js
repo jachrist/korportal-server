@@ -91,7 +91,12 @@ router.post('/tables/:table', async (req, res) => {
 
     if (!id) return errorResponse(res, 'ID er påkrevd.');
 
-    const pk = partitionKey || table.toLowerCase();
+    // Use provided partitionKey, or detect from existing rows, or fall back to table name
+    let pk = partitionKey;
+    if (!pk) {
+      const existing = db.prepare(`SELECT partitionKey FROM "${table}" LIMIT 1`).get();
+      pk = existing?.partitionKey || table.toLowerCase();
+    }
     await upsertEntity(table, buildEntity(pk, id, {}, { id, ...fields }));
 
     return successResponse(res, { message: 'Rad lagret.', id });
