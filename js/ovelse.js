@@ -352,8 +352,8 @@ class PracticeApp {
     }
 
     bindEvents() {
-        // Mode buttons
-        document.querySelectorAll('.control-btn[data-mode]').forEach(btn => {
+        // Mode buttons (both original .control-btn and new .o2-settings__item)
+        document.querySelectorAll('[data-mode]').forEach(btn => {
             btn.addEventListener('click', () => this.selectMode(btn.dataset.mode));
         });
 
