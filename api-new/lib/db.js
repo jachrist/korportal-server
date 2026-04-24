@@ -114,7 +114,14 @@ function parseEntity(row) {
       parsed = JSON.parse(jsonData);
     } catch { parsed = {}; }
   }
-  return { partitionKey, rowKey: id, ...parsed, ...rest, id };
+  // Filter out empty searchable columns so they don't override jsonData values
+  const filtered = {};
+  for (const [key, val] of Object.entries(rest)) {
+    if (val !== null && val !== undefined && val !== '') {
+      filtered[key] = val;
+    }
+  }
+  return { partitionKey, rowKey: id, ...parsed, ...filtered, id };
 }
 
 /**
