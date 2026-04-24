@@ -10,36 +10,99 @@
     <meta name="description" content="Øvelsesside for Utsikten - noter og øvefiler">
     <title>Øvelse - Kammerkoret Utsikten</title>
 
-    <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
-
-    <!-- Favicon og ikoner -->
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/icon-16.png">
     <link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/ovelse.css">
+    <link rel="stylesheet" href="css/ovelse2.css">
     <script src="js/vendor/pdf.min.js"></script>
 </head>
-<body class="ovelse-body">
-    <!-- Header -->
-    <header class="ovelse-header" id="header">
-        <div class="ovelse-header__left">
-            <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
-            <span class="ovelse-header__title" id="programTitle">Øvelse</span>
-        </div>
-        <div class="ovelse-header__right">
-            <button class="ovelse-header__btn" id="themeBtn" title="Bytt tema" aria-label="Bytt tema">
-                🌙
-            </button>
-            <button class="ovelse-header__btn" id="menuBtn" title="Meny" aria-label="Åpne meny">
-                ☰
-            </button>
-        </div>
+<body class="ovelse-body ovelse2-body">
+    <!-- Compact top bar -->
+    <header class="o2-topbar" id="header">
+        <button class="o2-topbar__settings-btn" id="settingsBtn" title="Innstillinger" aria-label="Innstillinger">
+            <span>&#9881;</span>
+        </button>
+        <select class="o2-topbar__select" id="anledningSelect" title="Anledning">
+            <option value="">Laster...</option>
+        </select>
+        <select class="o2-topbar__select" id="voiceSelect" title="Stemme">
+            <option value="">Velg stemme</option>
+            <option value="sopran 1">Sopran 1</option>
+            <option value="sopran 2">Sopran 2</option>
+            <option value="alt 1">Alt 1</option>
+            <option value="alt 2">Alt 2</option>
+            <option value="tenor 1">Tenor 1</option>
+            <option value="tenor 2">Tenor 2</option>
+            <option value="bass 1">Bass 1</option>
+            <option value="bass 2">Bass 2</option>
+            <option value="tutti">Tutti</option>
+        </select>
+        <span class="o2-topbar__title" id="programTitle">Øvelse</span>
     </header>
 
-    <!-- Menu overlay -->
+    <!-- Settings panel (slides from left) -->
+    <div class="o2-settings-overlay" id="settingsOverlay" hidden>
+        <div class="o2-settings" id="settingsPanel">
+            <div class="o2-settings__header">
+                <h3>Innstillinger</h3>
+                <button class="o2-settings__close" id="settingsClose">&#10005;</button>
+            </div>
+            <nav class="o2-settings__list">
+                <button class="o2-settings__item" data-mode="both">
+                    <span class="o2-settings__icon">📄🎵</span>
+                    <span>Noter + lyd</span>
+                </button>
+                <button class="o2-settings__item" data-mode="notes">
+                    <span class="o2-settings__icon">📄</span>
+                    <span>Kun noter</span>
+                </button>
+                <button class="o2-settings__item" data-mode="audio">
+                    <span class="o2-settings__icon">🎧</span>
+                    <span>Kun lyd</span>
+                </button>
+                <hr class="o2-settings__divider">
+                <button class="o2-settings__item" id="autoTurnBtn">
+                    <span class="o2-settings__icon">📖</span>
+                    <span>Autoblading</span>
+                    <span class="o2-settings__badge" id="autoTurnBadge">Av</span>
+                </button>
+                <button class="o2-settings__item" id="downloadPdfBtn">
+                    <span class="o2-settings__icon">📥</span>
+                    <span>Last ned noter (PDF)</span>
+                </button>
+                <button class="o2-settings__item" id="offlineDownloadBtn">
+                    <span class="o2-settings__icon">💾</span>
+                    <span>Last ned for offline</span>
+                </button>
+                <button class="o2-settings__item" id="offlineClearBtn" hidden>
+                    <span class="o2-settings__icon">🗑️</span>
+                    <span>Slett offline-filer</span>
+                </button>
+                <hr class="o2-settings__divider">
+                <button class="o2-settings__item" id="themeBtn">
+                    <span class="o2-settings__icon">🌙</span>
+                    <span>Bytt tema</span>
+                </button>
+                <button class="o2-settings__item" id="menuBtn">
+                    <span class="o2-settings__icon">☰</span>
+                    <span>Hovedmeny</span>
+                </button>
+            </nav>
+            <div class="o2-settings__admin" id="adminGroup" hidden>
+                <hr class="o2-settings__divider">
+                <button class="o2-settings__item" id="pageTurnRecordBtn">
+                    <span class="o2-settings__icon">⏱</span>
+                    <span>Registrer sideskift</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu overlay (reused from navigation.js) -->
     <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
         <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
             <div class="uts-menuHeader">
@@ -47,66 +110,6 @@
                 <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
             </div>
             <nav class="uts-menuList" id="menuList"></nav>
-        </div>
-    </div>
-
-    <!-- Top control bar with mode and voice selection -->
-    <div class="control-bar" id="controlBar">
-        <div class="control-bar__group">
-            <label class="control-bar__label">Modus:</label>
-            <div class="control-bar__buttons">
-                <button class="control-btn" data-mode="both" title="Noter + Lyd">
-                    <span>📄🎵</span>
-                </button>
-                <button class="control-btn" data-mode="notes" title="Kun noter">
-                    <span>📄</span>
-                </button>
-                <button class="control-btn" data-mode="audio" title="Kun lyd">
-                    <span>🎧</span>
-                </button>
-            </div>
-        </div>
-        <div class="control-bar__group">
-            <label class="control-bar__label">Anledning:</label>
-            <select class="control-bar__select" id="anledningSelect">
-                <option value="">Laster...</option>
-            </select>
-        </div>
-        <div class="control-bar__group">
-            <label class="control-bar__label">Stemme:</label>
-            <select class="control-bar__select" id="voiceSelect">
-                <option value="">Velg stemme</option>
-                <option value="sopran 1">Sopran 1</option>
-                <option value="sopran 2">Sopran 2</option>
-                <option value="alt 1">Alt 1</option>
-                <option value="alt 2">Alt 2</option>
-                <option value="tenor 1">Tenor 1</option>
-                <option value="tenor 2">Tenor 2</option>
-                <option value="bass 1">Bass 1</option>
-                <option value="bass 2">Bass 2</option>
-                <option value="tutti">Tutti</option>
-            </select>
-        </div>
-        <div class="control-bar__group">
-            <button class="control-btn" id="autoTurnBtn" title="Autoblading av/på">
-                <span>📖</span>
-            </button>
-        </div>
-        <div class="control-bar__group">
-            <button class="control-btn" id="downloadPdfBtn" title="Last ned noter (PDF)">
-                <span>📥</span>
-            </button>
-            <button class="control-btn" id="offlineDownloadBtn" title="Last ned for offline">
-                <span>⬇️</span>
-            </button>
-            <button class="control-btn" id="offlineClearBtn" title="Slett offline-filer" hidden>
-                <span>🗑️</span>
-            </button>
-        </div>
-        <div class="control-bar__group control-bar__group--admin" id="adminGroup" hidden>
-            <button class="control-btn" id="pageTurnRecordBtn" title="Registrer sideskift">
-                <span>⏱</span>
-            </button>
         </div>
     </div>
 
@@ -123,23 +126,15 @@
         <span id="autoTurnMessageText"></span>
     </div>
 
-    <!-- Main content area -->
-    <main class="ovelse-main" id="main">
+    <!-- Main content area - maximum space for notes -->
+    <main class="ovelse-main o2-main" id="main">
         <!-- PDF viewer -->
         <div class="pdf-viewer" id="pdfViewer">
             <div class="pdf-container" id="pdfContainer">
                 <canvas id="pdfCanvas"></canvas>
             </div>
-
-            <!-- Navigation arrows overlay -->
-            <button class="pdf-nav-btn pdf-nav-btn--left" id="pdfPrevPage" aria-label="Forrige side">
-                ‹
-            </button>
-            <button class="pdf-nav-btn pdf-nav-btn--right" id="pdfNextPage" aria-label="Neste side">
-                ›
-            </button>
-
-            <!-- PDF error/status message -->
+            <button class="pdf-nav-btn pdf-nav-btn--left" id="pdfPrevPage" aria-label="Forrige side">‹</button>
+            <button class="pdf-nav-btn pdf-nav-btn--right" id="pdfNextPage" aria-label="Neste side">›</button>
             <div class="pdf-message" id="pdfMessage" hidden>
                 <p id="pdfMessageText">Laster noter...</p>
             </div>
@@ -161,48 +156,35 @@
         </div>
     </main>
 
-    <!-- Bottom control bar -->
-    <div class="bottom-controls" id="bottomControls">
-        <!-- Work navigation -->
-        <div class="work-nav">
-            <button class="work-nav__btn" id="prevWork" aria-label="Forrige sang">
-                ⏮
-            </button>
-            <div class="work-nav__info">
-                <span class="work-nav__title" id="currentTitle">Velg en stemme for å starte</span>
-                <span class="work-nav__subtitle" id="workInfo">-</span>
-            </div>
-            <button class="work-nav__btn" id="nextWork" aria-label="Neste sang">
-                ⏭
-            </button>
-        </div>
-
-        <!-- Audio controls -->
-        <div class="audio-controls" id="audioControls">
-            <button class="audio-btn audio-btn--play" id="playPauseBtn" aria-label="Spill/Pause">
-                ▶
-            </button>
-            <div class="audio-progress" id="audioProgressClickable">
-                <div class="audio-progress__bar">
-                    <div class="audio-progress__fill" id="audioProgressFill"></div>
+    <!-- Compact bottom bar -->
+    <div class="o2-bottombar" id="bottomControls">
+        <button class="o2-bottombar__nav-btn" id="prevWork" aria-label="Forrige sang">⏮</button>
+        <div class="o2-bottombar__center">
+            <span class="o2-bottombar__title" id="currentTitle">Velg stemme</span>
+            <div class="o2-bottombar__player">
+                <button class="o2-bottombar__play" id="playPauseBtn" aria-label="Spill/Pause">▶</button>
+                <div class="o2-bottombar__progress" id="audioProgressClickable">
+                    <div class="o2-bottombar__progress-bar">
+                        <div class="o2-bottombar__progress-fill" id="audioProgressFill"></div>
+                    </div>
+                    <span class="o2-bottombar__time" id="audioTimeDisplay">0:00</span>
                 </div>
-                <span class="audio-progress__time" id="audioTimeDisplay">0:00 / 0:00</span>
+                <span class="o2-bottombar__page" id="pageNav">
+                    <button class="o2-bottombar__page-btn" id="prevPage">‹</button>
+                    <span id="pageInfo">1/1</span>
+                    <button class="o2-bottombar__page-btn" id="nextPage">›</button>
+                </span>
             </div>
-            <span class="audio-status" id="audioStatus"></span>
         </div>
-
-        <!-- Page navigation (when showing PDF) -->
-        <div class="page-nav" id="pageNav">
-            <button class="page-nav__btn" id="prevPage" aria-label="Forrige side">‹</button>
-            <span class="page-nav__info" id="pageInfo">Side 1/1</span>
-            <button class="page-nav__btn" id="nextPage" aria-label="Neste side">›</button>
-        </div>
+        <button class="o2-bottombar__nav-btn" id="nextWork" aria-label="Neste sang">⏭</button>
+        <span class="audio-status" id="audioStatus" hidden></span>
+        <span id="workInfo" hidden></span>
     </div>
 
     <!-- Hidden audio element -->
     <audio id="audioPlayer" preload="auto"></audio>
 
-    <!-- Initial voice selection modal (first visit) -->
+    <!-- Initial voice selection modal -->
     <div class="welcome-modal" id="welcomeModal" hidden>
         <div class="welcome-modal__content">
             <h2>Velkommen til øvelsen!</h2>
@@ -225,17 +207,17 @@
     <div class="recorder-bar" id="pageTurnRecorder" hidden>
         <span class="recorder-bar__label" id="recorderWorkName">-</span>
         <span class="recorder-bar__turns" id="recorderTurnsInfo">0 skift</span>
-        <button class="recorder-bar__btn recorder-bar__btn--start" id="recorderStart" title="Start">Start</button>
-        <button class="recorder-bar__btn recorder-bar__btn--next" id="recorderNext" disabled title="Neste side">Neste</button>
+        <button class="recorder-bar__btn recorder-bar__btn--start" id="recorderStart">Start</button>
+        <button class="recorder-bar__btn recorder-bar__btn--next" id="recorderNext" disabled>Neste</button>
         <span class="recorder-bar__page-group">
-            <button class="recorder-bar__btn recorder-bar__btn--jump" id="recorderJump" disabled title="Hopp til side">Hopp</button>
+            <button class="recorder-bar__btn recorder-bar__btn--jump" id="recorderJump" disabled>Hopp</button>
             <label class="recorder-bar__page-label" id="recorderPageLabel" hidden>s.</label>
             <input type="number" class="recorder-bar__page-input" id="recorderTargetPage" min="1" value="1" hidden>
             <button class="recorder-bar__btn recorder-bar__btn--jump-ok" id="recorderJumpOk" hidden>OK</button>
         </span>
-        <button class="recorder-bar__btn recorder-bar__btn--undo" id="recorderUndo" disabled title="Angre">Angre</button>
-        <button class="recorder-bar__btn recorder-bar__btn--stop" id="recorderStop" disabled title="Lagre">Lagre</button>
-        <button class="recorder-bar__btn recorder-bar__btn--cancel" id="recorderCancel" title="Avbryt">✕</button>
+        <button class="recorder-bar__btn recorder-bar__btn--undo" id="recorderUndo" disabled>Angre</button>
+        <button class="recorder-bar__btn recorder-bar__btn--stop" id="recorderStop" disabled>Lagre</button>
+        <button class="recorder-bar__btn recorder-bar__btn--cancel" id="recorderCancel">✕</button>
         <div class="recorder-bar__list-wrapper" id="recorderListWrapper" hidden>
             <ol class="recorder-bar__list" id="recorderList"></ol>
         </div>
@@ -250,8 +232,7 @@
     </div>
 
     <script src="js/env.js"></script>
-    <script type="module" src="js/ovelse.js"></script>
-
+    <script type="module" src="js/ovelse2.js"></script>
     <script src="js/sw-register.js"></script>
 </body>
 </html>

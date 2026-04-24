@@ -627,7 +627,12 @@ class PracticeApp {
             this.updateAudioView();
         }
 
-        // Stop audio if mode is notes-only
+        // Hide audio controls and stop audio if mode is notes-only
+        const audioControls = document.getElementById('audioControls') ||
+                              document.querySelector('.o2-bottombar__player');
+        if (audioControls) {
+            audioControls.style.display = this.currentMode === 'notes' ? 'none' : '';
+        }
         if (this.currentMode === 'notes') {
             this.elements.audioPlayer?.pause();
         }
@@ -977,9 +982,24 @@ class PracticeApp {
         this.isPlaying = false;
         this.updatePlayPauseButton();
 
-        // Auto-advance to next work for continuous practice
-        if (this.currentWorkIndex < this.data.notes.length - 1) {
-            this.currentWorkIndex++;
+        // Auto-advance to next work with audio for continuous practice
+        this.advanceToNextPlayableWork();
+    }
+
+    advanceToNextPlayableWork() {
+        if (!this.data?.notes) return;
+        let nextIndex = this.currentWorkIndex + 1;
+
+        // Skip works without audio for the current voice
+        while (nextIndex < this.data.notes.length) {
+            const work = this.data.notes[nextIndex];
+            const audioFile = work.audio?.[this.currentVoice];
+            if (audioFile) break;
+            nextIndex++;
+        }
+
+        if (nextIndex < this.data.notes.length) {
+            this.currentWorkIndex = nextIndex;
             const player = this.elements.audioPlayer;
             player.addEventListener('canplay', () => {
                 player.play().catch(e => console.log('Auto-play failed:', e));

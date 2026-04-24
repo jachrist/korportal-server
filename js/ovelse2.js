@@ -3,10 +3,8 @@
  * Imports the core PracticeApp from ovelse.js and adds settings panel logic.
  */
 
-// Import everything from ovelse.js — it initializes PracticeApp on DOMContentLoaded
 import './ovelse.js';
 
-// Wait for DOM to add settings panel behavior
 document.addEventListener('DOMContentLoaded', () => {
     const settingsBtn = document.getElementById('settingsBtn');
     const settingsOverlay = document.getElementById('settingsOverlay');
@@ -15,62 +13,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!settingsBtn || !settingsOverlay) return;
 
-    // Open/close settings
-    settingsBtn.addEventListener('click', () => {
-        settingsOverlay.hidden = false;
-    });
+    function openSettings() { settingsOverlay.hidden = false; updateModeHighlight(); updateAutoTurnBadge(); }
+    function closeSettings() { settingsOverlay.hidden = true; }
 
-    settingsClose?.addEventListener('click', () => {
-        settingsOverlay.hidden = true;
-    });
+    settingsBtn.addEventListener('click', openSettings);
+    settingsClose?.addEventListener('click', closeSettings);
+    settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) closeSettings(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !settingsOverlay.hidden) closeSettings(); });
 
-    settingsOverlay.addEventListener('click', (e) => {
-        if (e.target === settingsOverlay) {
-            settingsOverlay.hidden = true;
-        }
-    });
-
-    // Close settings after clicking a menu item (except toggles)
+    // Close settings after clicking most items
     settingsPanel?.querySelectorAll('.o2-settings__item').forEach(item => {
         item.addEventListener('click', () => {
-            // Don't close for autoturn toggle
-            if (item.id === 'autoTurnBtn') return;
-            settingsOverlay.hidden = true;
+            // Keep open for autoturn toggle
+            if (item.id === 'autoTurnBtn') {
+                setTimeout(updateAutoTurnBadge, 50);
+                return;
+            }
+            // Update mode highlight then close
+            if (item.dataset.mode) {
+                setTimeout(() => { updateModeHighlight(); closeSettings(); }, 50);
+            } else {
+                closeSettings();
+            }
         });
     });
 
-    // Mode buttons in settings - highlight active
-    const modeButtons = settingsPanel?.querySelectorAll('[data-mode]');
+    // Mode highlighting
     function updateModeHighlight() {
         const current = localStorage.getItem('korportal-mode') || 'both';
-        modeButtons?.forEach(btn => {
+        settingsPanel?.querySelectorAll('[data-mode]').forEach(btn => {
             btn.classList.toggle('o2-settings__item--active', btn.dataset.mode === current);
         });
     }
-    modeButtons?.forEach(btn => {
-        btn.addEventListener('click', () => {
-            setTimeout(updateModeHighlight, 50);
-        });
-    });
 
-    // Update autoturn badge
+    // Autoturn badge
     function updateAutoTurnBadge() {
         const badge = document.getElementById('autoTurnBadge');
         if (!badge) return;
-        const btn = document.getElementById('autoTurnBtn');
-        const isOn = btn?.classList.contains('control-btn--active') ||
-                     localStorage.getItem('korportal-autoturn') === 'true';
+        const isOn = localStorage.getItem('korportal-autoturn') === 'true';
         badge.textContent = isOn ? 'På' : 'Av';
         badge.className = `o2-settings__badge${isOn ? ' o2-settings__badge--on' : ''}`;
     }
 
-    document.getElementById('autoTurnBtn')?.addEventListener('click', () => {
-        setTimeout(updateAutoTurnBadge, 50);
-    });
-
     // Initial state
-    setTimeout(() => {
-        updateModeHighlight();
-        updateAutoTurnBadge();
-    }, 500);
+    setTimeout(() => { updateModeHighlight(); updateAutoTurnBadge(); }, 500);
 });
