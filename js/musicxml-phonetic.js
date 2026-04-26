@@ -12,10 +12,15 @@
 
 const RULES_BOKMAAL = [
     { from: 'skj', to: 'sch' },
+    { from: 'stj', to: 'sti' },
     { from: 'kj', to: 'ch' },
     { from: 'sj', to: 'sch' },
     { from: 'hv', to: 'w' },
+    { from: 'hj', to: 'j' },
     { from: 'gj', to: 'j' },
+    { from: 'kv', to: 'qu' },
+    { from: 'tv', to: 'tw' },
+    { from: 'v', to: 'w' },
     { from: 'ei', to: 'ai' },
     { from: 'øy', to: 'öi' },
     { from: 'au', to: 'au' },
@@ -23,11 +28,6 @@ const RULES_BOKMAAL = [
     { from: 'ø', to: 'ö' },
     { from: 'å', to: 'o' },
     { from: 'y', to: 'ü' },
-    { from: 'hj', to: 'j' },
-    { from: 'tv', to: 'tw' },
-    { from: 'v', to: 'w' },
-    { from: 'kv', to: 'qu' },
-    { from: 'stj', to: 'sti' },
     { from: 'med ', to: 'me ' }
 ];
 
@@ -36,6 +36,7 @@ const RULES_NYNORSK = [
     { from: 'kj', to: 'ch' },
     { from: 'sj', to: 'sch' },
     { from: 'gj', to: 'j' },
+    { from: 'kv', to: 'qu' },
     { from: 'ei', to: 'ai' },
     { from: 'øy', to: 'öi' },
     { from: 'au', to: 'au' },
