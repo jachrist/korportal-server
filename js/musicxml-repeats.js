@@ -175,8 +175,12 @@ function computePlaybackOrder(navs) {
             }
         }
 
-        // Legg til denne takten i avspillingsrekkefølgen
-        order.push(pos);
+        // Bestem versnummer basert på repetisjonsstatus
+        const repeatStart = findRepeatStart(navs, pos);
+        const verse = repeatCounts.get(repeatStart) || 1;
+
+        // Legg til denne takten i avspillingsrekkefølgen med versnummer
+        order.push({ index: pos, verse });
 
         // Sjekk Fine
         if (nav.fine && seekingFine) {
@@ -327,6 +331,33 @@ function cleanMeasure(measure) {
     }
 }
 
+/**
+ * Velger riktig vers-tekst for en klonet takt basert på repetisjonspass.
+ * I MusicXML har <lyric number="1"> vers 1, <lyric number="2"> vers 2, osv.
+ * Ved første gjennomkjøring beholdes vers 1, ved andre vers 2, osv.
+ * Hvis ønsket vers ikke finnes, beholdes vers 1 (eller siste tilgjengelige).
+ */
+function selectLyricVerse(measure, verse) {
+    const notes = [...measure.getElementsByTagName('note')];
+    for (const note of notes) {
+        const lyrics = [...note.getElementsByTagName('lyric')];
+        if (lyrics.length <= 1) continue; // Bare ett vers, behold det
+
+        // Finn ønsket vers, eller fall tilbake til vers 1
+        const targetLyric = lyrics.find(l => l.getAttribute('number') === String(verse))
+                         || lyrics.find(l => l.getAttribute('number') === '1')
+                         || lyrics[0];
+
+        // Fjern alle andre lyrics og renummerer valgt til 1
+        for (const lyric of lyrics) {
+            if (lyric !== targetLyric) {
+                lyric.remove();
+            }
+        }
+        targetLyric.setAttribute('number', '1');
+    }
+}
+
 // ==========================================================================
 // MAIN EXPANSION FUNCTION
 // ==========================================================================
@@ -368,7 +399,7 @@ export function expandRepeats(xmlString) {
     // Parse navigasjon fra første part
     const navs = firstPartMeasures.map(m => parseMeasureNavigation(m));
 
-    // Beregn avspillingsrekkefølge
+    // Beregn avspillingsrekkefølge (med versnummer for lyrics)
     const playbackOrder = computePlaybackOrder(navs);
     const expandedCount = playbackOrder.length;
 
@@ -377,10 +408,11 @@ export function expandRepeats(xmlString) {
         const measures = [...part.getElementsByTagName('measure')];
 
         // Klon takter i avspillingsrekkefølge
-        const newMeasures = playbackOrder.map((idx, newIdx) => {
-            const clone = measures[idx].cloneNode(true);
+        const newMeasures = playbackOrder.map((entry, newIdx) => {
+            const clone = measures[entry.index].cloneNode(true);
             clone.setAttribute('number', String(newIdx + 1));
             cleanMeasure(clone);
+            selectLyricVerse(clone, entry.verse);
             return clone;
         });
 
