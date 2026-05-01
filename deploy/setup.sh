@@ -9,7 +9,8 @@ echo "=== Korportal Server Setup ==="
 # 1. System dependencies
 echo "Installing Node.js 20.x..."
 curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-apt-get install -y nodejs nginx certbot python3-certbot-nginx build-essential
+apt-get install -y nodejs nginx certbot python3-certbot-nginx build-essential \
+    sqlite3 gnupg rclone
 
 # 2. Create service user
 echo "Creating korportal user..."
