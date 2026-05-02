@@ -272,7 +272,8 @@ router.get('/filer/synk', async (req, res) => {
       const fileUrl = `${fileBaseUrl}/${encodeURIComponent(entry)}`;
       const ext = path.extname(entry).toLowerCase();
       const type = ['.mp3', '.wav', '.ogg'].includes(ext) ? 'øvefil'
-        : ['.pdf'].includes(ext) ? 'noter' : '';
+        : ['.pdf'].includes(ext) ? 'noter'
+        : ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext) ? 'bilde' : '';
 
       const data = {
         id, navn: entry, url: fileUrl, type,
