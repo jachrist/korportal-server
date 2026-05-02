@@ -145,33 +145,27 @@ class MusikkApp {
     }
 
     createConcertCard(concert, index) {
-        const date = new Date(concert.date);
-        const formattedDate = date.toLocaleDateString('no-NO', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        });
-
         const galleryHtml = this.createGalleryHtml(index, concert.images);
         const playerHtml = this.createPlayerHtml(index, concert.tracks);
+
+        const metaItems = [];
+        if (concert.date) {
+            const d = new Date(concert.date);
+            if (!isNaN(d)) {
+                metaItems.push(`<span class="concert-meta__item"><span>📅</span><span>${d.toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' })}</span></span>`);
+            }
+        }
+        if (concert.location) {
+            metaItems.push(`<span class="concert-meta__item"><span>📍</span><span>${this.escapeHtml(concert.location)}</span></span>`);
+        }
+        metaItems.push(`<span class="concert-meta__item"><span>🎵</span><span>${concert.tracks.length} spor</span></span>`);
 
         return `
             <section class="card content concert-music-card" data-concert-index="${index}">
                 <div class="concert-header">
                     <h2 class="concert-title">${this.escapeHtml(concert.title)}</h2>
                     <div class="concert-meta">
-                        <span class="concert-meta__item">
-                            <span>📅</span>
-                            <span>${formattedDate}</span>
-                        </span>
-                        <span class="concert-meta__item">
-                            <span>📍</span>
-                            <span>${this.escapeHtml(concert.location)}</span>
-                        </span>
-                        <span class="concert-meta__item">
-                            <span>🎵</span>
-                            <span>${concert.tracks.length} spor</span>
-                        </span>
+                        ${metaItems.join('')}
                     </div>
                 </div>
 

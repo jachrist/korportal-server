@@ -5,28 +5,67 @@ const { successResponse, errorResponse, validateRequired, generateId } = require
 
 /**
  * GET /api/musikk/konserter
- * Response: [ { id, title, date, location, images: [ { url, caption } ],
- *               tracks: [ { id, title, duration, audioUrl } ] } ]
+ *
+ * Bygger konsert-lista dynamisk fra Files-tabellen:
+ * - Én konsert per anledning som har minst én opplastet opptak-fil
+ * - Tittel = anledning-navn (dato/sted kan inkluderes i tittelen)
+ * - Bilder = opplastede filer av type 'bilde' med samme anledning
+ * - Tracks = opplastede filer av type 'opptak' med samme anledning, sortert
+ * - Konsertene sorteres alfabetisk på anledning
  */
 router.get('/konserter', async (req, res) => {
   try {
-    const items = await listEntities('Music');
+    const allFiles = await listEntities('Files');
 
-    const concerts = items.map(item => ({
-      id: item.id,
-      title: item.title,
-      date: item.date,
-      location: item.location || '',
-      images: item.images || [],
-      tracks: (item.tracks || []).map(t => ({
-        id: t.id,
-        title: t.title,
-        duration: t.duration || 0,
-        audioUrl: t.audioUrl || '',
-      })),
-    }));
+    const groups = new Map(); // anledning → { tracks: [], images: [] }
+    for (const f of allFiles) {
+      if (!f.uploaded || !f.anledning) continue;
+      const t = (f.type || '').toLowerCase();
+      if (t !== 'opptak' && t !== 'bilde') continue;
 
-    concerts.sort((a, b) => new Date(b.date) - new Date(a.date));
+      if (!groups.has(f.anledning)) {
+        groups.set(f.anledning, { tracks: [], images: [] });
+      }
+      const group = groups.get(f.anledning);
+      if (t === 'opptak') group.tracks.push(f);
+      else group.images.push(f);
+    }
+
+    const sortFiles = (a, b) => {
+      const sa = a.sortering ?? 999;
+      const sb = b.sortering ?? 999;
+      if (sa !== sb) return sa - sb;
+      return (a.navn || '').localeCompare(b.navn || '', 'no');
+    };
+
+    const stripExt = (navn) => (navn || '').replace(/\.[^.]+$/, '');
+
+    const concerts = [];
+    for (const [anledning, { tracks, images }] of groups) {
+      if (tracks.length === 0) continue; // krever minst ett opptak
+
+      tracks.sort(sortFiles);
+      images.sort(sortFiles);
+
+      concerts.push({
+        id: anledning,
+        title: anledning,
+        date: '',
+        location: '',
+        images: images.map(img => ({
+          url: img.url,
+          caption: img.verk || stripExt(img.navn),
+        })),
+        tracks: tracks.map((t, i) => ({
+          id: i + 1,
+          title: t.verk || stripExt(t.navn),
+          duration: 0,
+          audioUrl: t.url,
+        })),
+      });
+    }
+
+    concerts.sort((a, b) => a.title.localeCompare(b.title, 'no'));
     return res.json(concerts);
   } catch (err) {
     console.error('musikk error:', err);

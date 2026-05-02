@@ -331,6 +331,9 @@ function applyFilters() {
             if (activeCategories.has('uploaded') && !file.uploaded) return false;
             if (activeCategories.has('not-uploaded') && file.uploaded) return false;
 
+            // Anledning filter
+            if (activeCategories.has('no-anledning') && file.anledning) return false;
+
             // Category filters (only if a category chip is active)
             const categoryChips = ['tom', 'note', 'opptak', 'ovefil', 'sideskift', 'dokument', 'bilde'];
             const activeCats = categoryChips.filter(c => activeCategories.has(c));
