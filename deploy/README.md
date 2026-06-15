@@ -35,6 +35,23 @@ cd /tmp/korportal-server && git pull && cp -r api-new/routes/ api-new/lib/ api-n
 cd /tmp/korportal-server && git pull && cp -r js/ css/ *.html assets/ manifest.json sw.js /opt/korportal/frontend/ && cp -r api-new/routes/ api-new/lib/ api-new/server.js /opt/korportal/api-new/ && systemctl restart korportal
 ```
 
+### Når package.json endrer seg
+Hvis `git pull` brakte med endringer i `api-new/package.json` (nye dependencies),
+må du oppdatere `node_modules` på serveren:
+```bash
+cd /opt/korportal/api-new && npm install --omit=dev && systemctl restart korportal
+```
+Eksempel: `qrcode` ble lagt til for QR-kode i billett-kvitteringer.
+
+### Billett-e-poster
+`POST /api/billetter/marker-betalt` sender en kvittering med QR-kode til bestilleren.
+Mailen bruker HTML-templaten `assets/email-ticket.html` og logoen
+`assets/icons/utsikten-logo.png`. På serveren ligger disse i frontend-katalogen,
+så `.env` må peke API-en til riktig sted:
+```
+FRONTEND_ASSETS_DIR=/opt/korportal/frontend/assets
+```
+
 ## Tjenestestyring
 
 ```bash

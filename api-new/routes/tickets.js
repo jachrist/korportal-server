@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { listEntities, getEntity, upsertEntity, deleteEntity, buildEntity } = require('../lib/db');
 const { successResponse, errorResponse, validateRequired } = require('../lib/helpers');
+const { createTransporter, renderTicketEmail } = require('../lib/mailer');
 
 /**
  * GET /api/billetter/ubetalte
@@ -54,6 +55,11 @@ router.post('/marker-betalt', async (req, res) => {
     const { reservationIds } = req.body;
     const updatedIds = [];
 
+    const concerts = await listEntities('Concerts');
+    const concertMap = new Map(concerts.map(c => [String(c.id), c]));
+
+    const transporter = createTransporter();
+
     for (const id of reservationIds) {
       const entity = await getEntity('TicketReservations', 'reservation', id);
       if (entity) {
@@ -64,6 +70,16 @@ router.post('/marker-betalt', async (req, res) => {
           referenceNumber: entity.referenceNumber || entity.ticketId,
         }, updated));
         updatedIds.push(id);
+
+        if (transporter && entity.email) {
+          const concert = concertMap.get(String(entity.concertId));
+          try {
+            const mail = await renderTicketEmail({ reservation: entity, concert });
+            await transporter.sendMail(mail);
+          } catch (mailErr) {
+            console.error(`Kunne ikke sende kvittering til ${entity.email}:`, mailErr.message);
+          }
+        }
       }
     }
 

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { listEntities, upsertEntity, deleteEntity, buildEntity } = require('../lib/db');
 const { successResponse, errorResponse, validateRequired, generateId, generateReferenceNumber, now } = require('../lib/helpers');
+const { createTransporter, formatNorskDato } = require('../lib/mailer');
 
 /**
  * GET /api/konserter?upcoming=true&$top=10
@@ -123,6 +124,16 @@ router.post('/konserter/billett', async (req, res) => {
       referenceNumber: refNumber,
     }, reservation));
 
+    const transporter = createTransporter();
+    if (transporter && email) {
+      try {
+        const concerts = await listEntities('Concerts', { filter: `RowKey eq '${concertId}'` });
+        await transporter.sendMail(buildBestillingMail(reservation, concerts[0]));
+      } catch (mailErr) {
+        console.error(`Kunne ikke sende bestillingsbekreftelse til ${email}:`, mailErr.message);
+      }
+    }
+
     return successResponse(res, {
       referenceNumber: refNumber,
       bookingReference: refNumber,
@@ -170,5 +181,50 @@ router.delete('/konserter/:id', async (req, res) => {
     return errorResponse(res, 'Kunne ikke slette konsert.', 500);
   }
 });
+
+function buildBestillingMail(reservation, concert) {
+  const ref = reservation.referenceNumber;
+  const count = reservation.ticketCount || 1;
+  const total = reservation.totalPrice || 0;
+  const title = concert?.title || 'konsert';
+  const dato = formatNorskDato(concert?.date);
+  const tid = concert?.time || '';
+  const sted = concert?.location || '';
+  const datoTid = [dato, tid].filter(Boolean).join(' kl. ');
+
+  const text =
+    `Hei ${reservation.name},\n\n` +
+    `Takk for din bestilling! Vi har mottatt reservasjonen din.\n\n` +
+    `Konsert: ${title}\n` +
+    (datoTid ? `Tid: ${datoTid}\n` : '') +
+    (sted ? `Sted: ${sted}\n` : '') +
+    `Antall billetter: ${count}\n` +
+    `Totalsum: ${total} kr\n` +
+    `Referansenummer: ${ref}\n\n` +
+    `Du får en kvittering på e-post når betalingen er registrert.\n\n` +
+    `Vennlig hilsen\nKammerkoret Utsikten`;
+
+  const html =
+    `<p>Hei ${reservation.name},</p>` +
+    `<p>Takk for din bestilling! Vi har mottatt reservasjonen din.</p>` +
+    `<table style="border-collapse:collapse">` +
+      `<tr><td style="padding:4px 12px 4px 0"><strong>Konsert:</strong></td><td>${title}</td></tr>` +
+      (datoTid ? `<tr><td style="padding:4px 12px 4px 0"><strong>Tid:</strong></td><td>${datoTid}</td></tr>` : '') +
+      (sted ? `<tr><td style="padding:4px 12px 4px 0"><strong>Sted:</strong></td><td>${sted}</td></tr>` : '') +
+      `<tr><td style="padding:4px 12px 4px 0"><strong>Antall billetter:</strong></td><td>${count}</td></tr>` +
+      `<tr><td style="padding:4px 12px 4px 0"><strong>Totalsum:</strong></td><td>${total} kr</td></tr>` +
+      `<tr><td style="padding:4px 12px 4px 0"><strong>Referansenummer:</strong></td><td><strong>${ref}</strong></td></tr>` +
+    `</table>` +
+    `<p>Du får en kvittering på e-post når betalingen er registrert.</p>` +
+    `<p>Vennlig hilsen<br>Kammerkoret Utsikten</p>`;
+
+  return {
+    from: process.env.SMTP_FROM,
+    to: reservation.email,
+    subject: `Bestilling mottatt: ${title}`,
+    text,
+    html,
+  };
+}
 
 module.exports = router;
