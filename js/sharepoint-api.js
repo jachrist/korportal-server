@@ -737,10 +737,12 @@ class SharePointAPI {
             );
         }
 
-        return this.fetch(endpoint, {
+        const response = await this.fetch(endpoint, {
             method: 'POST',
             body: JSON.stringify(data)
         });
+        this.cache.clear();
+        return this.unwrap(response);
     }
 
     /**
@@ -760,10 +762,12 @@ class SharePointAPI {
             );
         }
 
-        return this.fetch(`${endpoint}/${itemId}`, {
+        const response = await this.fetch(`${endpoint}/${itemId}`, {
             method: 'PATCH',
             body: JSON.stringify(data)
         });
+        this.cache.clear();
+        return this.unwrap(response);
     }
 
     /**
@@ -782,10 +786,12 @@ class SharePointAPI {
             );
         }
 
-        return this.fetch(`${endpoint}/${itemId}`, {
+        const response = await this.fetch(`${endpoint}/${itemId}`, {
             method: 'DELETE',
             body: JSON.stringify({ action: 'delete', id: itemId })
         });
+        this.cache.clear();
+        return this.unwrap(response);
     }
 
     /**

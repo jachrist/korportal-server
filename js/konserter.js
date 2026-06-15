@@ -271,7 +271,7 @@ class ConcertsApp {
         this.elements.concertsSection.querySelectorAll('.btn--delete-concert').forEach(btn => {
             btn.addEventListener('click', () => {
                 const concertId = btn.dataset.concertId;
-                const concert = this.concerts.find(c => c.id === concertId);
+                const concert = this.concerts.find(c => String(c.id) === String(concertId));
                 if (concert && confirm(`Slette "${concert.title}"?`)) {
                     this.deleteConcert(concertId);
                 }
@@ -282,7 +282,7 @@ class ConcertsApp {
     async deleteConcert(concertId) {
         try {
             await sharePointAPI.deleteItem('concerts', concertId);
-            this.concerts = this.concerts.filter(c => c.id !== concertId);
+            this.concerts = this.concerts.filter(c => String(c.id) !== String(concertId));
             this.renderConcerts();
         } catch (error) {
             console.error('Error deleting concert:', error);
@@ -388,7 +388,7 @@ class ConcertsApp {
     }
 
     openBookingModal(concertId) {
-        this.selectedConcert = this.concerts.find(c => c.id === concertId);
+        this.selectedConcert = this.concerts.find(c => String(c.id) === String(concertId));
         if (!this.selectedConcert) return;
 
         const concert = this.selectedConcert;
@@ -587,7 +587,7 @@ class ConcertsApp {
     }
 
     openEditConcertModal(concertId) {
-        const concert = this.concerts.find(c => c.id === concertId);
+        const concert = this.concerts.find(c => String(c.id) === String(concertId));
         if (!concert) return;
 
         this.editingConcert = concert;
@@ -683,7 +683,7 @@ class ConcertsApp {
                 console.log('API delete not available, deleting locally:', apiError.message);
             }
 
-            this.concerts = this.concerts.filter(c => c.id !== this.editingConcert.id);
+            this.concerts = this.concerts.filter(c => String(c.id) !== String(this.editingConcert.id));
             this.renderConcerts();
             this.closeEditConcertModal();
 
