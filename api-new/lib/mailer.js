@@ -113,4 +113,97 @@ async function renderTicketEmail({ reservation, concert }) {
   };
 }
 
-module.exports = { createTransporter, formatNorskDato, renderTicketEmail };
+/**
+ * Bygger en daglig oppsummerings-e-post ("digest") til ett medlem.
+ * @param {object} p
+ * @param {object} p.member    - medlemsrad (name/navn, email/epost)
+ * @param {Array}  p.sections  - [ { label, items: [ { title, isNew } ] } ]
+ * @returns nodemailer-melding med logo som inline vedlegg (cid)
+ */
+function renderMemberDigest({ member, sections }) {
+  const siteUrl = process.env.SITE_URL || 'https://www.kammerkoretutsikten.no/korportal';
+  const name = member.name || member.navn || '';
+  const greeting = name ? `Hei ${name.split(' ')[0]},` : 'Hei,';
+
+  // Kort oppsummering til emnefelt: "2 meldinger, 1 innlegg"
+  const summary = sections
+    .map(s => `${s.items.length} ${s.items.length === 1 ? s.singular : s.label.toLowerCase()}`)
+    .join(', ');
+  const subject = `Nytt i Korportalen – ${summary}`;
+
+  // --- HTML ---
+  const sectionHtml = sections.map(s => {
+    const rows = s.items.map(it => {
+      const tag = it.isNew ? 'Ny' : 'Oppdatert';
+      const tagColor = it.isNew ? '#5dd6ff' : '#ffcf5d';
+      return (
+        `<tr><td style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.06);">` +
+          `<span style="display:inline-block;min-width:70px;font-size:11px;font-weight:700;` +
+          `text-transform:uppercase;letter-spacing:0.5px;color:${tagColor};">${tag}</span>` +
+          `<span style="font-size:15px;color:#eaf0ff;">${escapeHtml(it.title)}</span>` +
+        `</td></tr>`
+      );
+    }).join('');
+    return (
+      `<tr><td style="padding:0 24px 20px;">` +
+        `<p style="margin:0 0 8px;font-size:13px;font-weight:600;text-transform:uppercase;` +
+        `letter-spacing:0.5px;color:rgba(234,240,255,0.60);">${escapeHtml(s.label)}</p>` +
+        `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" ` +
+        `style="background-color:rgba(93,214,255,0.05);border:1px solid rgba(93,214,255,0.15);border-radius:12px;">` +
+        rows +
+        `</table>` +
+      `</td></tr>`
+    );
+  }).join('');
+
+  const html =
+    `<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8">` +
+    `<meta name="viewport" content="width=device-width, initial-scale=1.0"></head>` +
+    `<body style="margin:0;padding:0;background-color:#0b1220;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">` +
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0b1220;"><tr>` +
+    `<td align="center" style="padding:24px 16px;">` +
+    `<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" ` +
+    `style="max-width:600px;width:100%;background-color:#101828;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.10);">` +
+    `<tr><td align="center" style="padding:32px 24px 8px;background-color:#0d1422;">` +
+    `<img src="cid:utsikten-logo" alt="Kammerkoret Utsikten" width="64" height="64" ` +
+    `style="display:block;border:0;width:64px;height:64px;border-radius:12px;"></td></tr>` +
+    `<tr><td align="center" style="padding:8px 24px 24px;background-color:#0d1422;">` +
+    `<h1 style="margin:0;font-size:22px;font-weight:700;color:#eaf0ff;line-height:1.3;">Nytt siden sist</h1>` +
+    `<p style="margin:8px 0 0;font-size:15px;color:rgba(234,240,255,0.60);">${escapeHtml(greeting)} her er oppdateringene fra Korportalen.</p>` +
+    `</td></tr>` +
+    sectionHtml +
+    `<tr><td align="center" style="padding:4px 24px 32px;">` +
+    `<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>` +
+    `<td align="center" style="background-color:#5dd6ff;border-radius:10px;">` +
+    `<a href="${siteUrl}" style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:600;color:#0b1220;text-decoration:none;border-radius:10px;">Gå til Korportalen</a>` +
+    `</td></tr></table></td></tr>` +
+    `<tr><td style="padding:20px 24px;background-color:#0d1422;border-top:1px solid rgba(255,255,255,0.10);text-align:center;">` +
+    `<p style="margin:0;font-size:13px;color:rgba(234,240,255,0.40);line-height:1.5;">Kammerkoret Utsikten<br>` +
+    `<a href="https://www.kammerkoretutsikten.no" style="color:#5dd6ff;text-decoration:none;">kammerkoretutsikten.no</a></p>` +
+    `<p style="margin:12px 0 0;font-size:12px;color:rgba(234,240,255,0.25);">` +
+    `Du mottar denne e-posten fordi du har slått på varsler i Min profil. Du kan skru dem av der.</p>` +
+    `</td></tr></table></td></tr></table></body></html>`;
+
+  // --- Ren tekst ---
+  const text =
+    `${greeting}\n\nNytt siden sist i Korportalen:\n\n` +
+    sections.map(s =>
+      `${s.label}:\n` + s.items.map(it => `  - [${it.isNew ? 'Ny' : 'Oppdatert'}] ${it.title}`).join('\n')
+    ).join('\n\n') +
+    `\n\nGå til Korportalen: ${siteUrl}\n\n` +
+    `Du mottar denne e-posten fordi du har slått på varsler i Min profil.\n` +
+    `Vennlig hilsen\nKammerkoret Utsikten`;
+
+  return {
+    from: process.env.SMTP_FROM,
+    to: member.email || member.epost,
+    subject,
+    text,
+    html,
+    attachments: [
+      { filename: 'utsikten-logo.png', content: loadLogo(), cid: 'utsikten-logo' },
+    ],
+  };
+}
+
+module.exports = { createTransporter, formatNorskDato, renderTicketEmail, renderMemberDigest };

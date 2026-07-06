@@ -215,4 +215,22 @@ router.post('/import-events', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/admin/send-varsler
+ * Kjør den daglige medlemsvarslingen manuelt (f.eks. for testing).
+ * Query/body: force=true  → bruk 24t-vindu og ikke oppdater «siste kjøring».
+ * Response: { success: true, result: { ... } }
+ */
+router.post('/send-varsler', async (req, res) => {
+  try {
+    const { runDailyDigest } = require('../lib/notifications');
+    const force = req.query.force === 'true' || req.body?.force === true;
+    const result = await runDailyDigest({ force });
+    return successResponse(res, { result });
+  } catch (err) {
+    console.error('send-varsler error:', err);
+    return errorResponse(res, 'Kunne ikke sende varsler.', 500);
+  }
+});
+
 module.exports = router;

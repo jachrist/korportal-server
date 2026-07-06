@@ -37,7 +37,8 @@ Hele losningen er selvforsynt pa egen Ubuntu-server (`server.kammerkoretutsikten
 api-new/
   server.js                  # Express app, CORS, response-wrapper, route-mounting
   lib/db.js                  # SQLite-lag: getEntity, listEntities, upsertEntity, deleteEntity, buildEntity, parseEntity, ensureTables, odata
-  lib/mailer.js              # Delt SMTP-transport + HTML-mal-rendring (billett-kvittering m/QR, medlems-e-post)
+  lib/mailer.js              # Delt SMTP-transport + HTML-mal-rendring (billett-kvittering m/QR, medlems-digest)
+  lib/notifications.js       # Daglig medlemsvarsling: endringsdeteksjon, digest-utsending, planlegger
   lib/helpers.js             # successResponse, errorResponse, generateId, generateReferenceNumber, parsePagination, paginate, validateRequired, now
   lib/table-client.js        # Ubrukt arv fra Azure Table Storage — beholdt midlertidig
   routes/*.js                # 19 route-filer: auth, navigation, articles, contacts, quicklinks, messages, posts, practice, downloads, concerts, tickets, ticket-validate, music, members, files, blob, styre, profile, admin
@@ -54,9 +55,16 @@ E-post-malene ligger som HTML i `assets/` (`email-ticket.html`, `email-member.ht
 ### Hybrid lagringsmodell
 Hver tabell har kolonnene `id` (PK), `partitionKey`, sokbare felt + `jsonData` (komplett objekt). `buildEntity(partitionKey, rowKey, searchableFields, fullData)` og `parseEntity(row)` abstraherer dette. Skjema defineres i `TABLE_SCHEMAS` i `lib/db.js`; `ensureTables()` legger til manglende kolonner ved oppstart (enkel schema-migrering via `ALTER TABLE`). SQLite kjorer i WAL-modus.
 
-Tabeller: `Navigation`, `Articles`, `Contacts`, `QuickLinks`, `Messages`, `Posts`, `Practice`, `Downloads`, `Concerts`, `TicketReservations`, `Music`, `Members`, `Events`, `Files`, `AuthCodes`, `GuestConfig`.
+Tabeller: `Navigation`, `Articles`, `Contacts`, `QuickLinks`, `Messages`, `Posts`, `Practice`, `Downloads`, `Concerts`, `TicketReservations`, `Music`, `Members`, `Events`, `Files`, `AuthCodes`, `GuestConfig`, `NotificationState`.
 
 `listEntities()` stotter en enkel OData-lignende filter-syntaks (`"column eq 'value'"`) for kompatibilitet med rutene som ble skrevet mot Azure Table Storage.
+
+### Daglig medlemsvarsling
+`lib/notifications.js` sender en oppsummerings-e-post til medlemmer nar det er nye eller oppdaterte **meldinger**, **innlegg** eller **arrangementer**:
+- `startDailyScheduler()` (startet fra `server.js`) ticker hver time og kjorer `runDailyDigest()` en gang per dogn fra `NOTIFY_DIGEST_HOUR` (server-lokal tid, default 08). `NotificationState`-raden `digest` lagrer `lastRunAt`, sa vinduet «siden sist» taler omstart uten dobbeltsending.
+- Endringer detekteres via `updatedAt` (settes ved opprettelse og PATCH i `messages.js`, `posts.js`, `members.js`); `isNew` skiller «Ny» fra «Oppdatert». Kommentarer og RSVP setter *ikke* `updatedAt` og utloser derfor ingen varsling.
+- Hvert medlem far kun seksjonene de har slatt pa i `varsler: { innlegg, arrangementer, meldinger }` (mangler feltet → alt pa). E-posten rendres av `renderMemberDigest()` i `lib/mailer.js`.
+- Manuell/test-kjoring: `POST /api/admin/send-varsler` (`?force=true` bruker 24t-vindu og flytter ikke `lastRunAt`). Uten SMTP-konfig hopper kjoringen over og beholder `lastRunAt` sa endringene fanges opp senere.
 
 ### Response-format
 Alle JSON-responser wrappes i `{ body: ... }` via middleware i `server.js`, slik at frontenden sin `unwrap()`-logikk i `sharepoint-api.js` fungerer uendret fra Power Automate-tiden.
@@ -104,6 +112,9 @@ Alle JSON-responser wrappes i `{ body: ... }` via middleware i `server.js`, slik
 - `CORS_ORIGINS` — komma-separert liste over tillatte origins
 - `SMTP_HOST/PORT/USER/PASS/FROM` — M365 SMTP for engangskoder og billett-kvitteringer
 - `FRONTEND_ASSETS_DIR` — katalog med HTML-maler + logo for e-post (default `../assets`; server: `/opt/korportal/frontend/assets`)
+- `NOTIFY_DIGEST_ENABLED` — `false` slar av den daglige medlemsvarslingen (default pa)
+- `NOTIFY_DIGEST_HOUR` — klokketime (server-lokal, 0–23) varslingen kjorer fra (default 8)
+- `SITE_URL` — lenke i varsel-e-posten (default `https://www.kammerkoretutsikten.no/korportal`)
 
 ## Utvikling (lokalt pa Windows)
 
