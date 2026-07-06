@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { listEntities, upsertEntity, deleteEntity, buildEntity } = require('../lib/db');
 const { successResponse, errorResponse, validateRequired, generateId, now } = require('../lib/helpers');
+const { createTransporter } = require('../lib/mailer');
 const crypto = require('crypto');
 
 /**
@@ -42,19 +43,14 @@ router.post('/send-kode', async (req, res) => {
       createdAt: now(),
     }));
 
-    // Send email (nodemailer)
-    try {
-      const nodemailer = require('nodemailer');
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT) || 465,
-        secure: parseInt(process.env.SMTP_PORT) === 587 ? false : true,
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
+    // Send email — bruk delt SMTP-transport (samme config som resten av systemet)
+    const transporter = createTransporter();
+    if (!transporter) {
+      console.error('send-kode: SMTP er ikke konfigurert (mangler SMTP_HOST/SMTP_USER).');
+      return errorResponse(res, 'E-post er ikke satt opp på serveren. Kontakt administrator.', 500);
+    }
 
+    try {
       await transporter.sendMail({
         from: process.env.SMTP_FROM,
         to: normalizedEmail,
@@ -63,8 +59,10 @@ router.post('/send-kode', async (req, res) => {
         html: `<p>Din kode er: <strong>${code}</strong></p><p>Koden er gyldig i 10 minutter.</p>`,
       });
     } catch (mailErr) {
-      console.error('Kunne ikke sende e-post:', mailErr.message);
-      // Still return success — code is stored, can be verified
+      // Ikke returner falsk suksess: uten e-post kan ikke medlemmet få koden.
+      console.error('send-kode: kunne ikke sende e-post:',
+        'code=' + mailErr.code, 'responseCode=' + mailErr.responseCode, mailErr.message);
+      return errorResponse(res, 'Kunne ikke sende e-post akkurat nå. Prøv igjen, eller kontakt administrator.', 502);
     }
 
     return successResponse(res, { message: 'Kode sendt til e-post.' });

@@ -20,7 +20,7 @@ Hele losningen er selvforsynt pa egen Ubuntu-server (`server.kammerkoretutsikten
 - SQLite via `better-sqlite3` (`lib/db.js`) — drop-in for tidligere Azure Table Storage
 - Lokale filer i `/var/data/korportal/uploads/` (PDF, MP3, bilder)
 - Nginx serverer frontend og proxyer `/api/*` → `127.0.0.1:3001`, `/uploads/` direkte fra disk
-- E-post via Outlook/Exchange Online (SMTP AUTH mot smtp.office365.com:465 eller :587) — `lib/mailer.js` deler transport og HTML-maler mellom engangskoder og billett-kvitteringer (QR-kode via `qrcode`)
+- E-post via Outlook/Exchange Online (SMTP AUTH mot smtp.office365.com:465 eller :587) — `lib/mailer.js` deler transport og HTML-maler mellom engangskoder, billett-kvitteringer (QR-kode via `qrcode`) og medlemsvarsling. Alle sendere returnerer feil ved mislykket utsending (ingen falsk suksess). Diagnostiser oppsettet med `POST /api/admin/smtp-test` (`{ "to": "din@epost" }` for full test) — den kjorer `transporter.verify()` og returnerer den faktiske SMTP-feilen. Merk: M365 krever ofte at «SMTP AUTH» er aktivert pa postboksen.
 - Avhengigheter (`api-new/package.json`): `express`, `cors`, `dotenv`, `better-sqlite3`, `nodemailer`, `qrcode`
 
 ### Driftsmiljo

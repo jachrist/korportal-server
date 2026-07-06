@@ -216,6 +216,43 @@ router.post('/import-events', async (req, res) => {
 });
 
 /**
+ * POST /api/admin/smtp-test
+ * Diagnostiserer e-postoppsettet: verifiserer SMTP-tilkoblingen og (valgfritt)
+ * sender en test-e-post. Returnerer den faktiske SMTP-feilen ved problemer.
+ * Body: { to?: "din@epost.no" }
+ */
+router.post('/smtp-test', async (req, res) => {
+  const { createTransporter } = require('../lib/mailer');
+  const transporter = createTransporter();
+  if (!transporter) {
+    return res.json({ ok: false, stage: 'config', message: 'SMTP er ikke konfigurert (mangler SMTP_HOST/SMTP_USER).' });
+  }
+
+  try {
+    await transporter.verify();
+  } catch (err) {
+    return res.json({ ok: false, stage: 'verify', code: err.code, responseCode: err.responseCode, message: err.message });
+  }
+
+  const to = req.body && req.body.to;
+  if (!to) {
+    return res.json({ ok: true, stage: 'verify', message: 'SMTP-tilkobling OK. Send { "to": "din@epost" } for å teste faktisk utsending.' });
+  }
+
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      subject: 'Korportal SMTP-test',
+      text: 'Dette er en test-e-post fra Korportal. Kommer denne frem, fungerer e-postoppsettet.',
+    });
+    return res.json({ ok: true, stage: 'send', to, message: 'Test-e-post sendt.' });
+  } catch (err) {
+    return res.json({ ok: false, stage: 'send', code: err.code, responseCode: err.responseCode, message: err.message });
+  }
+});
+
+/**
  * POST /api/admin/send-varsler
  * Kjør den daglige medlemsvarslingen manuelt (f.eks. for testing).
  * Query/body: force=true  → bruk 24t-vindu og ikke oppdater «siste kjøring».
