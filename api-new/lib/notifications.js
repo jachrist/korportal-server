@@ -10,22 +10,70 @@
 
 const { listEntities, getEntity, upsertEntity, buildEntity } = require('./db');
 const { now } = require('./helpers');
-const { createTransporter, renderMemberDigest } = require('./mailer');
+const { createTransporter, renderMemberDigest, formatNorskDato } = require('./mailer');
 
 const STATE_TABLE = 'NotificationState';
 const STATE_KEY = 'digest';
 const DEFAULT_WINDOW_HOURS = 24;
+const EXCERPT_LENGTH = 140;
 
-// Kobling mellom varsel-flagg, tabell og opprettelses-tidsstempel.
+const SITE_URL = (process.env.SITE_URL || 'https://www.kammerkoretutsikten.no').replace(/\/+$/, '');
+
+// Kobling mellom varsel-flagg, tabell, tidsstempel og hvordan hvert element
+// beskrives i e-posten (forfatter, utdrag, meta-linje, hvilken side det lenker til).
 const SOURCES = [
-  { key: 'meldinger',     label: 'Meldinger',     singular: 'melding',     table: 'Messages', createdField: 'publishedAt' },
-  { key: 'innlegg',       label: 'Innlegg',       singular: 'innlegg',     table: 'Posts',    createdField: 'createdAt' },
-  { key: 'arrangementer', label: 'Arrangementer', singular: 'arrangement', table: 'Events',   createdField: 'createdAt' },
+  {
+    key: 'meldinger', label: 'Meldinger', singular: 'melding',
+    table: 'Messages', createdField: 'publishedAt', page: 'meldinger.html',
+    author: it => it.author || '',
+    excerpt: it => it.content || '',
+    meta: (it, changedAtIso) => formatNorskDato(changedAtIso),
+  },
+  {
+    key: 'innlegg', label: 'Innlegg', singular: 'innlegg',
+    table: 'Posts', createdField: 'createdAt', page: 'innlegg.html',
+    author: it => (it.author && it.author.name) || it.authorName || '',
+    excerpt: it => it.content || '',
+    meta: (it, changedAtIso) => formatNorskDato(changedAtIso),
+  },
+  {
+    key: 'arrangementer', label: 'Arrangementer', singular: 'arrangement',
+    table: 'Events', createdField: 'createdAt', page: 'medlemmer.html',
+    author: it => it.authorName || '',
+    excerpt: it => it.description || '',
+    // For arrangementer er selve arrangementsdatoen mer relevant enn publiseringstidspunktet.
+    meta: it => [
+      formatNorskDato(it.date),
+      it.startTime ? `kl. ${it.startTime}` : '',
+      it.location ? `· ${it.location}` : '',
+    ].filter(Boolean).join(' '),
+  },
 ];
 
 function toTime(v) {
   const t = Date.parse(v);
   return Number.isNaN(t) ? 0 : t;
+}
+
+function pageUrl(page) {
+  return `${SITE_URL}/${page}`;
+}
+
+// Gjør markdown/HTML-innhold om til et kort rentekst-utdrag.
+function makeExcerpt(raw, max = EXCERPT_LENGTH) {
+  const text = String(raw || '')
+    .replace(/```[\s\S]*?```/g, ' ')          // kodeblokker
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')     // bilder
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')   // lenker → lenketekst
+    .replace(/<[^>]+>/g, ' ')                   // html-tagger
+    .replace(/[#>*_`~]|(?:^|\s)-(?=\s)/g, ' ')  // markdown-symboler
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([.,!?;:])/g, '$1')            // rydd mellomrom foran tegnsetting
+    .trim();
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trim() + '…';
 }
 
 async function getLastRunAt() {
@@ -52,16 +100,23 @@ async function collectChanges(sinceIso) {
       .map(it => {
         const createdT = toTime(it[src.createdField]);
         const changedT = Math.max(createdT, toTime(it.updatedAt));
+        return { it, createdT, changedT };
+      })
+      .filter(x => x.changedT > sinceT)
+      .sort((a, b) => b.changedT - a.changedT)
+      .map(({ it, createdT, changedT }) => {
+        const changedAtIso = new Date(changedT).toISOString();
         return {
           id: it.id,
           title: it.title || '(uten tittel)',
           isNew: createdT > sinceT,
-          changedT,
+          changedAt: changedAtIso,
+          author: src.author(it),
+          excerpt: makeExcerpt(src.excerpt(it)),
+          meta: src.meta(it, changedAtIso),
+          url: pageUrl(src.page),
         };
-      })
-      .filter(x => x.changedT > sinceT)
-      .sort((a, b) => b.changedT - a.changedT)
-      .map(x => ({ id: x.id, title: x.title, isNew: x.isNew, changedAt: new Date(x.changedT).toISOString() }));
+      });
   }
 
   return result;

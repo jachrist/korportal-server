@@ -121,7 +121,7 @@ async function renderTicketEmail({ reservation, concert }) {
  * @returns nodemailer-melding med logo som inline vedlegg (cid)
  */
 function renderMemberDigest({ member, sections }) {
-  const siteUrl = process.env.SITE_URL || 'https://www.kammerkoretutsikten.no/korportal';
+  const siteUrl = (process.env.SITE_URL || 'https://www.kammerkoretutsikten.no').replace(/\/+$/, '');
   const name = member.name || member.navn || '';
   const greeting = name ? `Hei ${name.split(' ')[0]},` : 'Hei,';
 
@@ -136,11 +136,20 @@ function renderMemberDigest({ member, sections }) {
     const rows = s.items.map(it => {
       const tag = it.isNew ? 'Ny' : 'Oppdatert';
       const tagColor = it.isNew ? '#5dd6ff' : '#ffcf5d';
+      const titleHtml = it.url
+        ? `<a href="${escapeHtml(it.url)}" style="font-size:15px;font-weight:600;color:#eaf0ff;text-decoration:none;">${escapeHtml(it.title)}</a>`
+        : `<span style="font-size:15px;font-weight:600;color:#eaf0ff;">${escapeHtml(it.title)}</span>`;
+      const metaBits = [it.meta, it.author ? `av ${it.author}` : '']
+        .filter(Boolean).map(escapeHtml).join(' &middot; ');
+      const metaHtml = metaBits
+        ? `<div style="margin:4px 0 0;font-size:12px;color:rgba(234,240,255,0.55);">${metaBits}</div>` : '';
+      const excerptHtml = it.excerpt
+        ? `<div style="margin:5px 0 0;font-size:13px;line-height:1.5;color:rgba(234,240,255,0.75);">${escapeHtml(it.excerpt)}</div>` : '';
       return (
-        `<tr><td style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.06);">` +
-          `<span style="display:inline-block;min-width:70px;font-size:11px;font-weight:700;` +
-          `text-transform:uppercase;letter-spacing:0.5px;color:${tagColor};">${tag}</span>` +
-          `<span style="font-size:15px;color:#eaf0ff;">${escapeHtml(it.title)}</span>` +
+        `<tr><td style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.06);">` +
+          `<span style="display:inline-block;font-size:10px;font-weight:700;` +
+          `text-transform:uppercase;letter-spacing:0.6px;color:${tagColor};padding-right:8px;">${tag}</span>` +
+          titleHtml + metaHtml + excerptHtml +
         `</td></tr>`
       );
     }).join('');
@@ -188,7 +197,13 @@ function renderMemberDigest({ member, sections }) {
   const text =
     `${greeting}\n\nNytt siden sist i Korportalen:\n\n` +
     sections.map(s =>
-      `${s.label}:\n` + s.items.map(it => `  - [${it.isNew ? 'Ny' : 'Oppdatert'}] ${it.title}`).join('\n')
+      `${s.label}:\n` + s.items.map(it => {
+        const metaBits = [it.meta, it.author ? `av ${it.author}` : ''].filter(Boolean).join(' · ');
+        return `  • [${it.isNew ? 'Ny' : 'Oppdatert'}] ${it.title}` +
+          (metaBits ? `\n    ${metaBits}` : '') +
+          (it.excerpt ? `\n    ${it.excerpt}` : '') +
+          (it.url ? `\n    ${it.url}` : '');
+      }).join('\n\n')
     ).join('\n\n') +
     `\n\nGå til Korportalen: ${siteUrl}\n\n` +
     `Du mottar denne e-posten fordi du har slått på varsler i Min profil.\n` +

@@ -114,7 +114,7 @@ Alle JSON-responser wrappes i `{ body: ... }` via middleware i `server.js`, slik
 - `FRONTEND_ASSETS_DIR` — katalog med HTML-maler + logo for e-post (default `../assets`; server: `/opt/korportal/frontend/assets`)
 - `NOTIFY_DIGEST_ENABLED` — `false` slar av den daglige medlemsvarslingen (default pa)
 - `NOTIFY_DIGEST_HOUR` — klokketime (server-lokal, 0–23) varslingen kjorer fra (default 8)
-- `SITE_URL` — lenke i varsel-e-posten (default `https://www.kammerkoretutsikten.no/korportal`)
+- `SITE_URL` — lenkebase i varsel-e-posten, servert i rot (default `https://www.kammerkoretutsikten.no`; sidene lenkes som `<base>/meldinger.html`)
 
 ## Utvikling (lokalt pa Windows)
 
