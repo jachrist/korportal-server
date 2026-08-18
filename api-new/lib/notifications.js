@@ -125,12 +125,14 @@ async function collectChanges(sinceIso) {
 /**
  * Kjør daglig oppsummering.
  * @param {object} [opts]
- * @param {boolean} [opts.force]  - ignorer lagret «siste kjøring» (bruk 24t-vindu)
- *                                  og ikke oppdater tidsstempelet. For testing.
+ * @param {boolean} [opts.force]   - ignorer lagret «siste kjøring» (bruk 24t-vindu)
+ *                                   og ikke oppdater tidsstempelet. For testing.
+ * @param {boolean} [opts.dryRun]  - beregn hvem som ville fått e-post, men ikke send
+ *                                   og ikke flytt tidsstempelet.
  * @param {number}  [opts.windowHours]
- * @returns {Promise<object>} oppsummering av kjøringen
+ * @returns {Promise<object>} oppsummering av kjøringen (inkl. `preview` per mottaker)
  */
-async function runDailyDigest({ force = false, windowHours = DEFAULT_WINDOW_HOURS } = {}) {
+async function runDailyDigest({ force = false, dryRun = false, windowHours = DEFAULT_WINDOW_HOURS } = {}) {
   const runAt = now();
   const fallback = new Date(Date.now() - windowHours * 3600 * 1000).toISOString();
   const sinceIso = force ? fallback : (await getLastRunAt()) || fallback;
@@ -142,28 +144,24 @@ async function runDailyDigest({ force = false, windowHours = DEFAULT_WINDOW_HOUR
     runAt,
     since: sinceIso,
     forced: force,
+    dryRun,
     changes: Object.fromEntries(SOURCES.map(s => [s.key, changes[s.key].length])),
     recipients: 0,
     sent: 0,
     failed: 0,
     status: 'ok',
+    preview: [],
   };
 
   if (totalChanges === 0) {
-    if (!force) await setLastRunAt(runAt);
+    if (!force && !dryRun) await setLastRunAt(runAt);
     summary.status = 'no-changes';
     return summary;
   }
 
-  const transporter = createTransporter();
-  if (!transporter) {
-    // SMTP ikke satt opp — ikke flytt tidsstempelet, så endringene fanges opp neste gang.
-    summary.status = 'no-smtp';
-    return summary;
-  }
-
+  // Bygg per-medlem seksjonsliste ut fra varsel-innstillingene.
   const members = await listEntities('Members');
-
+  const targets = [];
   for (const member of members) {
     const email = (member.email || member.epost || '').trim();
     if (!email) continue;
@@ -174,8 +172,29 @@ async function runDailyDigest({ force = false, windowHours = DEFAULT_WINDOW_HOUR
       .map(s => ({ label: s.label, singular: s.singular, items: changes[s.key] }));
 
     if (sections.length === 0) continue;
+    targets.push({ member, email, sections });
+  }
 
-    summary.recipients++;
+  summary.recipients = targets.length;
+  summary.preview = targets.map(t => ({
+    email: t.email,
+    name: t.member.name || t.member.navn || '',
+    sections: t.sections.map(s => `${s.label} (${s.items.length})`),
+  }));
+
+  if (dryRun) {
+    summary.status = 'dry-run';
+    return summary;
+  }
+
+  const transporter = createTransporter();
+  if (!transporter) {
+    // SMTP ikke satt opp — ikke flytt tidsstempelet, så endringene fanges opp neste gang.
+    summary.status = 'no-smtp';
+    return summary;
+  }
+
+  for (const { member, email, sections } of targets) {
     try {
       await transporter.sendMail(renderMemberDigest({ member, sections }));
       summary.sent++;

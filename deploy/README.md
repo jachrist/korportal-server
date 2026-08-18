@@ -52,6 +52,39 @@ så `.env` må peke API-en til riktig sted:
 FRONTEND_ASSETS_DIR=/opt/korportal/frontend/assets
 ```
 
+## Daglig medlemsvarsling (digest)
+
+API-en sender én samlet e-post per medlem med alt nytt eller oppdatert siste
+døgn (meldinger, innlegg, arrangementer). Hver seksjon tas kun med hvis
+medlemmet har varselet påslått under **Min profil** (`Members.varsler`);
+medlemmer uten noe nytt får ingen e-post. Endringer detekteres via `updatedAt`,
+og siste kjøring lagres i `NotificationState`, så vinduet «siden sist» tåler
+omstart uten dobbeltsending.
+
+**Standard: innebygd planlegger.** `server.js` starter en planlegger som kjører
+varslingen automatisk én gang i døgnet — ingen cron nødvendig. Styres med:
+```
+NOTIFY_DIGEST_ENABLED=true   # false slår av planleggeren
+NOTIFY_DIGEST_HOUR=8         # klokketime (server-lokal) den kjører fra
+SITE_URL=https://www.kammerkoretutsikten.no   # lenkebase i e-posten (uten etterfølgende /)
+```
+
+**Manuell kjøring / testing** (bruker samme SMTP-oppsett som resten av API-en):
+```bash
+cd /opt/korportal/api-new
+node jobs/daily-digest.js --dry-run   # vis hvem som ville fått e-post, uten å sende
+npm run digest                        # kjør og send nå
+```
+Admin-panelet kan også trigge den via `POST /api/admin/send-varsler`
+(`?force=true` bruker 24t-vindu uten å flytte «siste kjøring»).
+
+**Alternativ: cron i stedet for innebygd planlegger.** Vil du heller styre
+kjøringen med cron, slå av den innebygde planleggeren (`NOTIFY_DIGEST_ENABLED=false`,
+så du ikke sender dobbelt) og legg inn:
+```bash
+echo "0 7 * * * korportal cd /opt/korportal/api-new && /usr/bin/node jobs/daily-digest.js >> /var/log/korportal-digest.log 2>&1" | sudo tee /etc/cron.d/korportal-digest
+```
+
 ## Tjenestestyring
 
 ```bash
