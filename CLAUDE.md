@@ -78,6 +78,7 @@ Alle JSON-responser wrappes i `{ body: ... }` via middleware i `server.js`, slik
 - Medlemsinfo: `js/member-utils.js` (`getCurrentMember` fra localStorage)
 - Billett-flyt: `billetter.html`/`js/billetter.js` (bestilling) og `billettkontroll.html`/`js/billettkontroll.js` (QR-skanning ved inngang, html5-qrcode)
 - Ovelse finnes i flere varianter: `ovelse.html` (aktiv) + `ovelse2.html`/`ovelse-original.html` (eksperiment/arv)
+- Nedlasting (`nedlasting.html`/`js/nedlasting.js`): noter + ovefiler for aktiv hendelse, gruppert per verk i satt rekkefolge. Henter anledninger + aktiv anledning fra `/api/filer/anledninger` og `/api/ovelse/meta`, og program via `sharePointAPI.getPracticeData()` (samme kilde som ovesiden). Aktivitet- og stemmevelger (stemme default = medlemmets); ovefil-lenke faller tilbake til delt basestemme (`tenor 1` → `tenor`), ellers «ikke tilgjengelig enda». «Last ned alt» pakker noter + ovefiler for valgt stemme i en zip via `js/vendor/jszip.min.js` (lazy-lastet). Tilgang: `initPage({ requiredRole: 'medlem' })`.
 
 ### Autentisering
 - E-postbasert OTP (6-sifret engangskode, 10 min levetid)
@@ -137,8 +138,9 @@ Engangs-datamigrering (kjores manuelt ved behov): `node migrate.js` (JSON → SQ
 ## Deploy
 
 Se `deploy/README.md` for fullstendig drift:
-- Frontend-oppdatering: `git pull` + kopier statiske filer til `/opt/korportal/frontend/`
-- API-oppdatering: `git pull` + kopier `routes/`, `lib/`, `server.js` til `/opt/korportal/api-new/` + `systemctl restart korportal`
+- Automatisk: `.github/workflows/deploy.yml` kjorer `deploy/deploy.sh` over SSH ved push til `main` (og manuelt via «Run workflow»). Krever repo-secrets `SSH_HOST`/`SSH_USER`/`SSH_PRIVATE_KEY` (+ evt. `SSH_PORT`).
+- `deploy/deploy.sh`: henter siste `main`, kopierer frontend + API (inkl. `api-new/jobs/`), `npm install` kun ved dependency-endring, restarter tjenesten. Beholder `.env`, `data/`, `uploads/`, `js/env.js`.
+- Manuelt (samme steg): `git pull` + kopier statiske filer til `/opt/korportal/frontend/`, og `routes/`/`lib/`/`jobs/`/`server.js` til `/opt/korportal/api-new/` + `systemctl restart korportal`
 - Backup: `deploy/backup.sh` (kryptert til OneDrive via rclone, daglig cron 03:15)
 - Restaurering: `deploy/restore.sh` med GPG-passphrase fra passordhvelv
 

@@ -2,9 +2,11 @@ name: Deploy til produksjon
 
 # Deployer automatisk når endringer havner på main (typisk etter at en PR merges).
 # Feature-brancher deployer IKKE — først når de er merget til main.
+# workflow_dispatch gir en manuell «Run workflow»-knapp i Actions-fanen.
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 # Ikke kjør to deployer samtidig; la en pågående fullføre.
 concurrency:
