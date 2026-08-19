@@ -327,7 +327,7 @@ class LoginApp {
                     <a href="/meldinger.html" class="login-btn">Meldinger</a>
                     <a href="/innlegg.html" class="login-btn">Innlegg</a>
                     <a href="/ovelse.html" class="login-btn">Øvelse</a>
-                    <a href="/nedlasting.html" class="login-btn">Last ned noter</a>
+                    <a href="/nedlasting.html" class="login-btn">Nedlasting</a>
                     <button type="button" class="login-btn login-btn--secondary" id="logoutBtn">
                         Logg ut
                     </button>
