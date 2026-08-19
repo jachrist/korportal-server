@@ -10,7 +10,7 @@
 # server-spesifikke og skal ikke overskrives av repoet.
 #
 # Miljøvariabler (med fornuftige standarder):
-#   REPO_DIR       repo-klone på serveren     (default /tmp/korportal-server)
+#   REPO_DIR       repo-klone på serveren     (default /opt/korportal/src)
 #   FRONTEND_DIR   mål for statiske filer      (default /opt/korportal/frontend)
 #   API_DIR        mål for API-koden           (default /opt/korportal/api-new)
 #   DEPLOY_BRANCH  branch som deployes          (default main)
@@ -18,7 +18,7 @@
 #
 set -euo pipefail
 
-REPO_DIR="${REPO_DIR:-/tmp/korportal-server}"
+REPO_DIR="${REPO_DIR:-/opt/korportal/src}"
 FRONTEND_DIR="${FRONTEND_DIR:-/opt/korportal/frontend}"
 API_DIR="${API_DIR:-/opt/korportal/api-new}"
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-main}"
