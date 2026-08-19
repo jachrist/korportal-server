@@ -18,6 +18,29 @@
 | systemd-service | `/etc/systemd/system/korportal.service` |
 | Repo (kilde) | `/opt/korportal/src/` |
 
+## Koble til serveren (SSH)
+
+**Windows** (PowerShell / Windows Terminal — OpenSSH er innebygd i Win 10/11):
+```powershell
+ssh <bruker>@server.kammerkoretutsikten.no
+# annen port:            ssh -p <port> <bruker>@server.kammerkoretutsikten.no
+# med spesifikk nøkkel:  ssh -i $HOME\.ssh\<nøkkel> <bruker>@server.kammerkoretutsikten.no
+```
+Første gang: svar `yes` på host-key-spørsmålet. Deretter er du i serverens
+Linux-skall og kjører kommandoene under derfra. Logg ut med `exit`.
+
+**Mac / Linux:** samme, men `ssh -i ~/.ssh/<nøkkel> ...`.
+
+Deploy-nøkkel til GitHub Actions (kjøres på egen maskin, ikke serveren):
+```powershell
+# Windows PowerShell — trykk Enter to ganger for tom passphrase:
+ssh-keygen -t ed25519 -f $HOME\.ssh\korportal-deploy -C "github-actions-deploy"
+# Legg pubkey på serveren (ssh-copy-id finnes ofte ikke på Windows):
+type $HOME\.ssh\korportal-deploy.pub | ssh <bruker>@server.kammerkoretutsikten.no "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+# Vis privatnøkkelen som skal inn i GitHub-secret SSH_PRIVATE_KEY:
+type $HOME\.ssh\korportal-deploy
+```
+
 ## Oppdatering fra GitHub
 
 ### Kun frontend (JS, CSS, HTML)
