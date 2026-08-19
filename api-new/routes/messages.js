@@ -64,6 +64,7 @@ router.post('/meldinger', async (req, res) => {
       author: authorName,
       authorEmail,
       publishedAt: now(),
+      updatedAt: now(),
       imageUrl: '',
       isImportant: false,
       isPinned: false,
@@ -127,7 +128,7 @@ router.patch('/meldinger/:id', async (req, res) => {
     const entity = await getEntity('Messages', 'message', req.params.id);
     if (!entity) return errorResponse(res, 'Melding ikke funnet.', 404);
 
-    const updated = { ...entity, ...req.body };
+    const updated = { ...entity, ...req.body, updatedAt: now() };
     await upsertEntity('Messages', buildEntity('message', req.params.id, {
       publishedAt: updated.publishedAt,
       isPinned: updated.isPinned || false,

@@ -119,6 +119,7 @@ router.post('/arrangement', async (req, res) => {
       authorEmail: authorEmail || '',
       attendees: [],
       createdAt: now(),
+      updatedAt: now(),
     };
 
     await upsertEntity('Events', buildEntity('event', id, {
@@ -140,7 +141,7 @@ router.patch('/arrangement/:id', async (req, res) => {
     const entity = await getEntity('Events', 'event', req.params.id);
     if (!entity) return errorResponse(res, 'Arrangement ikke funnet.', 404);
 
-    const updated = { ...entity, ...req.body };
+    const updated = { ...entity, ...req.body, updatedAt: now() };
     await upsertEntity('Events', buildEntity('event', req.params.id, {
       date: updated.date,
     }, updated));

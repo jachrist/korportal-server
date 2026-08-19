@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { ensureTables } = require('./lib/db');
+const { startDailyScheduler } = require('./lib/notifications');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -75,6 +76,9 @@ async function start() {
   } catch (err) {
     console.error('Kunne ikke opprette tabeller:', err.message);
   }
+
+  // Daglig medlemsvarsling (nye/oppdaterte meldinger, innlegg, arrangementer)
+  startDailyScheduler();
 
   app.listen(PORT, () => {
     console.log(`Korportal API kjører på http://localhost:${PORT}`);

@@ -55,6 +55,7 @@ router.post('/innlegg', async (req, res) => {
       authorEmail,
       authorVoice: authorVoice || '',
       createdAt: now(),
+      updatedAt: now(),
       comments: [],
     };
 

@@ -7,8 +7,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Kammerkoret Utsikten">
-    <meta name="description" content="Last ned noter - Kammerkoret Utsikten">
-    <title>Last ned noter - Kammerkoret Utsikten</title>
+    <meta name="description" content="Nedlasting av noter og øvefiler - Kammerkoret Utsikten">
+    <title>Nedlasting - Kammerkoret Utsikten</title>
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
@@ -22,78 +22,82 @@
     <link rel="stylesheet" href="css/nedlasting.css">
 </head>
 <body>
-    <!-- Header -->
-    <header class="uts-topbar">
-        <div class="uts-brandMini">
-            <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
-            <span class="uts-brandMiniText">Nedlasting</span>
-        </div>
-        <div class="uts-topActions">
-            <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">🌙</button>
-            <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">☰</button>
-        </div>
-    </header>
-
-    <!-- Menu overlay -->
-    <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
-        <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
-            <div class="uts-menuHeader">
-                <h3>Meny</h3>
-                <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+    <div class="wrap">
+        <!-- Header -->
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <span class="uts-brandMiniText">Nedlasting</span>
             </div>
-            <nav class="uts-menuList" id="menuList"></nav>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">🌙</button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">☰</button>
+            </div>
+        </header>
+
+        <!-- Menu overlay -->
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader">
+                    <h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button>
+                </div>
+                <nav class="uts-menuList" id="menuList"></nav>
+            </div>
+        </div>
+
+        <!-- Sidetittel + aktivitetsvelger -->
+        <div class="dl-head">
+            <h1>Nedlasting</h1>
+            <div class="dl-activity">
+                <label for="anledningSelect">Aktivitet</label>
+                <select class="dl-select" id="anledningSelect" title="Aktivitet">
+                    <option value="">Laster...</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Stemmevalg + last ned alt -->
+        <div class="dl-controls">
+            <div class="dl-control">
+                <label for="voiceSelect">Stemme</label>
+                <select class="dl-select" id="voiceSelect" title="Stemme">
+                    <option value="">Velg stemme</option>
+                    <option value="sopran 1">Sopran 1</option>
+                    <option value="sopran 2">Sopran 2</option>
+                    <option value="alt 1">Alt 1</option>
+                    <option value="alt 2">Alt 2</option>
+                    <option value="tenor 1">Tenor 1</option>
+                    <option value="tenor 2">Tenor 2</option>
+                    <option value="bass 1">Bass 1</option>
+                    <option value="bass 2">Bass 2</option>
+                    <option value="tutti">Tutti</option>
+                </select>
+            </div>
+            <button class="dl-btnZip" id="downloadAll" type="button">⬇ Last ned alt (zip)</button>
+            <span class="dl-zipHint">Pakker alle noter + øvefiler for valgt stemme i én zip. Fungerer best på PC.</span>
+        </div>
+
+        <!-- Verk-liste -->
+        <div class="dl-list" id="verkList"></div>
+
+        <!-- Empty state -->
+        <div class="dl-empty" id="emptyState" hidden>
+            <span class="dl-empty__icon">🎼</span>
+            <p id="emptyText">Ingen verk for denne aktiviteten enda.</p>
         </div>
     </div>
-
-    <!-- Main content -->
-    <main class="nedlasting-main">
-        <div class="nedlasting-container">
-            <!-- Header with info -->
-            <div class="nedlasting-header">
-                <h1>Last ned noter</h1>
-                <p class="nedlasting-subtitle">Noter til øvelser og konserter</p>
-            </div>
-
-            <!-- Search box -->
-            <div class="search-box">
-                <input
-                    type="search"
-                    id="searchInput"
-                    placeholder="Søk i noter..."
-                    aria-label="Søk i noter"
-                >
-                <span class="search-icon">🔍</span>
-            </div>
-
-            <!-- File count -->
-            <div class="file-count" id="fileCount">
-                <span id="fileCountText">Laster noter...</span>
-            </div>
-
-            <!-- Files list -->
-            <div class="files-list" id="filesList">
-                <!-- Files loaded dynamically -->
-            </div>
-
-            <!-- Empty state -->
-            <div class="nedlasting-empty" id="emptyState" hidden>
-                <span class="empty-icon">🎼</span>
-                <p id="emptyText">Ingen noter funnet</p>
-            </div>
-        </div>
-    </main>
 
     <!-- Loading overlay -->
     <div class="loader" id="loader">
         <div class="loader__content">
             <div class="loader__spinner"></div>
-            <p class="loader__text">Laster noter...</p>
+            <p class="loader__text">Laster...</p>
         </div>
     </div>
 
     <script src="js/env.js"></script>
     <script type="module" src="js/nedlasting.js"></script>
-
     <script src="js/sw-register.js"></script>
 </body>
 </html>
