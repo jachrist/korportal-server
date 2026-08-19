@@ -1,0 +1,29 @@
+name: Deploy til produksjon
+
+# Deployer automatisk når endringer havner på main (typisk etter at en PR merges).
+# Feature-brancher deployer IKKE — først når de er merget til main.
+on:
+  push:
+    branches: [main]
+
+# Ikke kjør to deployer samtidig; la en pågående fullføre.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sett opp SSH-nøkkel
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "${{ secrets.SSH_PORT || 22 }}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Kjør deploy på serveren
+        run: |
+          ssh -i ~/.ssh/id_deploy -p "${{ secrets.SSH_PORT || 22 }}" \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            'bash /tmp/korportal-server/deploy/deploy.sh'

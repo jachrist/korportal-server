@@ -43,6 +43,45 @@ cd /opt/korportal/api-new && npm install --omit=dev && systemctl restart korport
 ```
 Eksempel: `qrcode` ble lagt til for QR-kode i billett-kvitteringer.
 
+### Automatisk deploy (GitHub Actions)
+
+`deploy/deploy.sh` gjør alt over i ett steg (henter siste `main`, kopierer
+frontend + API — inkludert `api-new/jobs/` — kjører `npm install` kun ved
+dependency-endringer, og restarter tjenesten). Den kan kjøres manuelt:
+```bash
+bash /tmp/korportal-server/deploy/deploy.sh
+```
+
+Workflowen `.github/workflows/deploy.yml` kjører dette scriptet automatisk over
+SSH hver gang noe pushes til `main` (altså etter at en PR merges — feature-
+brancher deployer ikke). Engangsoppsett:
+
+1. **Lag en deploy-nøkkel** (uten passphrase) på egen maskin:
+   ```bash
+   ssh-keygen -t ed25519 -f korportal-deploy -C "github-actions-deploy" -N ""
+   ```
+2. **Legg den offentlige nøkkelen på serveren** for deploy-brukeren:
+   ```bash
+   cat korportal-deploy.pub >> ~/.ssh/authorized_keys   # som deploy-brukeren
+   ```
+3. **Legg inn repo-secrets** i GitHub → Settings → Secrets and variables → Actions:
+   - `SSH_HOST` = `server.kammerkoretutsikten.no` (eller IP)
+   - `SSH_USER` = deploy-brukeren
+   - `SSH_PRIVATE_KEY` = hele innholdet i `korportal-deploy` (den private nøkkelen)
+   - `SSH_PORT` = valgfritt (default 22)
+4. **La deploy-brukeren eie målmappene** (så `cp` + `npm install` går uten sudo):
+   ```bash
+   sudo chown -R <deploy-bruker> /opt/korportal/frontend /opt/korportal/api-new /tmp/korportal-server
+   ```
+5. **Tillat restart uten passord** — legg i `/etc/sudoers.d/korportal-deploy`:
+   ```
+   <deploy-bruker> ALL=(root) NOPASSWD: /usr/bin/systemctl restart korportal, /usr/bin/systemctl status korportal
+   ```
+
+Merk: repoet ligger på `/tmp/korportal-server`, som kan tømmes ved omstart av
+serveren. For robust auto-deploy anbefales en varig sti (f.eks.
+`/opt/korportal/src`) — sett da `REPO_DIR` i workflowen/scriptet deretter.
+
 ### Billett-e-poster
 `POST /api/billetter/marker-betalt` sender en kvittering med QR-kode til bestilleren.
 Mailen bruker HTML-templaten `assets/email-ticket.html` og logoen
