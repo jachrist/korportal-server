@@ -26,8 +26,8 @@ mkdir -p /opt/korportal/api-new/data
 chown -R korportal:korportal /var/data/korportal
 chown -R korportal:korportal /opt/korportal
 
-# 5. Copy files (assumes repo is cloned to /tmp/korportal-server)
-REPO_DIR="${1:-/tmp/korportal-server}"
+# 5. Copy files (assumes repo is cloned to /opt/korportal/src)
+REPO_DIR="${1:-/opt/korportal/src}"
 echo "Copying files from $REPO_DIR..."
 cp -r "$REPO_DIR"/api-new/* /opt/korportal/api-new/
 mkdir -p /opt/korportal/frontend

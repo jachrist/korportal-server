@@ -16,23 +16,46 @@
 | Miljøvariabler | `/opt/korportal/api-new/.env` |
 | nginx-konfig | `/etc/nginx/sites-available/korportal` |
 | systemd-service | `/etc/systemd/system/korportal.service` |
-| Repo (kilde) | `/tmp/korportal-server/` |
+| Repo (kilde) | `/opt/korportal/src/` |
+
+## Koble til serveren (SSH)
+
+**Windows** (PowerShell / Windows Terminal — OpenSSH er innebygd i Win 10/11):
+```powershell
+ssh <bruker>@server.kammerkoretutsikten.no
+# annen port:            ssh -p <port> <bruker>@server.kammerkoretutsikten.no
+# med spesifikk nøkkel:  ssh -i $HOME\.ssh\<nøkkel> <bruker>@server.kammerkoretutsikten.no
+```
+Første gang: svar `yes` på host-key-spørsmålet. Deretter er du i serverens
+Linux-skall og kjører kommandoene under derfra. Logg ut med `exit`.
+
+**Mac / Linux:** samme, men `ssh -i ~/.ssh/<nøkkel> ...`.
+
+Deploy-nøkkel til GitHub Actions (kjøres på egen maskin, ikke serveren):
+```powershell
+# Windows PowerShell — trykk Enter to ganger for tom passphrase:
+ssh-keygen -t ed25519 -f $HOME\.ssh\korportal-deploy -C "github-actions-deploy"
+# Legg pubkey på serveren (ssh-copy-id finnes ofte ikke på Windows):
+type $HOME\.ssh\korportal-deploy.pub | ssh <bruker>@server.kammerkoretutsikten.no "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+# Vis privatnøkkelen som skal inn i GitHub-secret SSH_PRIVATE_KEY:
+type $HOME\.ssh\korportal-deploy
+```
 
 ## Oppdatering fra GitHub
 
 ### Kun frontend (JS, CSS, HTML)
 ```bash
-cd /tmp/korportal-server && git pull && cp -r js/ css/ *.html assets/ manifest.json sw.js /opt/korportal/frontend/
+cd /opt/korportal/src && git pull && cp -r js/ css/ *.html assets/ manifest.json sw.js /opt/korportal/frontend/
 ```
 
 ### Kun API (routes, lib, server.js)
 ```bash
-cd /tmp/korportal-server && git pull && cp -r api-new/routes/ api-new/lib/ api-new/server.js /opt/korportal/api-new/ && systemctl restart korportal
+cd /opt/korportal/src && git pull && cp -r api-new/routes/ api-new/lib/ api-new/server.js /opt/korportal/api-new/ && systemctl restart korportal
 ```
 
 ### Alt (frontend + API)
 ```bash
-cd /tmp/korportal-server && git pull && cp -r js/ css/ *.html assets/ manifest.json sw.js /opt/korportal/frontend/ && cp -r api-new/routes/ api-new/lib/ api-new/server.js /opt/korportal/api-new/ && systemctl restart korportal
+cd /opt/korportal/src && git pull && cp -r js/ css/ *.html assets/ manifest.json sw.js /opt/korportal/frontend/ && cp -r api-new/routes/ api-new/lib/ api-new/server.js /opt/korportal/api-new/ && systemctl restart korportal
 ```
 
 ### Når package.json endrer seg
@@ -49,7 +72,7 @@ Eksempel: `qrcode` ble lagt til for QR-kode i billett-kvitteringer.
 frontend + API — inkludert `api-new/jobs/` — kjører `npm install` kun ved
 dependency-endringer, og restarter tjenesten). Den kan kjøres manuelt:
 ```bash
-bash /tmp/korportal-server/deploy/deploy.sh
+bash /opt/korportal/src/deploy/deploy.sh
 ```
 
 Workflowen `.github/workflows/deploy.yml` kjører dette scriptet automatisk over
@@ -71,16 +94,16 @@ brancher deployer ikke). Engangsoppsett:
    - `SSH_PORT` = valgfritt (default 22)
 4. **La deploy-brukeren eie målmappene** (så `cp` + `npm install` går uten sudo):
    ```bash
-   sudo chown -R <deploy-bruker> /opt/korportal/frontend /opt/korportal/api-new /tmp/korportal-server
+   sudo chown -R <deploy-bruker> /opt/korportal/frontend /opt/korportal/api-new /opt/korportal/src
    ```
 5. **Tillat restart uten passord** — legg i `/etc/sudoers.d/korportal-deploy`:
    ```
    <deploy-bruker> ALL=(root) NOPASSWD: /usr/bin/systemctl restart korportal, /usr/bin/systemctl status korportal
    ```
 
-Merk: repoet ligger på `/tmp/korportal-server`, som kan tømmes ved omstart av
-serveren. For robust auto-deploy anbefales en varig sti (f.eks.
-`/opt/korportal/src`) — sett da `REPO_DIR` i workflowen/scriptet deretter.
+Repoet ligger på den varige stien `/opt/korportal/src` (overlever server-omstart
+— i motsetning til `/tmp`, som tømmes ved reboot). `deploy.sh` og workflowen
+bruker denne stien som standard; sett `REPO_DIR` hvis du vil bruke en annen.
 
 ### Billett-e-poster
 `POST /api/billetter/marker-betalt` sender en kvittering med QR-kode til bestilleren.
@@ -203,8 +226,8 @@ Nokkler i `.env`:
 Se `setup.sh` — installerer Node.js, nginx, certbot, oppretter bruker og mapper.
 
 ```bash
-git clone https://github.com/jachrist/korportal-server.git /tmp/korportal-server
-bash /tmp/korportal-server/deploy/setup.sh /tmp/korportal-server
+git clone https://github.com/jachrist/korportal-server.git /opt/korportal/src
+bash /opt/korportal/src/deploy/setup.sh /opt/korportal/src
 ```
 
 ## Backup
@@ -238,8 +261,8 @@ sudo rclone config
 sudo rclone mkdir onedrive:Korportal-Backup
 
 # 4. Kopier scripts pa plass og gjor kjorbare
-sudo cp /tmp/korportal-server/deploy/backup.sh /usr/local/bin/korportal-backup
-sudo cp /tmp/korportal-server/deploy/restore.sh /usr/local/bin/korportal-restore
+sudo cp /opt/korportal/src/deploy/backup.sh /usr/local/bin/korportal-backup
+sudo cp /opt/korportal/src/deploy/restore.sh /usr/local/bin/korportal-restore
 sudo chmod +x /usr/local/bin/korportal-backup /usr/local/bin/korportal-restore
 
 # 5. Test manuelt (kjor en gang og verifiser at fil dukker opp pa OneDrive)
@@ -253,8 +276,8 @@ echo "15 3 * * * root /usr/local/bin/korportal-backup >> /var/log/korportal-back
 
 ```bash
 # 1. Kjor setup.sh (installerer Node, nginx, oppretter bruker og mapper)
-git clone https://github.com/jachrist/korportal-server.git /tmp/korportal-server
-sudo bash /tmp/korportal-server/deploy/setup.sh /tmp/korportal-server
+git clone https://github.com/jachrist/korportal-server.git /opt/korportal/src
+sudo bash /opt/korportal/src/deploy/setup.sh /opt/korportal/src
 
 # 2. Legg passphrasen pa plass (fra passordhvelvet)
 sudo nano /root/.korportal-backup-passphrase
@@ -265,7 +288,7 @@ sudo rclone config   # samme oppsett som over
 sudo rclone copy onedrive:Korportal-Backup/ /tmp/ --include "korportal-*.tar.gz.gpg" --max-age 2d
 
 # 4. Restaurer
-sudo bash /tmp/korportal-server/deploy/restore.sh /tmp/korportal-YYYYMMDD-HHMMSS.tar.gz.gpg
+sudo bash /opt/korportal/src/deploy/restore.sh /tmp/korportal-YYYYMMDD-HHMMSS.tar.gz.gpg
 
 # 5. Sjekk at alt kjorer
 systemctl status korportal

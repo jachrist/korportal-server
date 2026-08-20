@@ -28,4 +28,4 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_deploy -p "${{ secrets.SSH_PORT || 22 }}" \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
-            'bash /tmp/korportal-server/deploy/deploy.sh'
+            'bash /opt/korportal/src/deploy/deploy.sh'
