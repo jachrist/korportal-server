@@ -113,17 +113,97 @@ async function renderTicketEmail({ reservation, concert }) {
   };
 }
 
+// ---------- iCal (.ics) ----------
+
+function escapeICS(str) {
+  return String(str ?? '')
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\r?\n/g, '\\n');
+}
+
+// Bryt lange linjer til ~75 tegn (RFC 5545), fortsettelse med ledende mellomrom.
+function foldICS(line) {
+  if (line.length <= 75) return line;
+  let out = line.slice(0, 75);
+  let rest = line.slice(75);
+  while (rest.length > 74) {
+    out += '\r\n ' + rest.slice(0, 74);
+    rest = rest.slice(74);
+  }
+  return out + '\r\n ' + rest;
+}
+
+function icsStampUTC(d) {
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getUTCFullYear()}${p(d.getUTCMonth() + 1)}${p(d.getUTCDate())}` +
+         `T${p(d.getUTCHours())}${p(d.getUTCMinutes())}${p(d.getUTCSeconds())}Z`;
+}
+
+// "2026-06-14" + "18:00" → "20260614T180000" (flytende lokal tid)
+function icsLocalDateTime(date, time) {
+  const d = date.replace(/-/g, '');
+  const hhmm = (time || '').replace(/[^\d]/g, '').padEnd(4, '0').slice(0, 4);
+  return `${d}T${hhmm}00`;
+}
+
+function buildVEvent(ev, dtstampUTC) {
+  const dateCompact = ev.date.replace(/-/g, '');
+  const lines = [
+    'BEGIN:VEVENT',
+    `UID:${ev.id || dateCompact}-${dateCompact}@kammerkoretutsikten.no`,
+    `DTSTAMP:${dtstampUTC}`,
+  ];
+  if (ev.startTime) {
+    lines.push(`DTSTART:${icsLocalDateTime(ev.date, ev.startTime)}`);
+    if (ev.endTime) lines.push(`DTEND:${icsLocalDateTime(ev.date, ev.endTime)}`);
+    else lines.push('DURATION:PT1H');
+  } else {
+    lines.push(`DTSTART;VALUE=DATE:${dateCompact}`); // heldags (1 dag som default)
+  }
+  lines.push(`SUMMARY:${escapeICS(ev.title)}`);
+  if (ev.location) lines.push(`LOCATION:${escapeICS(ev.location)}`);
+  if (ev.description) lines.push(`DESCRIPTION:${escapeICS(ev.description)}`);
+  lines.push('END:VEVENT');
+  return lines;
+}
+
+// Bygg en VCALENDAR med alle arrangementene. Returnerer null hvis ingen gyldige.
+function buildICS(events) {
+  const valid = (events || []).filter(ev => ev && ev.date);
+  if (valid.length === 0) return null;
+  const dtstamp = icsStampUTC(new Date());
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Kammerkoret Utsikten//Korportal//NO',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+  ];
+  for (const ev of valid) lines.push(...buildVEvent(ev, dtstamp));
+  lines.push('END:VCALENDAR');
+  return lines.map(foldICS).join('\r\n') + '\r\n';
+}
+
 /**
  * Bygger en daglig oppsummerings-e-post ("digest") til ett medlem.
  * @param {object} p
  * @param {object} p.member    - medlemsrad (name/navn, email/epost)
- * @param {Array}  p.sections  - [ { label, items: [ { title, isNew } ] } ]
- * @returns nodemailer-melding med logo som inline vedlegg (cid)
+ * @param {Array}  p.sections  - [ { label, items: [ { title, isNew, calendar? } ] } ]
+ * @returns nodemailer-melding med logo (cid) + evt. arrangementer.ics som vedlegg
  */
 function renderMemberDigest({ member, sections }) {
   const siteUrl = (process.env.SITE_URL || 'https://www.kammerkoretutsikten.no').replace(/\/+$/, '');
   const name = member.name || member.navn || '';
   const greeting = name ? `Hei ${name.split(' ')[0]},` : 'Hei,';
+
+  // Arrangementer med gyldig dato → iCal-vedlegg
+  const calendarEvents = sections
+    .flatMap(s => s.items)
+    .map(it => it && it.calendar)
+    .filter(ev => ev && ev.date);
+  const icsContent = buildICS(calendarEvents);
 
   // Kort oppsummering til emnefelt: "2 meldinger, 1 innlegg"
   const summary = sections
@@ -153,6 +233,9 @@ function renderMemberDigest({ member, sections }) {
         `</td></tr>`
       );
     }).join('');
+    const calHint = s.items.some(it => it.calendar && it.calendar.date)
+      ? `<p style="margin:8px 0 0;font-size:12px;color:rgba(234,240,255,0.55);">📅 Arrangementene er lagt ved som kalenderfil (.ics) — åpne vedlegget for å legge dem i kalenderen.</p>`
+      : '';
     return (
       `<tr><td style="padding:0 24px 20px;">` +
         `<p style="margin:0 0 8px;font-size:13px;font-weight:600;text-transform:uppercase;` +
@@ -161,6 +244,7 @@ function renderMemberDigest({ member, sections }) {
         `style="background-color:rgba(93,214,255,0.05);border:1px solid rgba(93,214,255,0.15);border-radius:12px;">` +
         rows +
         `</table>` +
+        calHint +
       `</td></tr>`
     );
   }).join('');
@@ -205,9 +289,21 @@ function renderMemberDigest({ member, sections }) {
           (it.url ? `\n    ${it.url}` : '');
       }).join('\n\n')
     ).join('\n\n') +
+    (icsContent ? `\n\n📅 Arrangementene er lagt ved som kalenderfil (arrangementer.ics).` : '') +
     `\n\nGå til Korportalen: ${siteUrl}\n\n` +
     `Du mottar denne e-posten fordi du har slått på varsler i Min profil.\n` +
     `Vennlig hilsen\nKammerkoret Utsikten`;
+
+  const attachments = [
+    { filename: 'utsikten-logo.png', content: loadLogo(), cid: 'utsikten-logo' },
+  ];
+  if (icsContent) {
+    attachments.push({
+      filename: 'arrangementer.ics',
+      content: icsContent,
+      contentType: 'text/calendar; charset=utf-8; method=PUBLISH',
+    });
+  }
 
   return {
     from: process.env.SMTP_FROM,
@@ -215,9 +311,7 @@ function renderMemberDigest({ member, sections }) {
     subject,
     text,
     html,
-    attachments: [
-      { filename: 'utsikten-logo.png', content: loadLogo(), cid: 'utsikten-logo' },
-    ],
+    attachments,
   };
 }
 
