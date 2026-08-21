@@ -63,7 +63,7 @@ Tabeller: `Navigation`, `Articles`, `Contacts`, `QuickLinks`, `Messages`, `Posts
 `lib/notifications.js` sender en oppsummerings-e-post til medlemmer nar det er nye eller oppdaterte **meldinger**, **innlegg** eller **arrangementer**:
 - `startDailyScheduler()` (startet fra `server.js`) ticker hver time og kjorer `runDailyDigest()` en gang per dogn fra `NOTIFY_DIGEST_HOUR` (server-lokal tid, default 08). `NotificationState`-raden `digest` lagrer `lastRunAt`, sa vinduet «siden sist» taler omstart uten dobbeltsending.
 - Endringer detekteres via `updatedAt` (settes ved opprettelse og PATCH i `messages.js`, `posts.js`, `members.js`); `isNew` skiller «Ny» fra «Oppdatert». Kommentarer og RSVP setter *ikke* `updatedAt` og utloser derfor ingen varsling.
-- Hvert medlem far kun seksjonene de har slatt pa i `varsler: { innlegg, arrangementer, meldinger }` (mangler feltet → alt pa). E-posten rendres av `renderMemberDigest()` i `lib/mailer.js`.
+- Hvert medlem far kun seksjonene de har slatt pa i `varsler: { innlegg, arrangementer, meldinger }` (mangler feltet → alt pa). E-posten rendres av `renderMemberDigest()` i `lib/mailer.js`; arrangementer legges ved som iCal-fil (`arrangementer.ics`, VCALENDAR/VEVENT bygget i `mailer.js`) sa medlemmene kan legge dem rett i kalenderen.
 - Manuell/test-kjoring: `POST /api/admin/send-varsler` (`?force=true` bruker 24t-vindu og flytter ikke `lastRunAt`). Uten SMTP-konfig hopper kjoringen over og beholder `lastRunAt` sa endringene fanges opp senere.
 
 ### Response-format

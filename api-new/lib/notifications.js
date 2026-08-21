@@ -47,6 +47,16 @@ const SOURCES = [
       it.startTime ? `kl. ${it.startTime}` : '',
       it.location ? `· ${it.location}` : '',
     ].filter(Boolean).join(' '),
+    // Strukturert kalenderoppføring (brukes til iCal-vedlegg i e-posten).
+    calendarEvent: it => ({
+      id: it.id,
+      title: it.title || 'Arrangement',
+      date: it.date || '',
+      startTime: it.startTime || '',
+      endTime: it.endTime || '',
+      location: it.location || '',
+      description: it.description || '',
+    }),
   },
 ];
 
@@ -115,6 +125,7 @@ async function collectChanges(sinceIso) {
           excerpt: makeExcerpt(src.excerpt(it)),
           meta: src.meta(it, changedAtIso),
           url: pageUrl(src.page),
+          calendar: src.calendarEvent ? src.calendarEvent(it) : undefined,
         };
       });
   }
