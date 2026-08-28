@@ -54,6 +54,8 @@ function formatFile(item) {
 router.get('/filer', async (req, res) => {
   try {
     let items = await listEntities('Files');
+    // Styre-dokumenter ligger i samme tabell, men hører hjemme i Styrerommet.
+    items = items.filter(i => i.type !== 'styredokument');
 
     const { anledning, type, verk, uploaded } = req.query;
     if (anledning) items = items.filter(i => i.anledning === anledning);
