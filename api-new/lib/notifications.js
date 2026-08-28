@@ -10,7 +10,7 @@
 
 const { listEntities, getEntity, upsertEntity, buildEntity } = require('./db');
 const { now } = require('./helpers');
-const { createTransporter, renderMemberDigest, formatNorskDato } = require('./mailer');
+const { createTransporter, renderMemberDigest, renderTaskReminder, formatNorskDato } = require('./mailer');
 
 const STATE_TABLE = 'NotificationState';
 const STATE_KEY = 'digest';
@@ -219,6 +219,76 @@ async function runDailyDigest({ force = false, dryRun = false, windowHours = DEF
   return summary;
 }
 
+// --- Oppgave-frist-påminnelser ---
+
+const REMIND_LEAD_DAYS = 3;
+
+function localTodayISO() {
+  const d = new Date();
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+function daysUntilDate(dateStr) {
+  const target = Date.parse(dateStr + 'T00:00:00');
+  if (Number.isNaN(target)) return null;
+  return Math.round((target - Date.parse(localTodayISO() + 'T00:00:00')) / 86400000);
+}
+
+/**
+ * Sender frist-påminnelser til ansvarlige for oppgaver. Hver oppgave utløser
+ * maks tre påminnelser i sin levetid — 3 dager før, på fristdagen og ved forfall
+ * — sporet via `remind`-flagg på oppgaven, så det ikke sendes daglig gjentatt.
+ * Batches per ansvarlig (én e-post med alle oppgavene som utløste i dag).
+ */
+async function runTaskReminders({ dryRun = false } = {}) {
+  const tasks = await listEntities('Tasks');
+  const perMember = new Map();
+
+  for (const t of tasks) {
+    if (t.status === 'ferdig' || !t.frist || !t.ansvarligEmail) continue;
+    const d = daysUntilDate(t.frist);
+    if (d === null) continue;
+    const remind = { ...(t.remind || {}) };
+    let kind = null;
+    if (d < 0 && !remind.over) { kind = 'Forfalt'; remind.over = true; }
+    else if (d === 0 && !remind.due) { kind = 'I dag'; remind.due = true; }
+    else if (d > 0 && d <= REMIND_LEAD_DAYS && !remind.pre) { kind = `Om ${d} dag${d === 1 ? '' : 'er'}`; remind.pre = true; }
+    if (!kind) continue;
+
+    const key = t.ansvarligEmail.toLowerCase();
+    if (!perMember.has(key)) perMember.set(key, { email: t.ansvarligEmail, navn: t.ansvarligNavn, items: [] });
+    perMember.get(key).items.push({ task: t, kind, remind });
+  }
+
+  const summary = {
+    dryRun, recipients: perMember.size, sent: 0, failed: 0, status: 'ok',
+    preview: [...perMember.values()].map(m => ({ email: m.email, tasks: m.items.map(i => `${i.task.tittel} (${i.kind})`) })),
+  };
+
+  if (perMember.size === 0) { summary.status = 'no-reminders'; return summary; }
+  if (dryRun) { summary.status = 'dry-run'; return summary; }
+
+  const transporter = createTransporter();
+  if (!transporter) { summary.status = 'no-smtp'; return summary; }
+
+  for (const m of perMember.values()) {
+    try {
+      await transporter.sendMail(renderTaskReminder({ recipient: { email: m.email, navn: m.navn }, items: m.items }));
+      summary.sent++;
+      // Sett flagg kun når e-posten faktisk gikk ut (så en feilet sending prøves igjen)
+      for (const { task, remind } of m.items) {
+        const updated = { ...task, remind };
+        await upsertEntity('Tasks', buildEntity('task', task.id,
+          { anledning: task.anledning || '', status: task.status || 'åpen', frist: task.frist || '', ansvarligEmail: task.ansvarligEmail || '' }, updated));
+      }
+    } catch (err) {
+      summary.failed++;
+      console.error(`Oppgavevarsling: kunne ikke sende til ${m.email}:`, err.message);
+    }
+  }
+  return summary;
+}
+
 /**
  * Start en enkel intern planlegger som kjører oppsummeringen én gang i døgnet,
  * ved/etter `NOTIFY_DIGEST_HOUR` (server-lokal tid, default 08). Ticker hver
@@ -252,6 +322,9 @@ function startDailyScheduler() {
       console.log('Kjører daglig medlemsvarsling...');
       const result = await runDailyDigest();
       console.log('Medlemsvarsling ferdig:', JSON.stringify(result));
+
+      const taskResult = await runTaskReminders();
+      console.log('Oppgavevarsling ferdig:', JSON.stringify(taskResult));
     } catch (err) {
       console.error('Medlemsvarsling feilet:', err.message);
     }
@@ -263,4 +336,4 @@ function startDailyScheduler() {
   console.log(`Daglig medlemsvarsling aktiv (kjører fra kl. ${String(targetHour).padStart(2, '0')}:00 server-tid).`);
 }
 
-module.exports = { runDailyDigest, collectChanges, getLastRunAt, setLastRunAt, startDailyScheduler };
+module.exports = { runDailyDigest, collectChanges, getLastRunAt, setLastRunAt, runTaskReminders, startDailyScheduler };

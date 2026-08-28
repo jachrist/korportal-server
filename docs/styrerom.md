@@ -74,11 +74,16 @@ og saker (oppgaver) til selve møtet via anledning.
 
 ## Faser
 
-1. **Dokumentarkiv** — Markdown-redigering + visning + søk, opplasting/nedlasting
-   av Office/PDF, PDF-generering i nettleser med arkivering. *(denne leveransen)*
-2. **Oppgaver** — CRUD + lister + status.
-3. **Varsling/oppfølging** — frist-påminnelser og tildeling-varsel via planleggeren.
-4. **Styremøte-variant** — `synlighet: 'styre'` på arrangementer + kobling
+1. ✅ **Dokumentarkiv** — Markdown-redigering + visning + søk, opplasting/nedlasting
+   av Office/PDF, PDF-generering i nettleser med arkivering.
+2. ✅ **Oppgaver** — CRUD + lister (Alle/Mine/Forfalne/Neste 7 dager) + status.
+3. ✅ **Varsling/oppfølging** — tildeling-varsel (ved oppretting/tildeling) og
+   frist-påminnelser via den daglige planleggeren (`runTaskReminders()` i
+   `lib/notifications.js`): 3 dager før, på fristdagen og ved forfall, sporet med
+   `remind`-flagg per oppgave så det ikke gjentas daglig. Batches per ansvarlig,
+   med `.ics`-vedlegg for fristene. Manuell test: `POST /api/admin/send-oppgavevarsler`
+   (`?dry-run=true`).
+4. ⏳ **Styremøte-variant** — `synlighet: 'styre'` på arrangementer + kobling
    agenda/referat/oppgaver per møte.
 
 ## Beslutninger (avklart med styret)

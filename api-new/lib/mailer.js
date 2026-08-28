@@ -315,4 +315,103 @@ function renderMemberDigest({ member, sections }) {
   };
 }
 
-module.exports = { createTransporter, formatNorskDato, renderTicketEmail, renderMemberDigest };
+// ---------- Oppgave-e-poster (Styrerom) ----------
+
+const STYRE_SITE = () => (process.env.SITE_URL || 'https://www.kammerkoretutsikten.no').replace(/\/+$/, '');
+
+// Frister som heldags kalenderoppføringer (til .ics-vedlegg)
+function taskDeadlineEvents(tasks) {
+  return (tasks || []).filter(t => t.frist).map(t => ({
+    id: `task-${t.id}`,
+    title: `Frist: ${t.tittel}`,
+    date: t.frist,
+    startTime: '', endTime: '',
+    location: t.anledning || '',
+    description: t.beskrivelse || '',
+  }));
+}
+
+function taskRow(t, badge) {
+  const meta = [
+    badge ? `<span style="color:#ffcf5d;font-weight:700">${escapeHtml(badge)}</span>` : '',
+    t.frist ? `Frist ${escapeHtml(formatNorskDato(t.frist))}` : '',
+    t.anledning ? escapeHtml(t.anledning) : '',
+  ].filter(Boolean).join(' &middot; ');
+  return `<tr><td style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06);">` +
+    `<div style="font-size:15px;font-weight:600;color:#eaf0ff;">${escapeHtml(t.tittel)}</div>` +
+    (meta ? `<div style="margin:3px 0 0;font-size:12px;color:rgba(234,240,255,0.6);">${meta}</div>` : '') +
+    (t.beskrivelse ? `<div style="margin:4px 0 0;font-size:13px;color:rgba(234,240,255,0.75);">${escapeHtml(t.beskrivelse)}</div>` : '') +
+    `</td></tr>`;
+}
+
+function taskEmailHtml({ heading, intro, rowsHtml }) {
+  const siteUrl = STYRE_SITE();
+  return `<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8">` +
+    `<meta name="viewport" content="width=device-width, initial-scale=1.0"></head>` +
+    `<body style="margin:0;padding:0;background-color:#0b1220;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">` +
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0b1220;"><tr>` +
+    `<td align="center" style="padding:24px 16px;">` +
+    `<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background-color:#101828;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.10);">` +
+    `<tr><td align="center" style="padding:32px 24px 8px;background-color:#0d1422;">` +
+    `<img src="cid:utsikten-logo" alt="Kammerkoret Utsikten" width="64" height="64" style="display:block;border:0;width:64px;height:64px;border-radius:12px;"></td></tr>` +
+    `<tr><td align="center" style="padding:8px 24px 20px;background-color:#0d1422;">` +
+    `<h1 style="margin:0;font-size:22px;font-weight:700;color:#eaf0ff;">${escapeHtml(heading)}</h1>` +
+    `<p style="margin:8px 0 0;font-size:15px;color:rgba(234,240,255,0.6);">${escapeHtml(intro)}</p></td></tr>` +
+    `<tr><td style="padding:0 24px 20px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" ` +
+    `style="background-color:rgba(93,214,255,0.05);border:1px solid rgba(93,214,255,0.15);border-radius:12px;">${rowsHtml}</table></td></tr>` +
+    `<tr><td align="center" style="padding:4px 24px 32px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>` +
+    `<td align="center" style="background-color:#5dd6ff;border-radius:10px;">` +
+    `<a href="${siteUrl}/oppgaver.html" style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:600;color:#0b1220;text-decoration:none;border-radius:10px;">Åpne oppgaver</a>` +
+    `</td></tr></table></td></tr>` +
+    `<tr><td style="padding:20px 24px;background-color:#0d1422;border-top:1px solid rgba(255,255,255,0.10);text-align:center;">` +
+    `<p style="margin:0;font-size:13px;color:rgba(234,240,255,0.4);">Kammerkoret Utsikten – Styrerom</p></td></tr>` +
+    `</table></td></tr></table></body></html>`;
+}
+
+function taskAttachments(tasks) {
+  const att = [{ filename: 'utsikten-logo.png', content: loadLogo(), cid: 'utsikten-logo' }];
+  const ics = buildICS(taskDeadlineEvents(tasks));
+  if (ics) att.push({ filename: 'frister.ics', content: ics, contentType: 'text/calendar; charset=utf-8; method=PUBLISH' });
+  return att;
+}
+
+/** E-post når en oppgave tildeles et medlem. */
+function renderTaskAssigned({ task }) {
+  const navn = (task.ansvarligNavn || '').split(' ')[0];
+  const greeting = navn ? `Hei ${navn}, du har fått en oppgave.` : 'Du har fått en oppgave.';
+  const text =
+    `${greeting}\n\n${task.tittel}\n` +
+    (task.frist ? `Frist: ${formatNorskDato(task.frist)}\n` : '') +
+    (task.anledning ? `Møte/anledning: ${task.anledning}\n` : '') +
+    (task.beskrivelse ? `\n${task.beskrivelse}\n` : '') +
+    `\nÅpne oppgaver: ${STYRE_SITE()}/oppgaver.html\n\nKammerkoret Utsikten – Styrerom`;
+  return {
+    from: process.env.SMTP_FROM,
+    to: task.ansvarligEmail,
+    subject: `Ny oppgave: ${task.tittel}`,
+    text,
+    html: taskEmailHtml({ heading: 'Ny oppgave', intro: greeting, rowsHtml: taskRow(task, null) }),
+    attachments: taskAttachments([task]),
+  };
+}
+
+/** Daglig påminnelse til ett medlem om oppgaver med frist. items: [{ task, kind }] */
+function renderTaskReminder({ recipient, items }) {
+  const navn = (recipient.navn || '').split(' ')[0];
+  const greeting = navn ? `Hei ${navn}, du har oppgaver med frist.` : 'Du har oppgaver med frist.';
+  const rowsHtml = items.map(({ task, kind }) => taskRow(task, kind)).join('');
+  const text =
+    `${greeting}\n\n` +
+    items.map(({ task, kind }) => `• [${kind}] ${task.tittel}` + (task.frist ? ` (frist ${formatNorskDato(task.frist)})` : '')).join('\n') +
+    `\n\nÅpne oppgaver: ${STYRE_SITE()}/oppgaver.html\n\nKammerkoret Utsikten – Styrerom`;
+  return {
+    from: process.env.SMTP_FROM,
+    to: recipient.email,
+    subject: `Påminnelse: ${items.length} oppgave${items.length === 1 ? '' : 'r'} med frist`,
+    text,
+    html: taskEmailHtml({ heading: 'Frist nærmer seg', intro: greeting, rowsHtml }),
+    attachments: taskAttachments(items.map(i => i.task)),
+  };
+}
+
+module.exports = { createTransporter, formatNorskDato, renderTicketEmail, renderMemberDigest, renderTaskAssigned, renderTaskReminder };

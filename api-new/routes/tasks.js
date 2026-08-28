@@ -2,6 +2,19 @@ const express = require('express');
 const router = express.Router();
 const { listEntities, getEntity, upsertEntity, deleteEntity, buildEntity } = require('../lib/db');
 const { successResponse, errorResponse, validateRequired, generateId, now } = require('../lib/helpers');
+const { createTransporter, renderTaskAssigned } = require('../lib/mailer');
+
+// Send tildeling-varsel til ansvarlig (ikke-blokkerende — feiler aldri forespørselen).
+async function notifyAssigned(task) {
+  if (!task.ansvarligEmail) return;
+  try {
+    const transporter = createTransporter();
+    if (!transporter) return;
+    await transporter.sendMail(renderTaskAssigned({ task }));
+  } catch (err) {
+    console.error(`Oppgave-tildeling: kunne ikke varsle ${task.ansvarligEmail}:`, err.message);
+  }
+}
 
 // Oppgaver for styret. Hybrid-modellen (Files/Events-mønster): søkbare kolonner
 // + jsonData. Statuser: 'åpen' | 'pågår' | 'ferdig'.
@@ -79,6 +92,7 @@ router.post('/', async (req, res) => {
       completedAt: status === 'ferdig' ? now() : '',
     };
     await upsertEntity('Tasks', buildEntity('task', id, taskSearchFields(task), task));
+    await notifyAssigned(task);
     return successResponse(res, { id, oppgave: formatTask(task) }, 201);
   } catch (err) {
     console.error('oppgave create error:', err);
@@ -105,6 +119,10 @@ router.patch('/:id', async (req, res) => {
     }
 
     await upsertEntity('Tasks', buildEntity('task', entity.id, taskSearchFields(updated), updated));
+    // Varsle ny ansvarlig hvis oppgaven ble tildelt (eller ny person)
+    if (req.body.ansvarligEmail && updated.ansvarligEmail && updated.ansvarligEmail !== entity.ansvarligEmail) {
+      await notifyAssigned(updated);
+    }
     return successResponse(res, { message: 'Oppgave oppdatert.', oppgave: formatTask(updated) });
   } catch (err) {
     console.error('oppgave update error:', err);
