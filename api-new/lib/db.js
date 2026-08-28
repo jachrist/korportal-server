@@ -46,6 +46,7 @@ const TABLE_SCHEMAS = {
   AuthCodes: 'email TEXT, expiresAt TEXT',
   GuestConfig: '',
   NotificationState: '',
+  Tasks: 'anledning TEXT, status TEXT, frist TEXT, ansvarligEmail TEXT',
 };
 
 // Cache of column names per table (populated by ensureTables)
