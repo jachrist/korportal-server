@@ -216,6 +216,9 @@
     padding-left: var(--space-xl);
 }
 
+.innlegg-body ul { list-style: disc; }
+.innlegg-body ol { list-style: decimal; }
+
 .innlegg-body li {
     margin-bottom: var(--space-xs);
 }

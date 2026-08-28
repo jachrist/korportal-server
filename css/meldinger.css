@@ -185,6 +185,9 @@
     padding-left: var(--space-xl);
 }
 
+.melding-body ul { list-style: disc; }
+.melding-body ol { list-style: decimal; }
+
 .melding-body li {
     margin-bottom: var(--space-xs);
 }
