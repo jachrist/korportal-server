@@ -36,10 +36,12 @@ export function parseMarkdown(text) {
         // Blockquotes
         .replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
         // Ordered list items — eget tag (<oli>) så nummererte lister ikke slås
-        // sammen med punktlister og beholder <ol>-nummereringen.
-        .replace(/^\d+\. (.+)$/gm, '<oli>$1</oli>')
-        // Unordered list items
-        .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
+        // sammen med punktlister og beholder <ol>-nummereringen. Mellomrom etter
+        // punktumet er valgfritt («1.Sak» funker), men (?!\d) hindrer at desimaltall
+        // som «3.14 kroner» tolkes som listepunkt.
+        .replace(/^\d+\.(?!\d)[ \t]*(.+)$/gm, '<oli>$1</oli>')
+        // Unordered list items — mellomrom etter -/* er valgfritt («-Punkt» funker).
+        .replace(/^[-*][ \t]*(.+)$/gm, '<li>$1</li>')
         // Images (must come before links)
         .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" loading="lazy">')
         // Links
