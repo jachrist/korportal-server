@@ -83,8 +83,11 @@ og saker (oppgaver) til selve møtet via anledning.
    `remind`-flagg per oppgave så det ikke gjentas daglig. Batches per ansvarlig,
    med `.ics`-vedlegg for fristene. Manuell test: `POST /api/admin/send-oppgavevarsler`
    (`?dry-run=true`).
-4. ⏳ **Styremøte-variant** — `synlighet: 'styre'` på arrangementer + kobling
-   agenda/referat/oppgaver per møte.
+4. ✅ **Styremøte-variant** — styremøter er arrangementer med `synlighet: 'styre'`
+   (`routes/meetings.js`, `/api/styre/moter`): egen «Styremøter»-side, kalenderfil
+   (`GET /:id/ics`), og kobling til dokumenter/oppgaver via `anledning` (med
+   antall vist per møte). Filtreres bort fra den medlemsvendte arrangementslista
+   (`/api/medlemmer/side`) og fra medlems-digesten.
 
 ## Beslutninger (avklart med styret)
 

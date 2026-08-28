@@ -39,6 +39,8 @@ const SOURCES = [
   {
     key: 'arrangementer', label: 'Arrangementer', singular: 'arrangement',
     table: 'Events', createdField: 'createdAt', page: 'medlemmer.html',
+    // Styremøter (synlighet 'styre') hører ikke hjemme i den brede medlems-digesten.
+    filter: it => it.synlighet !== 'styre',
     author: it => it.authorName || '',
     excerpt: it => it.description || '',
     // For arrangementer er selve arrangementsdatoen mer relevant enn publiseringstidspunktet.
@@ -105,7 +107,8 @@ async function collectChanges(sinceIso) {
   const result = {};
 
   for (const src of SOURCES) {
-    const items = await listEntities(src.table);
+    let items = await listEntities(src.table);
+    if (src.filter) items = items.filter(src.filter);
     result[src.key] = items
       .map(it => {
         const createdT = toTime(it[src.createdField]);

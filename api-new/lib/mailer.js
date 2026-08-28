@@ -414,4 +414,4 @@ function renderTaskReminder({ recipient, items }) {
   };
 }
 
-module.exports = { createTransporter, formatNorskDato, renderTicketEmail, renderMemberDigest, renderTaskAssigned, renderTaskReminder };
+module.exports = { createTransporter, formatNorskDato, buildICS, renderTicketEmail, renderMemberDigest, renderTaskAssigned, renderTaskReminder };
