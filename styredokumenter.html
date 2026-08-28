@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="description" content="Styrerom – dokumentarkiv - Kammerkoret Utsikten">
+    <title>Dokumentarkiv - Styrerom - Kammerkoret Utsikten</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/markdown-editor.css">
+    <link rel="stylesheet" href="css/styredokumenter.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <span class="uts-brandMiniText">Styrerom</span>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">🌙</button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">☰</button>
+            </div>
+        </header>
+
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader"><h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button></div>
+                <nav class="uts-menuList" id="menuList"></nav>
+            </div>
+        </div>
+
+        <div class="sd-head">
+            <h1>Dokumentarkiv</h1>
+            <p class="sd-head__sub">Styrets dokumenter — referater, protokoller, budsjett og vedlegg.</p>
+        </div>
+
+        <!-- Verktøylinje -->
+        <div class="sd-toolbar">
+            <input type="search" id="searchInput" class="sd-input" placeholder="Søk i tittel, type, møte …">
+            <select id="filterType" class="sd-select" title="Dokumenttype">
+                <option value="">Alle typer</option>
+                <option value="referat">Referat</option>
+                <option value="protokoll">Protokoll</option>
+                <option value="budsjett">Budsjett</option>
+                <option value="søknad">Søknad</option>
+                <option value="avtale">Avtale</option>
+                <option value="annet">Annet</option>
+            </select>
+            <select id="filterAnledning" class="sd-select" title="Møte/anledning">
+                <option value="">Alle møter/anledninger</option>
+            </select>
+            <span class="sd-toolbar__spacer"></span>
+            <button class="sd-btn sd-btn--primary" id="newDocBtn">+ Nytt dokument</button>
+            <button class="sd-btn sd-btn--secondary" id="uploadBtn">⬆ Last opp fil</button>
+        </div>
+
+        <div class="sd-list" id="docList"></div>
+        <div class="sd-empty" id="emptyState" hidden>
+            <span class="sd-empty__icon">📁</span>
+            <p id="emptyText">Ingen dokumenter enda.</p>
+        </div>
+    </div>
+
+    <!-- Editor (Markdown) -->
+    <div class="sd-modal" id="editorModal" hidden>
+        <div class="sd-modal__panel sd-modal__panel--wide">
+            <div class="sd-modal__header">
+                <h2 id="editorTitle">Nytt dokument</h2>
+                <button class="uts-closeBtn" id="editorClose" type="button" title="Lukk">✕</button>
+            </div>
+            <div class="sd-modal__body">
+                <div class="sd-fieldgrid">
+                    <label class="sd-field"><span>Tittel *</span>
+                        <input type="text" id="docTitle" class="sd-input" placeholder="F.eks. Referat styremøte september"></label>
+                    <label class="sd-field"><span>Dokumenttype</span>
+                        <select id="docType" class="sd-select">
+                            <option value="referat">Referat</option>
+                            <option value="protokoll">Protokoll</option>
+                            <option value="budsjett">Budsjett</option>
+                            <option value="søknad">Søknad</option>
+                            <option value="avtale">Avtale</option>
+                            <option value="annet" selected>Annet</option>
+                        </select></label>
+                    <label class="sd-field"><span>Møte / anledning</span>
+                        <input type="text" id="docAnledning" class="sd-input" list="anledningList" placeholder="F.eks. Styremøte 2026-09"></label>
+                    <label class="sd-field"><span>Dato</span>
+                        <input type="date" id="docDato" class="sd-input"></label>
+                    <label class="sd-field"><span>Forfatter</span>
+                        <input type="text" id="docForfatter" class="sd-input"></label>
+                    <label class="sd-field"><span>Status</span>
+                        <select id="docStatus" class="sd-select">
+                            <option value="utkast">Utkast</option>
+                            <option value="ferdig">Ferdig</option>
+                        </select></label>
+                </div>
+                <label class="sd-field sd-field--full"><span>Innhold (Markdown)</span>
+                    <textarea id="docContent" class="sd-textarea" rows="16"></textarea></label>
+            </div>
+            <div class="sd-modal__footer">
+                <button class="sd-btn sd-btn--ghost" id="editorCancel" type="button">Avbryt</button>
+                <button class="sd-btn sd-btn--secondary" id="genPdfBtn" type="button" title="Lag PDF og arkiver">📄 Generer PDF</button>
+                <button class="sd-btn sd-btn--primary" id="editorSave" type="button">Lagre</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Viewer -->
+    <div class="sd-modal" id="viewerModal" hidden>
+        <div class="sd-modal__panel sd-modal__panel--wide">
+            <div class="sd-modal__header">
+                <h2 id="viewerTitle">Dokument</h2>
+                <button class="uts-closeBtn" id="viewerClose" type="button" title="Lukk">✕</button>
+            </div>
+            <div class="sd-modal__body" id="viewerBody"></div>
+        </div>
+    </div>
+
+    <!-- Opplasting -->
+    <div class="sd-modal" id="uploadModal" hidden>
+        <div class="sd-modal__panel">
+            <div class="sd-modal__header">
+                <h2>Last opp fil</h2>
+                <button class="uts-closeBtn" id="uploadClose" type="button" title="Lukk">✕</button>
+            </div>
+            <div class="sd-modal__body">
+                <div class="sd-fieldgrid">
+                    <label class="sd-field sd-field--full"><span>Fil (Word, PDF, m.m.)</span>
+                        <input type="file" id="uploadFile" class="sd-input"></label>
+                    <label class="sd-field"><span>Tittel</span>
+                        <input type="text" id="uploadTitle" class="sd-input" placeholder="(bruker filnavn hvis tom)"></label>
+                    <label class="sd-field"><span>Dokumenttype</span>
+                        <select id="uploadType" class="sd-select">
+                            <option value="referat">Referat</option>
+                            <option value="protokoll">Protokoll</option>
+                            <option value="budsjett">Budsjett</option>
+                            <option value="søknad">Søknad</option>
+                            <option value="avtale">Avtale</option>
+                            <option value="annet" selected>Annet</option>
+                        </select></label>
+                    <label class="sd-field"><span>Møte / anledning</span>
+                        <input type="text" id="uploadAnledning" class="sd-input" list="anledningList"></label>
+                    <label class="sd-field"><span>Dato</span>
+                        <input type="date" id="uploadDato" class="sd-input"></label>
+                </div>
+            </div>
+            <div class="sd-modal__footer">
+                <button class="sd-btn sd-btn--ghost" id="uploadCancel" type="button">Avbryt</button>
+                <button class="sd-btn sd-btn--primary" id="uploadSubmit" type="button">Last opp</button>
+            </div>
+        </div>
+    </div>
+
+    <datalist id="anledningList"></datalist>
+
+    <div class="loader" id="loader"><div class="loader__content"><div class="loader__spinner"></div><p class="loader__text">Laster...</p></div></div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/styredokumenter.js"></script>
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

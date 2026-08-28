@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="description" content="Styrerom – oppgaver - Kammerkoret Utsikten">
+    <title>Oppgaver - Styrerom - Kammerkoret Utsikten</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/styredokumenter.css">
+    <link rel="stylesheet" href="css/oppgaver.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <span class="uts-brandMiniText">Styrerom</span>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">🌙</button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">☰</button>
+            </div>
+        </header>
+
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader"><h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button></div>
+                <nav class="uts-menuList" id="menuList"></nav>
+            </div>
+        </div>
+
+        <div class="sd-head">
+            <h1>Oppgaver</h1>
+            <p class="sd-head__sub">Saker og oppfølging for styret — knyttet til møte eller arrangement.</p>
+        </div>
+
+        <!-- Visningsfaner -->
+        <div class="op-tabs" id="viewTabs">
+            <button class="op-tab op-tab--active" data-view="alle">Alle</button>
+            <button class="op-tab" data-view="mine">Mine</button>
+            <button class="op-tab" data-view="forfalne">Forfalne</button>
+            <button class="op-tab" data-view="uke">Neste 7 dager</button>
+        </div>
+
+        <!-- Verktøylinje -->
+        <div class="sd-toolbar">
+            <select id="filterStatus" class="sd-select" title="Status">
+                <option value="">Alle statuser</option>
+                <option value="åpen">Åpen</option>
+                <option value="pågår">Pågår</option>
+                <option value="ferdig">Ferdig</option>
+            </select>
+            <select id="filterAnledning" class="sd-select" title="Møte/anledning">
+                <option value="">Alle møter/anledninger</option>
+            </select>
+            <span class="sd-toolbar__spacer"></span>
+            <button class="sd-btn sd-btn--primary" id="newTaskBtn">+ Ny oppgave</button>
+        </div>
+
+        <div class="op-list" id="taskList"></div>
+        <div class="sd-empty" id="emptyState" hidden>
+            <span class="sd-empty__icon">✅</span>
+            <p id="emptyText">Ingen oppgaver.</p>
+        </div>
+    </div>
+
+    <!-- Editor -->
+    <div class="sd-modal" id="taskModal" hidden>
+        <div class="sd-modal__panel">
+            <div class="sd-modal__header">
+                <h2 id="taskModalTitle">Ny oppgave</h2>
+                <button class="uts-closeBtn" id="taskClose" type="button" title="Lukk">✕</button>
+            </div>
+            <div class="sd-modal__body">
+                <div class="sd-fieldgrid">
+                    <label class="sd-field sd-field--full"><span>Oppgave *</span>
+                        <input type="text" id="taskTitle" class="sd-input" placeholder="F.eks. Bestille lokale til konsert"></label>
+                    <label class="sd-field sd-field--full"><span>Beskrivelse</span>
+                        <textarea id="taskDesc" class="sd-textarea" rows="3"></textarea></label>
+                    <label class="sd-field"><span>Møte / anledning</span>
+                        <input type="text" id="taskAnledning" class="sd-input" list="anledningList"></label>
+                    <label class="sd-field"><span>Frist</span>
+                        <input type="date" id="taskFrist" class="sd-input"></label>
+                    <label class="sd-field"><span>Ansvarlig</span>
+                        <select id="taskAnsvarlig" class="sd-select"><option value="">(ingen)</option></select></label>
+                    <label class="sd-field"><span>Status</span>
+                        <select id="taskStatus" class="sd-select">
+                            <option value="åpen">Åpen</option>
+                            <option value="pågår">Pågår</option>
+                            <option value="ferdig">Ferdig</option>
+                        </select></label>
+                </div>
+            </div>
+            <div class="sd-modal__footer">
+                <button class="sd-btn sd-btn--ghost" id="taskCancel" type="button">Avbryt</button>
+                <button class="sd-btn sd-btn--primary" id="taskSave" type="button">Lagre</button>
+            </div>
+        </div>
+    </div>
+
+    <datalist id="anledningList"></datalist>
+
+    <div class="loader" id="loader"><div class="loader__content"><div class="loader__spinner"></div><p class="loader__text">Laster...</p></div></div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/oppgaver.js"></script>
+    <script src="js/sw-register.js"></script>
+</body>
+</html>

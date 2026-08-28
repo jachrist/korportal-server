@@ -692,6 +692,12 @@ class MedlemmerApp {
     async submitEvent() {
         const title = this.elements.eventTitle.value.trim();
 
+        // Fang opp en dato som er valgt i feltet, men ikke lagt til lista enda
+        // (lett å glemme «+ Legg til», særlig på mobil).
+        if (this.selectedDates.length === 0 && this.elements.eventDateInput?.value) {
+            this.addDate();
+        }
+
         if (!title || this.selectedDates.length === 0) {
             alert('Vennligst fyll ut tittel og minst én dato.');
             return;

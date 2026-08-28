@@ -1,0 +1,43 @@
+/**
+ * Styrerom – Oppgaver. Bygger på styredokumenter.css (sd-*), egne op-*-klasser.
+ */
+
+/* Visningsfaner */
+.op-tabs { display: flex; gap: var(--space-xs); flex-wrap: wrap; margin-bottom: var(--space-sm); }
+.op-tab {
+    padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--card2); color: var(--muted); font-family: inherit;
+    font-size: var(--font-size-sm); font-weight: 600; cursor: pointer; transition: all var(--transition-fast);
+}
+.op-tab:hover { border-color: var(--accent); color: var(--text); }
+.op-tab--active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+/* Oppgaveliste */
+.op-list { display: flex; flex-direction: column; gap: var(--space-sm); margin-top: var(--space-lg); }
+.op-task {
+    display: flex; align-items: center; gap: var(--space-md);
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm);
+    box-shadow: var(--shadow); padding: 12px var(--space-lg);
+    transition: border-color var(--transition-fast);
+}
+.op-task:hover { border-color: var(--accent); }
+.op-task--done { opacity: 0.6; }
+.op-task--done .op-task__title { text-decoration: line-through; }
+
+.op-check { width: 20px; height: 20px; flex: none; cursor: pointer; accent-color: var(--accent); }
+.op-task__main { flex: 1 1 auto; min-width: 0; cursor: pointer; }
+.op-task__title { font-weight: 700; font-size: var(--font-size-lg); overflow: hidden; text-overflow: ellipsis; }
+.op-task__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 3px; font-size: var(--font-size-sm); color: var(--muted); }
+
+.op-frist { font-weight: 600; }
+.op-frist--soon { color: #ffcf5d; }
+.op-frist--over { color: #ff6b6b; }
+
+.op-status { font-size: var(--font-size-xs); font-weight: 700; }
+.op-status--åpen { color: var(--muted); }
+.op-status--pågår { color: #5dd6ff; }
+.op-status--ferdig { color: #5ddb9a; }
+
+@media (max-width: 640px) {
+    .op-task__title { font-size: var(--font-size-base); }
+}
