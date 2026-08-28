@@ -28,7 +28,7 @@ router.get('/side', async (req, res) => {
     const totalMembers = members.length;
 
     const upcomingEvents = events
-      .filter(e => e.date >= today)
+      .filter(e => e.date >= today && e.synlighet !== 'styre') // styremøter vises kun i Styrerommet
       .sort((a, b) => new Date(a.date) - new Date(b.date))
       .map(event => ({
         id: event.id,

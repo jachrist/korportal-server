@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="description" content="Styrerom – styremøter - Kammerkoret Utsikten">
+    <title>Styremøter - Styrerom - Kammerkoret Utsikten</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-180.png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/styredokumenter.css">
+    <link rel="stylesheet" href="css/styremoter.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="uts-topbar">
+            <div class="uts-brandMini">
+                <img src="/assets/icons/utsikten-logo.png" alt="Utsikten logo" class="uts-logo">
+                <span class="uts-brandMiniText">Styrerom</span>
+            </div>
+            <div class="uts-topActions">
+                <button class="uts-btnTheme" id="themeBtn" title="Bytt tema">🌙</button>
+                <button class="uts-btnIcon" id="menuBtn" title="Meny" aria-haspopup="true" aria-expanded="false">☰</button>
+            </div>
+        </header>
+
+        <div class="uts-menuOverlay" id="menuOverlay" aria-hidden="true">
+            <div class="uts-menuPanel" role="menu" aria-label="Hovedmeny">
+                <div class="uts-menuHeader"><h3>Meny</h3>
+                    <button class="uts-closeBtn" id="menuClose" type="button" title="Lukk">✕</button></div>
+                <nav class="uts-menuList" id="menuList"></nav>
+            </div>
+        </div>
+
+        <div class="sd-head">
+            <h1>Styremøter</h1>
+            <p class="sd-head__sub">Møter er synlige kun for styret. Dokumenter og oppgaver knyttes via samme anledning.</p>
+        </div>
+
+        <div class="sd-toolbar">
+            <span class="sd-toolbar__spacer"></span>
+            <button class="sd-btn sd-btn--primary" id="newBtn">+ Nytt møte</button>
+        </div>
+
+        <h2 class="mt-section" id="upcomingHead" hidden>Kommende</h2>
+        <div class="mt-list" id="upcomingList"></div>
+        <h2 class="mt-section" id="pastHead" hidden>Tidligere</h2>
+        <div class="mt-list" id="pastList"></div>
+
+        <div class="sd-empty" id="emptyState" hidden>
+            <span class="sd-empty__icon">📅</span>
+            <p>Ingen styremøter enda.</p>
+        </div>
+    </div>
+
+    <!-- Editor -->
+    <div class="sd-modal" id="moteModal" hidden>
+        <div class="sd-modal__panel">
+            <div class="sd-modal__header">
+                <h2 id="moteModalTitle">Nytt møte</h2>
+                <button class="uts-closeBtn" id="moteClose" type="button" title="Lukk">✕</button>
+            </div>
+            <div class="sd-modal__body">
+                <div class="sd-fieldgrid">
+                    <label class="sd-field sd-field--full"><span>Tittel *</span>
+                        <input type="text" id="mTitle" class="sd-input" placeholder="F.eks. Styremøte september"></label>
+                    <label class="sd-field"><span>Dato *</span>
+                        <input type="date" id="mDate" class="sd-input"></label>
+                    <label class="sd-field"><span>Sted</span>
+                        <input type="text" id="mLocation" class="sd-input"></label>
+                    <label class="sd-field"><span>Starttid</span>
+                        <input type="time" id="mStart" class="sd-input"></label>
+                    <label class="sd-field"><span>Sluttid</span>
+                        <input type="time" id="mEnd" class="sd-input"></label>
+                    <label class="sd-field sd-field--full"><span>Anledning (kobling til dokumenter/oppgaver)</span>
+                        <input type="text" id="mAnledning" class="sd-input" placeholder="(bruker tittel hvis tom)"></label>
+                    <label class="sd-field sd-field--full"><span>Beskrivelse / agenda</span>
+                        <textarea id="mDesc" class="sd-textarea" rows="4"></textarea></label>
+                </div>
+            </div>
+            <div class="sd-modal__footer">
+                <button class="sd-btn sd-btn--ghost" id="moteCancel" type="button">Avbryt</button>
+                <button class="sd-btn sd-btn--primary" id="moteSave" type="button">Lagre</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="loader" id="loader"><div class="loader__content"><div class="loader__spinner"></div><p class="loader__text">Laster...</p></div></div>
+
+    <script src="js/env.js"></script>
+    <script type="module" src="js/styremoter.js"></script>
+    <script src="js/sw-register.js"></script>
+</body>
+</html>
