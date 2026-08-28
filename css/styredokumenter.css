@@ -98,10 +98,16 @@
 .sd-pdfframe { width: 100%; height: 65vh; border: 1px solid var(--line); border-radius: var(--radius-sm); background: #fff; }
 
 /* PDF-innhold rendres på hvit bakgrunn uansett tema */
-/* PDF-container: tvinger mørk skrift på hvit bakgrunn uavhengig av tema.
-   Uten !important-overstyringen arver markdown-innholdet globale element-regler
-   (h1/p/li med var(--text)) som i mørkt tema er nesten hvitt → usynlig i PDF. */
-.sd-printable { position: fixed; left: -9999px; top: 0; width: 720px; background: #fff !important; color: #111 !important; padding: 24px; font-family: -apple-system, Arial, sans-serif; }
+/* PDF-container.
+   VIKTIG posisjonering: elementet MÅ ligge i normal dokumentflyt mens
+   html2canvas fanger det. Med `position: fixed; left: -9999px` (eller absolute /
+   fixed utenfor/bak innhold) fanger html2canvas ingenting → helt blank PDF.
+   Vi lar det derfor ligge i flyt, men skjuler det bak den fullskjerm-opake
+   loaderen (z-index 9999) som vises under genereringen.
+   Farge: markdown-innholdet ville ellers arvet body sin `color: var(--text)`
+   (nær hvitt i mørkt tema) → usynlig på hvit PDF. Derfor tvinges mørk skrift
+   på hvit bakgrunn med !important, uavhengig av tema. */
+.sd-printable { width: 720px; max-width: none; margin: 0; background: #fff !important; color: #111 !important; padding: 24px; font-family: -apple-system, Arial, sans-serif; }
 .sd-printable * { color: #111 !important; background: transparent !important; border-color: #ccc !important; }
 .sd-printable h1 { font-size: 22px; margin: 0 0 4px; }
 .sd-printable h2 { font-size: 18px; margin: 16px 0 4px; }
