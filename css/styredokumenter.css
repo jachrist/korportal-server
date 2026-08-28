@@ -98,6 +98,8 @@
 .sd-rendered ol { list-style: decimal; }
 .sd-rendered li { margin: 0.15em 0; }
 .sd-rendered a { color: var(--accent); }
+.sd-rendered__meta { color: var(--muted); font-size: var(--font-size-sm); margin: 0 0 var(--space-sm); }
+.sd-rendered hr { border: none; border-top: 1px solid var(--line); margin: var(--space-sm) 0 var(--space-md); }
 .sd-pdfframe { width: 100%; height: 65vh; border: 1px solid var(--line); border-radius: var(--radius-sm); background: #fff; }
 
 /* PDF-innhold rendres på hvit bakgrunn uansett tema */
@@ -112,10 +114,12 @@
    på hvit bakgrunn med !important, uavhengig av tema. */
 .sd-printable { width: 720px; max-width: none; margin: 0; background: #fff !important; color: #111 !important; padding: 24px; font-family: -apple-system, Arial, sans-serif; }
 .sd-printable * { color: #111 !important; background: transparent !important; border-color: #ccc !important; }
-.sd-printable ul, .sd-printable ol { padding-left: 1.6em; margin: 8px 0; }
-.sd-printable ul { list-style: disc; }
-.sd-printable ol { list-style: decimal; }
+/* html2canvas rendrer native list-markører feilstilt (hevet over teksten).
+   buildPrintable() bytter dem derfor ut med ekte tekst-markører (<span
+   class="sd-li-marker">) og vi bruker hengende innrykk her. */
+.sd-printable ul, .sd-printable ol { list-style: none; padding-left: 1.8em; margin: 8px 0; }
 .sd-printable li { margin: 2px 0; }
+.sd-printable .sd-li-marker { display: inline-block; width: 1.8em; margin-left: -1.8em; }
 .sd-printable h1 { font-size: 22px; margin: 0 0 4px; }
 .sd-printable h2 { font-size: 18px; margin: 16px 0 4px; }
 .sd-printable h3 { font-size: 15px; margin: 12px 0 4px; }

@@ -85,7 +85,7 @@ class StyreDocsApp {
             anledningList: id('anledningList'),
             newDocBtn: id('newDocBtn'), uploadBtn: id('uploadBtn'),
             editorModal: id('editorModal'), editorTitle: id('editorTitle'), editorClose: id('editorClose'),
-            editorCancel: id('editorCancel'), editorSave: id('editorSave'), genPdfBtn: id('genPdfBtn'),
+            editorCancel: id('editorCancel'), editorSave: id('editorSave'), genPdfBtn: id('genPdfBtn'), previewBtn: id('previewBtn'),
             docTitle: id('docTitle'), docType: id('docType'), docAnledning: id('docAnledning'),
             docDato: id('docDato'), docForfatter: id('docForfatter'), docStatus: id('docStatus'), docContent: id('docContent'),
             viewerModal: id('viewerModal'), viewerTitle: id('viewerTitle'), viewerClose: id('viewerClose'), viewerBody: id('viewerBody'),
@@ -104,6 +104,7 @@ class StyreDocsApp {
         this.el.editorCancel.addEventListener('click', () => this.hide('editorModal'));
         this.el.editorSave.addEventListener('click', () => this.save());
         this.el.genPdfBtn.addEventListener('click', () => this.generatePdf());
+        this.el.previewBtn.addEventListener('click', () => this.preview());
         this.el.viewerClose.addEventListener('click', () => this.hide('viewerModal'));
         this.el.uploadClose.addEventListener('click', () => this.hide('uploadModal'));
         this.el.uploadCancel.addEventListener('click', () => this.hide('uploadModal'));
@@ -254,6 +255,20 @@ class StyreDocsApp {
         this.show('viewerModal');
     }
 
+    // --- Forhåndsvisning av rendret side (uten å lagre / lage PDF) ---
+    preview() {
+        const meta = this.collectMeta();
+        const metaLine = [TYPE_LABELS[meta.dokumenttype] || meta.dokumenttype, meta.anledning, meta.dato, meta.forfatter]
+            .filter(Boolean).map(esc).join(' · ');
+        this.el.viewerTitle.textContent = meta.tittel || 'Forhåndsvisning';
+        this.el.viewerBody.innerHTML = `<div class="sd-rendered">
+            ${meta.tittel ? `<h1>${esc(meta.tittel)}</h1>` : ''}
+            ${metaLine ? `<p class="sd-rendered__meta">${metaLine}</p>` : ''}
+            <hr>${parseMarkdown(meta.contentMd || '')}
+        </div>`;
+        this.show('viewerModal');
+    }
+
     // --- Opplasting ---
     openUpload() {
         this.el.uploadFile.value = '';
@@ -313,6 +328,25 @@ class StyreDocsApp {
         el.innerHTML = `<h1>${esc(meta.tittel)}</h1>
             <p style="color:#555">${esc(TYPE_LABELS[meta.dokumenttype] || meta.dokumenttype)}${meta.anledning ? ' · ' + esc(meta.anledning) : ''}${meta.dato ? ' · ' + esc(meta.dato) : ''}${meta.forfatter ? ' · ' + esc(meta.forfatter) : ''}</p>
             <hr>${parseMarkdown(meta.contentMd || '')}`;
+        // html2canvas rendrer native list-markører feilstilt (hevet over teksten),
+        // så vi bytter dem ut med ekte tekst-markører (tall / punkt) i selve <li>.
+        el.querySelectorAll('ol').forEach((ol) => {
+            let n = 1;
+            ol.querySelectorAll(':scope > li').forEach((li) => {
+                const m = document.createElement('span');
+                m.className = 'sd-li-marker';
+                m.textContent = (n++) + '.';
+                li.insertBefore(m, li.firstChild);
+            });
+        });
+        el.querySelectorAll('ul').forEach((ul) => {
+            ul.querySelectorAll(':scope > li').forEach((li) => {
+                const m = document.createElement('span');
+                m.className = 'sd-li-marker';
+                m.textContent = '•';
+                li.insertBefore(m, li.firstChild);
+            });
+        });
         return el;
     }
 
