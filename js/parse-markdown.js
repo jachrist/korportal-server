@@ -35,20 +35,29 @@ export function parseMarkdown(text) {
         .replace(/_(.+?)_/g, '<em>$1</em>')
         // Blockquotes
         .replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
-        // Unordered lists
-        .replace(/^- (.+)$/gm, '<li>$1</li>')
-        .replace(/^\* (.+)$/gm, '<li>$1</li>')
-        // Ordered lists
-        .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+        // Ordered list items — eget tag (<oli>) så nummererte lister ikke slås
+        // sammen med punktlister og beholder <ol>-nummereringen.
+        .replace(/^\d+\. (.+)$/gm, '<oli>$1</oli>')
+        // Unordered list items
+        .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
         // Images (must come before links)
         .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" loading="lazy">')
         // Links
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
         // Code
-        .replace(/`([^`]+)`/g, '<code>$1</code>')
-        // Line breaks (double newline = paragraph)
+        .replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    // Grupper sammenhengende listeelementer FØR avsnitt/linjeskift-konvertering,
+    // så hver kjøring beholder riktig type. <ol> tas først (mens elementene ennå
+    // er <oli>), deretter <ul>; til slutt normaliseres <oli> → <li>.
+    html = html
+        .replace(/(?:<oli>.*?<\/oli>(?:\n(?=<oli>))?)+/g, (m) => '<ol>' + m.replace(/\n/g, '') + '</ol>')
+        .replace(/(?:<li>.*?<\/li>(?:\n(?=<li>))?)+/g, (m) => '<ul>' + m.replace(/\n/g, '') + '</ul>')
+        .replace(/<(\/?)oli>/g, '<$1li>');
+
+    // Line breaks (double newline = paragraph, single = <br>)
+    html = html
         .replace(/\n\n/g, '</p><p>')
-        // Single line breaks
         .replace(/\n/g, '<br>');
 
     // Wrap in paragraph
@@ -57,15 +66,14 @@ export function parseMarkdown(text) {
     // Fix consecutive blockquotes
     html = html.replace(/<\/blockquote><br><blockquote>/g, '<br>');
 
-    // Wrap lists
-    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-
-    // Clean up empty paragraphs
+    // Clean up empty paragraphs og løft blokk-elementer ut av <p>
     html = html.replace(/<p><\/p>/g, '');
     html = html.replace(/<p>(<h[1-4]>)/g, '$1');
     html = html.replace(/(<\/h[1-4]>)<\/p>/g, '$1');
-    html = html.replace(/<p>(<ul>)/g, '$1');
-    html = html.replace(/(<\/ul>)<\/p>/g, '$1');
+    html = html.replace(/<p>(<[uo]l>)/g, '$1');
+    html = html.replace(/(<\/[uo]l>)<\/p>/g, '$1');
+    html = html.replace(/<br>(<[uo]l>)/g, '$1');
+    html = html.replace(/(<\/[uo]l>)<br>/g, '$1');
     html = html.replace(/<p>(<blockquote>)/g, '$1');
     html = html.replace(/(<\/blockquote>)<\/p>/g, '$1');
 

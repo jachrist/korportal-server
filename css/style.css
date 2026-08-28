@@ -489,6 +489,12 @@ button {
     list-style: disc;
 }
 
+.md ol {
+    margin: var(--space-md) 0;
+    padding-left: 22px;
+    list-style: decimal;
+}
+
 .md li {
     margin: var(--space-xs) 0;
 }

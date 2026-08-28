@@ -139,6 +139,9 @@
     padding-left: var(--space-xl);
 }
 
+.md-editor__preview ul { list-style: disc; }
+.md-editor__preview ol { list-style: decimal; }
+
 .md-editor__preview li {
     margin-bottom: var(--space-xs);
 }
