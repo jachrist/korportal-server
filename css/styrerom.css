@@ -1,0 +1,50 @@
+/**
+ * Styrerom – samlet arbeidsflate med faner.
+ * Verten (denne siden) viser topbar + faner; hver fane er en <iframe> mot en
+ * eksisterende styreside (styre/styredokumenter/oppgaver/styremoter). De indre
+ * sidene skjuler sin egen topbar/meny når de kjøres i ramme (html.embedded).
+ */
+
+.sr-body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    overflow: hidden;
+}
+
+.sr-top { flex: none; padding: var(--space-md) var(--space-md) var(--space-sm); }
+.sr-top .uts-topbar { position: static; }
+
+/* Fanerad */
+.sr-tabs {
+    flex: none;
+    display: flex;
+    gap: 6px;
+    padding: 4px var(--space-md) 10px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+.sr-tab {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 16px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--card2);
+    color: var(--muted); font-family: inherit; font-size: var(--font-size-base); font-weight: 600;
+    cursor: pointer; white-space: nowrap; transition: all var(--transition-fast);
+}
+.sr-tab:hover { color: var(--text); border-color: var(--accent); }
+.sr-tab.is-active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.sr-tab__icon { font-size: 1.15em; line-height: 1; }
+
+/* Rammeområde */
+.sr-frames { flex: 1 1 auto; position: relative; min-height: 0; }
+.sr-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: var(--bg); }
+.sr-frame[hidden] { display: none; }
+
+@media (max-width: 520px) {
+    .sr-tab__label { display: none; }
+    .sr-tab { padding: 9px 14px; }
+    .sr-top { padding: var(--space-sm) var(--space-sm) var(--space-xs); }
+    .sr-tabs { padding: 4px var(--space-sm) 8px; }
+}

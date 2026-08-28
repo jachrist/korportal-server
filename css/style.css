@@ -170,6 +170,12 @@ button {
     transition: background-color var(--transition-normal), border-color var(--transition-normal);
 }
 
+/* Innebygd som fane i Styrerom (styrerom.html): skjul den indre sidens egen
+   topbar og meny — verten har allerede topbar + fanerad. */
+html.embedded .uts-topbar,
+html.embedded .uts-menuOverlay { display: none !important; }
+html.embedded .wrap { padding-top: var(--space-sm); }
+
 .uts-brandMini {
     display: flex;
     align-items: center;
