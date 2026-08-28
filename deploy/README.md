@@ -140,6 +140,11 @@ npm run digest                        # kjør og send nå
 Admin-panelet kan også trigge den via `POST /api/admin/send-varsler`
 (`?force=true` bruker 24t-vindu uten å flytte «siste kjøring»).
 
+**Oppgave-påminnelser (Styrerom).** Samme daglige kjøring sender også frist-
+påminnelser for oppgaver til ansvarlig (3 dager før, på fristdagen og ved forfall),
+og oppgaver varsler ansvarlig med en gang de tildeles. Manuell test:
+`POST /api/admin/send-oppgavevarsler` (`?dry-run=true` viser hvem uten å sende).
+
 **Alternativ: cron i stedet for innebygd planlegger.** Vil du heller styre
 kjøringen med cron, slå av den innebygde planleggeren (`NOTIFY_DIGEST_ENABLED=false`,
 så du ikke sender dobbelt) og legg inn:

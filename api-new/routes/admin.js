@@ -270,4 +270,21 @@ router.post('/send-varsler', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/admin/send-oppgavevarsler
+ * Kjør frist-påminnelser for oppgaver manuelt. `?dry-run=true` viser hvem som
+ * ville fått påminnelse uten å sende (og uten å sette «påminnet»-flagg).
+ */
+router.post('/send-oppgavevarsler', async (req, res) => {
+  try {
+    const { runTaskReminders } = require('../lib/notifications');
+    const dryRun = req.query['dry-run'] === 'true' || req.body?.dryRun === true;
+    const result = await runTaskReminders({ dryRun });
+    return successResponse(res, { result });
+  } catch (err) {
+    console.error('send-oppgavevarsler error:', err);
+    return errorResponse(res, 'Kunne ikke sende oppgavevarsler.', 500);
+  }
+});
+
 module.exports = router;
