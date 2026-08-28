@@ -335,7 +335,11 @@ class StyreDocsApp {
             }
 
             document.body.appendChild(printable);
-            const blob = await html2pdf().set({ margin: 12, filename, jsPDF: { unit: 'mm', format: 'a4' } }).from(printable).outputPdf('blob');
+            const blob = await html2pdf().set({
+                margin: 12, filename,
+                html2canvas: { backgroundColor: '#ffffff', scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4' },
+            }).from(printable).outputPdf('blob');
             printable.remove();
 
             const innhold = await this.blobToBase64(blob);
