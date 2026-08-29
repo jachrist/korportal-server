@@ -163,6 +163,7 @@ class StyreDocsApp {
                 </div>
                 <div class="sd-doc__actions">
                     ${dl}
+                    ${canEdit ? `<button class="sd-doc__btn" data-action="pdf" title="Lag PDF">📄</button>` : ''}
                     ${canEdit ? `<button class="sd-doc__btn" data-action="edit" title="Rediger">✏️</button>` : ''}
                     <button class="sd-doc__btn sd-doc__btn--danger" data-action="delete" title="Slett">🗑</button>
                 </div>
@@ -176,6 +177,7 @@ class StyreDocsApp {
         const id = art.dataset.id;
         const action = e.target.closest('[data-action]')?.dataset.action;
         if (action === 'edit') this.openEditor(id);
+        else if (action === 'pdf') this.generatePdfFor(id);
         else if (action === 'delete') this.remove(id);
         else if (action === 'view' || !action) this.view(id);
     }
@@ -350,8 +352,24 @@ class StyreDocsApp {
         return el;
     }
 
-    async generatePdf() {
-        const meta = this.collectMeta();
+    // Lag PDF direkte fra et arkivert dokument (uten å åpne editoren).
+    async generatePdfFor(id) {
+        const d0 = this.docs.find((x) => x.id === id);
+        if (!confirm(`Lage PDF av «${d0?.tittel || 'dokument'}» og arkivere den?`)) return;
+        this.showLoader();
+        let d;
+        try { ({ dokument: d } = await get(`${DOK}/${id}`)); }
+        catch (err) { console.error(err); this.hideLoader(); return alert('Kunne ikke hente dokumentet.'); }
+        finally { this.hideLoader(); }
+        if (!d) return alert('Fant ikke dokumentet.');
+        await this.generatePdf({
+            tittel: d.tittel, dokumenttype: d.dokumenttype, anledning: d.anledning,
+            dato: d.dato, forfatter: d.forfatter, contentMd: d.contentMd || '',
+        });
+    }
+
+    async generatePdf(metaArg = null) {
+        const meta = metaArg || this.collectMeta();
         if (!meta.tittel) return alert('Gi dokumentet en tittel før du lager PDF.');
         const filename = `${meta.tittel.replace(/[\\/:*?"<>|]+/g, '_')}.pdf`;
         this.showLoader();
