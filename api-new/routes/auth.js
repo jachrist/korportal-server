@@ -24,6 +24,7 @@ router.post('/send-kode', async (req, res) => {
       filter: `email eq '${normalizedEmail}'`,
     });
     if (members.length === 0) {
+      console.warn(`send-kode: ukjent e-postadresse ${normalizedEmail} (ikke i Members)`);
       return errorResponse(res, 'E-postadressen er ikke registrert. Kontakt administrator.');
     }
 
@@ -51,16 +52,19 @@ router.post('/send-kode', async (req, res) => {
     }
 
     try {
-      await transporter.sendMail({
+      const info = await transporter.sendMail({
         from: process.env.SMTP_FROM,
         to: normalizedEmail,
         subject: 'Din innloggingskode for Korportal',
         text: `Din kode er: ${code}\n\nKoden er gyldig i 10 minutter.`,
         html: `<p>Din kode er: <strong>${code}</strong></p><p>Koden er gyldig i 10 minutter.</p>`,
       });
+      // SMTP-svaret og messageId kan brukes i M365 Message trace
+      console.log(`send-kode: kode sendt til ${normalizedEmail}`,
+        'messageId=' + info.messageId, 'response=' + JSON.stringify(info.response));
     } catch (mailErr) {
       // Ikke returner falsk suksess: uten e-post kan ikke medlemmet få koden.
-      console.error('send-kode: kunne ikke sende e-post:',
+      console.error(`send-kode: kunne ikke sende e-post til ${normalizedEmail}:`,
         'code=' + mailErr.code, 'responseCode=' + mailErr.responseCode, mailErr.message);
       return errorResponse(res, 'Kunne ikke sende e-post akkurat nå. Prøv igjen, eller kontakt administrator.', 502);
     }
@@ -96,6 +100,8 @@ router.post('/verifiser-kode', async (req, res) => {
     );
 
     if (!validCode) {
+      const reason = codes.some(c => c.code === code) ? 'utløpt kode' : 'feil kode';
+      console.warn(`verifiser-kode: ${reason} for ${normalizedEmail} (${codes.length} ubrukte koder)`);
       return errorResponse(res, 'Feil kode. Prøv igjen.');
     }
 
@@ -108,10 +114,12 @@ router.post('/verifiser-kode', async (req, res) => {
     });
 
     if (members.length === 0) {
+      console.warn(`verifiser-kode: gyldig kode, men ${normalizedEmail} finnes ikke lenger i Members`);
       return errorResponse(res, 'Medlem ikke funnet.');
     }
 
     const member = members[0];
+    console.log(`verifiser-kode: ${normalizedEmail} logget inn (rolle=${member.role})`);
     const memberData = {
       id: member.id,
       email: member.email,
