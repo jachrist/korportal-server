@@ -59,7 +59,7 @@ router.post('/send-kode', async (req, res) => {
         text: `Din kode er: ${code}\n\nKoden er gyldig i 10 minutter.`,
         html: `<p>Din kode er: <strong>${code}</strong></p><p>Koden er gyldig i 10 minutter.</p>`,
       });
-      // SMTP-svaret og messageId kan brukes i M365 Message trace
+      // SMTP-svaret og messageId kan oppgis til STW ved sporing av e-post
       console.log(`send-kode: kode sendt til ${normalizedEmail}`,
         'messageId=' + info.messageId, 'response=' + JSON.stringify(info.response));
     } catch (mailErr) {
