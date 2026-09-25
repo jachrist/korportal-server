@@ -4,7 +4,7 @@
 
 PWA (Progressive Web App) for kammerkoret Utsikten (~25 medlemmer). Intern portal med ovelsesverktoy, noter, meldinger, arrangementer, billettbestilling og administrasjon.
 
-Hele losningen er selvforsynt pa egen Ubuntu-server (`server.kammerkoretutsikten.no`) — ingen sky-avhengigheter utover M365 SMTP og OneDrive (backup).
+Hele losningen er selvforsynt pa egen Ubuntu-server (`server.kammerkoretutsikten.no`) — ingen sky-avhengigheter utover STW-mail (SMTP) og OneDrive (backup).
 
 ## Arkitektur
 
@@ -20,7 +20,7 @@ Hele losningen er selvforsynt pa egen Ubuntu-server (`server.kammerkoretutsikten
 - SQLite via `better-sqlite3` (`lib/db.js`) — drop-in for tidligere Azure Table Storage
 - Lokale filer i `/var/data/korportal/uploads/` (PDF, MP3, bilder)
 - Nginx serverer frontend og proxyer `/api/*` → `127.0.0.1:3001`, `/uploads/` direkte fra disk
-- E-post via Outlook/Exchange Online (SMTP AUTH mot smtp.office365.com:465 eller :587) — `lib/mailer.js` deler transport og HTML-maler mellom engangskoder, billett-kvitteringer (QR-kode via `qrcode`) og medlemsvarsling. Alle sendere returnerer feil ved mislykket utsending (ingen falsk suksess). Diagnostiser oppsettet med `POST /api/admin/smtp-test` (`{ "to": "din@epost" }` for full test) — den kjorer `transporter.verify()` og returnerer den faktiske SMTP-feilen. Merk: M365 krever ofte at «SMTP AUTH» er aktivert pa postboksen.
+- E-post via STW-mail hos ServeTheWorld (SMTP mot smtp.stw.no:465 eller :587, avsender `admin_utsikten@kammerkoretutsikten.no`) — `lib/mailer.js` deler transport og HTML-maler mellom engangskoder, billett-kvitteringer (QR-kode via `qrcode`) og medlemsvarsling. Alle sendere returnerer feil ved mislykket utsending (ingen falsk suksess). Diagnostiser oppsettet med `POST /api/admin/smtp-test` (`{ "to": "din@epost" }` for full test) — den kjorer `transporter.verify()` og returnerer den faktiske SMTP-feilen. Leveranse avhenger av DNS for domenet (administreres i STW-panelet): SPF (`include:_spf.stwcp.net include:spf.cloudeu.xion.oxcs.net`), DKIM (CNAME `mail1._domainkey`) og DMARC (TXT `_dmarc`). `routes/auth.js` logger hver kodeutsending (med `messageId`/SMTP-svar), ukjente adresser og innloggingsforsok — se `journalctl -u korportal | grep -E "send-kode|verifiser-kode"`.
 - Avhengigheter (`api-new/package.json`): `express`, `cors`, `dotenv`, `better-sqlite3`, `nodemailer`, `qrcode`
 
 ### Driftsmiljo
@@ -112,7 +112,7 @@ Alle JSON-responser wrappes i `{ body: ... }` via middleware i `server.js`, slik
 - `FILE_BASE_URL` — offentlig URL-prefiks for `/uploads/`
 - `PORT` — API-port (default 3001)
 - `CORS_ORIGINS` — komma-separert liste over tillatte origins
-- `SMTP_HOST/PORT/USER/PASS/FROM` — M365 SMTP for engangskoder og billett-kvitteringer
+- `SMTP_HOST/PORT/USER/PASS/FROM` — STW-mail SMTP for engangskoder, billett-kvitteringer og medlemsvarsling
 - `FRONTEND_ASSETS_DIR` — katalog med HTML-maler + logo for e-post (default `../assets`; server: `/opt/korportal/frontend/assets`)
 - `NOTIFY_DIGEST_ENABLED` — `false` slar av den daglige medlemsvarslingen (default pa)
 - `NOTIFY_DIGEST_HOUR` — klokketime (server-lokal, 0–23) varslingen kjorer fra (default 8)
