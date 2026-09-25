@@ -20,7 +20,7 @@ Hele losningen er selvforsynt pa egen Ubuntu-server (`server.kammerkoretutsikten
 - SQLite via `better-sqlite3` (`lib/db.js`) — drop-in for tidligere Azure Table Storage
 - Lokale filer i `/var/data/korportal/uploads/` (PDF, MP3, bilder)
 - Nginx serverer frontend og proxyer `/api/*` → `127.0.0.1:3001`, `/uploads/` direkte fra disk
-- E-post via STW-mail hos ServeTheWorld (SMTP mot smtp.stw.no:465 eller :587, avsender `admin_utsikten@kammerkoretutsikten.no`) — `lib/mailer.js` deler transport og HTML-maler mellom engangskoder, billett-kvitteringer (QR-kode via `qrcode`) og medlemsvarsling. Alle sendere returnerer feil ved mislykket utsending (ingen falsk suksess). Diagnostiser oppsettet med `POST /api/admin/smtp-test` (`{ "to": "din@epost" }` for full test) — den kjorer `transporter.verify()` og returnerer den faktiske SMTP-feilen. Leveranse avhenger av DNS for domenet (administreres i STW-panelet): SPF (`include:_spf.stwcp.net include:spf.cloudeu.xion.oxcs.net`), DKIM (CNAME `mail1._domainkey`) og DMARC (TXT `_dmarc`). `routes/auth.js` logger hver kodeutsending (med `messageId`/SMTP-svar), ukjente adresser og innloggingsforsok — se `journalctl -u korportal | grep -E "send-kode|verifiser-kode"`.
+- E-post via STW-mail hos ServeTheWorld (SMTP mot smtp.stw.no:465 eller :587, avsender `admin_utsikten@kammerkoretutsikten.no`) — `lib/mailer.js` deler transport og HTML-maler mellom engangskoder, billett-kvitteringer (QR-kode via `qrcode`) og medlemsvarsling. Alle sendere returnerer feil ved mislykket utsending (ingen falsk suksess). Diagnostiser oppsettet med `POST /api/admin/smtp-test` (`{ "to": "din@epost" }` for full test) — den kjorer `transporter.verify()` og returnerer den faktiske SMTP-feilen. Leveranse avhenger av DNS for domenet (administreres i STW-panelet): SPF (`include:_spf.stwcp.net include:spf.cloudeu.xion.oxcs.net`), DKIM (CNAME `mail1._domainkey`) og DMARC (TXT `_dmarc`). `routes/auth.js` logger hver kodeutsending (med `messageId`/SMTP-svar), ukjente adresser, feil/utlopt kode, innlogginger og gjestepalogginger via `lib/auth-log.js` — til `AuthLog`-tabellen (vises under «Innloggingslogg» pa admin-siden, `GET /api/admin/innloggingslogg?dager=7&epost=&type=`) og til `journalctl -u korportal` (linjer som starter med `auth:`). Selve koden/passordet logges aldri.
 - Avhengigheter (`api-new/package.json`): `express`, `cors`, `dotenv`, `better-sqlite3`, `nodemailer`, `qrcode`
 
 ### Driftsmiljo
@@ -39,6 +39,7 @@ api-new/
   lib/db.js                  # SQLite-lag: getEntity, listEntities, upsertEntity, deleteEntity, buildEntity, parseEntity, ensureTables, odata
   lib/mailer.js              # Delt SMTP-transport + HTML-mal-rendring (billett-kvittering m/QR, medlems-digest)
   lib/notifications.js       # Daglig medlemsvarsling: endringsdeteksjon, digest-utsending, planlegger
+  lib/auth-log.js            # Innloggingslogg: logAuthEvent() skriver til AuthLog-tabellen + konsoll (60 dagers oppbevaring)
   lib/helpers.js             # successResponse, errorResponse, generateId, generateReferenceNumber, parsePagination, paginate, validateRequired, now
   lib/table-client.js        # Ubrukt arv fra Azure Table Storage — beholdt midlertidig
   routes/*.js                # 19 route-filer: auth, navigation, articles, contacts, quicklinks, messages, posts, practice, downloads, concerts, tickets, ticket-validate, music, members, files, blob, styre, profile, admin
@@ -55,7 +56,7 @@ E-post-malene ligger som HTML i `assets/` (`email-ticket.html`, `email-member.ht
 ### Hybrid lagringsmodell
 Hver tabell har kolonnene `id` (PK), `partitionKey`, sokbare felt + `jsonData` (komplett objekt). `buildEntity(partitionKey, rowKey, searchableFields, fullData)` og `parseEntity(row)` abstraherer dette. Skjema defineres i `TABLE_SCHEMAS` i `lib/db.js`; `ensureTables()` legger til manglende kolonner ved oppstart (enkel schema-migrering via `ALTER TABLE`). SQLite kjorer i WAL-modus.
 
-Tabeller: `Navigation`, `Articles`, `Contacts`, `QuickLinks`, `Messages`, `Posts`, `Practice`, `Downloads`, `Concerts`, `TicketReservations`, `Music`, `Members`, `Events`, `Files`, `AuthCodes`, `GuestConfig`, `NotificationState`.
+Tabeller: `Navigation`, `Articles`, `Contacts`, `QuickLinks`, `Messages`, `Posts`, `Practice`, `Downloads`, `Concerts`, `TicketReservations`, `Music`, `Members`, `Events`, `Files`, `AuthCodes`, `GuestConfig`, `NotificationState`, `Tasks`, `AuthLog`.
 
 `listEntities()` stotter en enkel OData-lignende filter-syntaks (`"column eq 'value'"`) for kompatibilitet med rutene som ble skrevet mot Azure Table Storage.
 
@@ -97,6 +98,7 @@ Alle JSON-responser wrappes i `{ body: ... }` via middleware i `server.js`, slik
 
 ### Admin-verktoy
 - Database-browser med diskplass-oversikt: `js/admin.js` + `api-new/routes/admin.js`
+- Innloggingslogg (periode, e-postsok, filtrering per hendelsestype via chips): `js/admin.js` + `GET /api/admin/innloggingslogg`
 - MusicXML-verktoy (fonetisk konvertering, repetisjonsekspandering): `js/musicxml-tools.js`
 - WAV→MP3 konvertering: `js/wav-mp3-tool.js` (lamejs + JSZip, lazy-loaded)
 - Vendor-biblioteker i `js/vendor/` (lamejs, jszip, pdf.js, html5-qrcode)

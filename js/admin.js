@@ -19,6 +19,8 @@ class AdminApp {
         this.menuManager = new MenuManager();
         this.currentTable = '';
         this.tableRows = [];
+        this.authLogType = '';
+        this.authLogSearchTimer = null;
     }
 
     async init() {
@@ -35,6 +37,7 @@ class AdminApp {
 
         this.setupEventListeners();
         await this.loadDiskInfo();
+        this.loadAuthLog();
         await this.loadTables();
 
         initMusicXMLTools();
@@ -46,6 +49,18 @@ class AdminApp {
         document.getElementById('eventCsvImportBtn')?.addEventListener('click', () => this.importEventCsv());
         document.getElementById('clearCacheBtn')?.addEventListener('click', () => this.clearCache());
         document.getElementById('refreshSwBtn')?.addEventListener('click', () => this.refreshServiceWorker());
+        document.getElementById('authLogDays')?.addEventListener('change', () => this.loadAuthLog());
+        document.getElementById('authLogRefresh')?.addEventListener('click', () => this.loadAuthLog());
+        document.getElementById('authLogSearch')?.addEventListener('input', () => {
+            clearTimeout(this.authLogSearchTimer);
+            this.authLogSearchTimer = setTimeout(() => this.loadAuthLog(), 300);
+        });
+        document.getElementById('authLogSummary')?.addEventListener('click', (e) => {
+            const chip = e.target.closest('[data-type]');
+            if (!chip) return;
+            this.authLogType = this.authLogType === chip.dataset.type ? '' : chip.dataset.type;
+            this.loadAuthLog();
+        });
         document.getElementById('dbTableSelect')?.addEventListener('change', (e) => this.selectTable(e.target.value));
         document.getElementById('dbNewRowBtn')?.addEventListener('click', () => this.openEditModal(null));
         document.getElementById('dbEditClose')?.addEventListener('click', () => this.closeEditModal());
@@ -85,6 +100,77 @@ class AdminApp {
         } catch (err) {
             console.error('Disk info error:', err);
         }
+    }
+
+    // =========================================================================
+    // INNLOGGINGSLOGG
+    // =========================================================================
+    static AUTH_LOG_TYPES = {
+        'kode-sendt':      { label: 'Kode sendt',        level: 'ok' },
+        'innlogget':       { label: 'Logget inn',        level: 'ok' },
+        'gjest-innlogget': { label: 'Gjest inn',         level: 'ok' },
+        'ukjent-adresse':  { label: 'Ukjent adresse',    level: 'warn' },
+        'feil-kode':       { label: 'Feil kode',         level: 'warn' },
+        'utlopt-kode':     { label: 'Utløpt kode',       level: 'warn' },
+        'medlem-mangler':  { label: 'Medlem mangler',    level: 'warn' },
+        'gjest-avvist':    { label: 'Gjest avvist',      level: 'warn' },
+        'sendefeil':       { label: 'Sendefeil',         level: 'error' },
+        'smtp-mangler':    { label: 'SMTP mangler',      level: 'error' },
+    };
+
+    async loadAuthLog() {
+        const days = document.getElementById('authLogDays')?.value || '7';
+        const search = document.getElementById('authLogSearch')?.value.trim() || '';
+        const params = new URLSearchParams({ dager: days });
+        if (search) params.set('epost', search);
+        if (this.authLogType) params.set('type', this.authLogType);
+
+        try {
+            const res = await fetch(`/api/admin/innloggingslogg?${params}`);
+            const data = await res.json();
+            const log = data.body || data;
+            if (!res.ok || !log.entries) throw new Error(log.error || `HTTP ${res.status}`);
+            this.renderAuthLogSummary(log.counts || {});
+            this.renderAuthLogEntries(log.entries);
+        } catch (err) {
+            console.error('Auth log error:', err);
+            this.showToast('Kunne ikke hente innloggingsloggen', 'error');
+        }
+    }
+
+    renderAuthLogSummary(counts) {
+        const types = AdminApp.AUTH_LOG_TYPES;
+        const keys = Object.keys(types).filter(k => counts[k] || k === this.authLogType);
+        document.getElementById('authLogSummary').innerHTML = keys.map(k => `
+            <button type="button" class="auth-log__chip auth-log__chip--${types[k].level}${k === this.authLogType ? ' is-active' : ''}"
+                data-type="${k}" title="${k === this.authLogType ? 'Vis alle' : 'Vis bare denne typen'}">
+                ${types[k].label} <strong>${counts[k] || 0}</strong>
+            </button>`).join('');
+    }
+
+    renderAuthLogEntries(entries) {
+        const types = AdminApp.AUTH_LOG_TYPES;
+        document.getElementById('authLogEmpty').hidden = entries.length > 0;
+        document.getElementById('authLogWrap').hidden = entries.length === 0;
+
+        const fmt = new Intl.DateTimeFormat('nb-NO', {
+            day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit',
+        });
+        document.getElementById('authLogBody').innerHTML = entries.map(e => {
+            const t = types[e.type] || { label: e.type, level: 'warn' };
+            const extra = [
+                e.messageId && `messageId: ${e.messageId}`,
+                e.smtpResponse && `SMTP: ${e.smtpResponse}`,
+                e.errorCode && `feilkode: ${e.errorCode}`,
+                e.responseCode && `SMTP-kode: ${e.responseCode}`,
+            ].filter(Boolean).map(x => `<div class="auth-log__extra">${this.escapeHtml(x)}</div>`).join('');
+            return `<tr>
+                <td class="auth-log__time">${fmt.format(new Date(e.createdAt))}</td>
+                <td><span class="auth-log__badge auth-log__badge--${t.level}">${this.escapeHtml(t.label)}</span></td>
+                <td class="auth-log__email">${this.escapeHtml(e.email) || '<span class="auth-log__muted">gjest</span>'}</td>
+                <td>${this.escapeHtml(e.message)}${extra}</td>
+            </tr>`;
+        }).join('');
     }
 
     // =========================================================================

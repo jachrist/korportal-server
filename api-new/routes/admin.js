@@ -125,6 +125,39 @@ router.delete('/tables/:table/:id', async (req, res) => {
 });
 
 /**
+ * GET /api/admin/innloggingslogg?dager=7&epost=tekst&type=kode-sendt
+ * Returnerer innloggingshendelser (nyeste først) og antall per type.
+ */
+router.get('/innloggingslogg', async (req, res) => {
+  try {
+    const { RETENTION_DAYS } = require('../lib/auth-log');
+    const days = Math.min(Math.max(parseInt(req.query.dager) || 7, 1), RETENTION_DAYS);
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+    const search = String(req.query.epost || '').trim().toLowerCase();
+    const type = String(req.query.type || '').trim();
+
+    let where = 'createdAt >= ?';
+    const params = [since];
+    if (search) { where += ' AND email LIKE ?'; params.push(`%${search}%`); }
+
+    const counts = {};
+    for (const r of db.prepare(`SELECT type, COUNT(*) AS n FROM "AuthLog" WHERE ${where} GROUP BY type`).all(...params)) {
+      counts[r.type] = r.n;
+    }
+
+    if (type) { where += ' AND type = ?'; params.push(type); }
+    const rows = db.prepare(
+      `SELECT jsonData FROM "AuthLog" WHERE ${where} ORDER BY createdAt DESC LIMIT 500`
+    ).all(...params).map(r => JSON.parse(r.jsonData));
+
+    return res.json({ days, retentionDays: RETENTION_DAYS, counts, entries: rows });
+  } catch (err) {
+    console.error('admin innloggingslogg error:', err);
+    return errorResponse(res, 'Kunne ikke hente innloggingsloggen.', 500);
+  }
+});
+
+/**
  * GET /api/admin/disk
  * Returns disk usage information
  */

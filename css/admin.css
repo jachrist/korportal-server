@@ -527,3 +527,163 @@
     padding-top: var(--space-md);
     border-top: 1px solid var(--line);
 }
+
+/* ==========================================================================
+   Innloggingslogg
+   ========================================================================== */
+.auth-log__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+
+.auth-log__filters .form-select,
+.auth-log__filters .form-input {
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--card2);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.auth-log__filters .form-input {
+    flex: 1 1 180px;
+    min-width: 0;
+}
+
+.auth-log__summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: var(--space-md);
+}
+
+.auth-log__chip {
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.auth-log__chip.is-active {
+    border-color: currentColor;
+}
+
+.auth-log__chip--ok,
+.auth-log__badge--ok {
+    background: rgba(34, 197, 94, 0.15);
+    color: #16a34a;
+}
+
+.auth-log__chip--warn,
+.auth-log__badge--warn {
+    background: rgba(245, 158, 11, 0.15);
+    color: #d97706;
+}
+
+.auth-log__chip--error,
+.auth-log__badge--error {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+.auth-log__empty {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.auth-log__wrap {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    max-height: 60vh;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+.auth-log__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.auth-log__table th {
+    text-align: left;
+    padding: 8px 10px;
+    background: var(--card2);
+    border-bottom: 2px solid var(--line);
+    white-space: nowrap;
+    font-weight: 600;
+    color: var(--text);
+    position: sticky;
+    top: 0;
+}
+
+.auth-log__table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+    vertical-align: top;
+}
+
+.auth-log__time,
+.auth-log__email {
+    white-space: nowrap;
+}
+
+.auth-log__badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.auth-log__extra {
+    color: var(--muted);
+    font-size: 0.75rem;
+    word-break: break-all;
+}
+
+.auth-log__muted {
+    color: var(--muted);
+}
+
+@media (max-width: 640px) {
+    .auth-log__table thead {
+        display: none;
+    }
+
+    .auth-log__table tr {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 2px 10px;
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .auth-log__table td {
+        padding: 0;
+        border: 0;
+    }
+
+    .auth-log__table td:nth-child(2) {
+        justify-self: end;
+    }
+
+    .auth-log__table td:nth-child(3),
+    .auth-log__table td:nth-child(4) {
+        grid-column: 1 / -1;
+    }
+
+    .auth-log__email {
+        white-space: normal;
+        word-break: break-all;
+        font-weight: 600;
+    }
+}
