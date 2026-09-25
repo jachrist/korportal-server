@@ -91,6 +91,35 @@
             </div>
         </section>
 
+        <!-- Innloggingslogg -->
+        <section class="card content">
+            <h2 class="section__title">Innloggingslogg</h2>
+            <p class="section__description">Forespørsler om engangskode, utsending av e-post og innloggingsforsøk. Hendelser lagres i 60 dager.</p>
+
+            <div class="auth-log__filters">
+                <select id="authLogDays" class="form-select" aria-label="Periode">
+                    <option value="1">Siste døgn</option>
+                    <option value="7" selected>Siste 7 dager</option>
+                    <option value="30">Siste 30 dager</option>
+                    <option value="60">Siste 60 dager</option>
+                </select>
+                <input type="search" id="authLogSearch" class="form-input" placeholder="Søk e-post…" aria-label="Søk e-post">
+                <button class="admin-btn admin-btn--secondary" id="authLogRefresh">Oppdater</button>
+            </div>
+
+            <div class="auth-log__summary" id="authLogSummary"></div>
+
+            <p class="auth-log__empty" id="authLogEmpty" hidden>Ingen hendelser i valgt periode.</p>
+            <div class="auth-log__wrap" id="authLogWrap" hidden>
+                <table class="auth-log__table">
+                    <thead>
+                        <tr><th>Tid</th><th>Hendelse</th><th>E-post</th><th>Detaljer</th></tr>
+                    </thead>
+                    <tbody id="authLogBody"></tbody>
+                </table>
+            </div>
+        </section>
+
         <!-- Database browser -->
         <section class="card content">
             <h2 class="section__title">Database</h2>

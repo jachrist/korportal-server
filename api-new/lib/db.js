@@ -47,6 +47,7 @@ const TABLE_SCHEMAS = {
   GuestConfig: '',
   NotificationState: '',
   Tasks: 'anledning TEXT, status TEXT, frist TEXT, ansvarligEmail TEXT',
+  AuthLog: 'createdAt TEXT, type TEXT, email TEXT',
 };
 
 // Cache of column names per table (populated by ensureTables)
@@ -93,6 +94,7 @@ function ensureTables() {
   const indexes = [
     ['Members', 'email'],
     ['AuthCodes', 'email'],
+    ['AuthLog', 'createdAt'],
     ['Articles', 'page'],
     ['TicketReservations', 'referenceNumber'],
     ['Files', 'anledning'],

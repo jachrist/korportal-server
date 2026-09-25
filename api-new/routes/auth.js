@@ -3,6 +3,7 @@ const router = express.Router();
 const { listEntities, upsertEntity, deleteEntity, buildEntity } = require('../lib/db');
 const { successResponse, errorResponse, validateRequired, generateId, now } = require('../lib/helpers');
 const { createTransporter } = require('../lib/mailer');
+const { logAuthEvent } = require('../lib/auth-log');
 const crypto = require('crypto');
 
 /**
@@ -24,7 +25,7 @@ router.post('/send-kode', async (req, res) => {
       filter: `email eq '${normalizedEmail}'`,
     });
     if (members.length === 0) {
-      console.warn(`send-kode: ukjent e-postadresse ${normalizedEmail} (ikke i Members)`);
+      await logAuthEvent('ukjent-adresse', normalizedEmail, 'Ba om kode, men adressen finnes ikke i medlemsregisteret');
       return errorResponse(res, 'E-postadressen er ikke registrert. Kontakt administrator.');
     }
 
@@ -47,7 +48,7 @@ router.post('/send-kode', async (req, res) => {
     // Send email — bruk delt SMTP-transport (samme config som resten av systemet)
     const transporter = createTransporter();
     if (!transporter) {
-      console.error('send-kode: SMTP er ikke konfigurert (mangler SMTP_HOST/SMTP_USER).');
+      await logAuthEvent('smtp-mangler', normalizedEmail, 'SMTP er ikke konfigurert (mangler SMTP_HOST/SMTP_USER)');
       return errorResponse(res, 'E-post er ikke satt opp på serveren. Kontakt administrator.', 500);
     }
 
@@ -60,12 +61,14 @@ router.post('/send-kode', async (req, res) => {
         html: `<p>Din kode er: <strong>${code}</strong></p><p>Koden er gyldig i 10 minutter.</p>`,
       });
       // SMTP-svaret og messageId kan oppgis til STW ved sporing av e-post
-      console.log(`send-kode: kode sendt til ${normalizedEmail}`,
-        'messageId=' + info.messageId, 'response=' + JSON.stringify(info.response));
+      await logAuthEvent('kode-sendt', normalizedEmail, 'Kode sendt', {
+        messageId: info.messageId, smtpResponse: info.response,
+      });
     } catch (mailErr) {
       // Ikke returner falsk suksess: uten e-post kan ikke medlemmet få koden.
-      console.error(`send-kode: kunne ikke sende e-post til ${normalizedEmail}:`,
-        'code=' + mailErr.code, 'responseCode=' + mailErr.responseCode, mailErr.message);
+      await logAuthEvent('sendefeil', normalizedEmail, 'Kunne ikke sende e-post: ' + mailErr.message, {
+        errorCode: mailErr.code, responseCode: mailErr.responseCode,
+      });
       return errorResponse(res, 'Kunne ikke sende e-post akkurat nå. Prøv igjen, eller kontakt administrator.', 502);
     }
 
@@ -100,8 +103,9 @@ router.post('/verifiser-kode', async (req, res) => {
     );
 
     if (!validCode) {
-      const reason = codes.some(c => c.code === code) ? 'utløpt kode' : 'feil kode';
-      console.warn(`verifiser-kode: ${reason} for ${normalizedEmail} (${codes.length} ubrukte koder)`);
+      const expired = codes.some(c => c.code === code);
+      await logAuthEvent(expired ? 'utlopt-kode' : 'feil-kode', normalizedEmail,
+        `${expired ? 'Utløpt' : 'Feil'} kode (${codes.length} ubrukte koder)`);
       return errorResponse(res, 'Feil kode. Prøv igjen.');
     }
 
@@ -114,12 +118,12 @@ router.post('/verifiser-kode', async (req, res) => {
     });
 
     if (members.length === 0) {
-      console.warn(`verifiser-kode: gyldig kode, men ${normalizedEmail} finnes ikke lenger i Members`);
+      await logAuthEvent('medlem-mangler', normalizedEmail, 'Gyldig kode, men medlemmet finnes ikke lenger');
       return errorResponse(res, 'Medlem ikke funnet.');
     }
 
     const member = members[0];
-    console.log(`verifiser-kode: ${normalizedEmail} logget inn (rolle=${member.role})`);
+    await logAuthEvent('innlogget', normalizedEmail, `Logget inn (rolle: ${member.role || 'ukjent'})`);
     const memberData = {
       id: member.id,
       email: member.email,
@@ -158,12 +162,16 @@ router.post('/gjest-login', async (req, res) => {
     }
 
     if (password !== config.password) {
+      await logAuthEvent('gjest-avvist', '', 'Gjestepålogging med feil passord');
       return errorResponse(res, 'Feil passord.');
     }
 
     if (config.expiresAt && new Date(config.expiresAt) < new Date()) {
+      await logAuthEvent('gjest-avvist', '', 'Gjestepålogging etter at tilgangen utløp');
       return errorResponse(res, 'Gjestetilgangen har utløpt.');
     }
+
+    await logAuthEvent('gjest-innlogget', '', 'Gjest logget inn' + (config.anledning ? ` (${config.anledning})` : ''));
 
     return successResponse(res, {
       member: {
