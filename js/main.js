@@ -14,7 +14,9 @@ import {
     isLoggedIn,
     getCurrentUserRole,
     hasRole,
-    ROLES
+    ROLES,
+    isPresaleLink,
+    showPresaleLinks
 } from './navigation.js';
 import { MarkdownEditor } from './markdown-editor.js';
 
@@ -151,6 +153,11 @@ class KorportalApp {
             // Velg hurtiglenker basert på innloggingsstatus
             const defaultQuickLinks = isLoggedIn() ? QUICK_LINKS_MEMBER : QUICK_LINKS_ANONYMOUS;
             quickLinks = quickLinks?.length ? quickLinks : defaultQuickLinks;
+
+            // Skjul konsertlenken når ingen kommende konsert har forhåndssalg
+            if (!(await showPresaleLinks())) {
+                quickLinks = quickLinks.filter(link => !isPresaleLink(link.url));
+            }
 
             // Render artikkel
             this.renderArticle(article);
@@ -476,7 +483,10 @@ class KorportalApp {
                 badgeManager.checkAndUpdate('innlegg', postsResult.value, 'createdAt');
             }
             if (concertsResult.status === 'fulfilled' && Array.isArray(concertsResult.value)) {
-                badgeManager.checkAndUpdate('konserter', concertsResult.value, 'date');
+                // Konserter uten forhåndssalg vises ikke på konsertsiden (unntatt for styret)
+                const canEdit = hasRole(getCurrentUserRole(), ROLES.STYRE);
+                const visible = concertsResult.value.filter(c => canEdit || c.forhandssalg !== false);
+                badgeManager.checkAndUpdate('konserter', visible, 'date');
             }
             if (membersResult.status === 'fulfilled' && membersResult.value?.events) {
                 badgeManager.checkAndUpdate('medlemmer', membersResult.value.events, 'date');

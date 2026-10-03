@@ -7,7 +7,8 @@ const { createTransporter, formatNorskDato } = require('../lib/mailer');
 /**
  * GET /api/konserter?upcoming=true&$top=10
  * Response: [ { id, title, date, time, location, address, description, imageUrl,
- *               ticketPrice, ticketsAvailable, ticketUrl, isPublic, status, category } ]
+ *               ticketPrice, ticketsAvailable, ticketUrl, isPublic, forhandssalg, status, category } ]
+ * forhandssalg=false: ingen billettsalg i portalen (konserten omtales kun på forsiden)
  */
 router.get('/konserter', async (req, res) => {
   try {
@@ -26,6 +27,7 @@ router.get('/konserter', async (req, res) => {
       ticketsAvailable: item.ticketsAvailable || 0,
       ticketUrl: item.ticketUrl || null,
       isPublic: item.isPublic !== false,
+      forhandssalg: item.forhandssalg !== false,
       status: item.status || 'available',
       category: item.category || null,
     }));
@@ -49,7 +51,7 @@ router.get('/konserter', async (req, res) => {
 
 /**
  * POST /api/konserter
- * Request: { title, date, time, location, address, description, imageUrl, ticketPrice, ticketsAvailable, ticketUrl, isPublic, category }
+ * Request: { title, date, time, location, address, description, imageUrl, ticketPrice, ticketsAvailable, ticketUrl, isPublic, forhandssalg, category }
  * Response: { success: true, id }
  */
 router.post('/konserter', async (req, res) => {
@@ -57,7 +59,7 @@ router.post('/konserter', async (req, res) => {
     const err = validateRequired(req.body, ['title', 'date']);
     if (err) return errorResponse(res, err);
 
-    const { title, date, time, location, address, description, imageUrl, ticketPrice, ticketsAvailable, ticketUrl, isPublic, category } = req.body;
+    const { title, date, time, location, address, description, imageUrl, ticketPrice, ticketsAvailable, ticketUrl, isPublic, forhandssalg, category } = req.body;
     const id = generateId('CON');
 
     const concert = {
@@ -71,6 +73,7 @@ router.post('/konserter', async (req, res) => {
       ticketsAvailable: ticketsAvailable || 0,
       ticketUrl: ticketUrl || null,
       isPublic: isPublic !== false,
+      forhandssalg: forhandssalg !== false,
       status: 'available',
       category: category || null,
     };
@@ -98,6 +101,11 @@ router.post('/konserter/billett', async (req, res) => {
     if (err) return errorResponse(res, err);
 
     const { concertId, name, email, phone, ticketCount, message, totalPrice, reservationDate } = req.body;
+
+    const [concert] = await listEntities('Concerts', { filter: `RowKey eq '${concertId}'` });
+    if (concert && concert.forhandssalg === false) {
+      return errorResponse(res, 'Det er ikke forhåndssalg av billetter til denne konserten.');
+    }
     const refNumber = generateReferenceNumber('UTK');
     const id = generateId('BIL');
 
@@ -127,8 +135,7 @@ router.post('/konserter/billett', async (req, res) => {
     const transporter = createTransporter();
     if (transporter && email) {
       try {
-        const concerts = await listEntities('Concerts', { filter: `RowKey eq '${concertId}'` });
-        await transporter.sendMail(buildBestillingMail(reservation, concerts[0]));
+        await transporter.sendMail(buildBestillingMail(reservation, concert));
       } catch (mailErr) {
         console.error(`Kunne ikke sende bestillingsbekreftelse til ${email}:`, mailErr.message);
       }
