@@ -185,13 +185,22 @@
                     <label for="editConcertImageUrl">Bilde-URL (valgfritt)</label>
                     <input type="url" id="editConcertImageUrl" placeholder="https://..." maxlength="500">
                 </div>
-                <div class="form-group">
-                    <label for="editConcertTicketPrice">Billettpris (kr)</label>
-                    <input type="number" id="editConcertTicketPrice" placeholder="0" min="0">
+                <div class="form-group form-group--checkbox">
+                    <label class="checkbox-label" for="editConcertForhandssalg">
+                        <input type="checkbox" id="editConcertForhandssalg" checked>
+                        <span>Forhåndssalg av billetter</span>
+                    </label>
+                    <p class="form-hint">Uten forhåndssalg vises konserten verken på konsertsiden, i menyen eller som hurtiglenke for publikum og medlemmer – bare for styret. Omtal den på forsiden i stedet.</p>
                 </div>
-                <div class="form-group">
-                    <label for="editConcertTicketsAvailable">Antall billetter</label>
-                    <input type="number" id="editConcertTicketsAvailable" placeholder="100" min="0">
+                <div id="editConcertPresaleFields">
+                    <div class="form-group">
+                        <label for="editConcertTicketPrice">Billettpris (kr)</label>
+                        <input type="number" id="editConcertTicketPrice" placeholder="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="editConcertTicketsAvailable">Antall billetter</label>
+                        <input type="number" id="editConcertTicketsAvailable" placeholder="100" min="0">
+                    </div>
                 </div>
             </div>
             <div class="post-modal-footer">

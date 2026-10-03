@@ -122,6 +122,8 @@ class ConcertsApp {
             editConcertImageUrl: document.getElementById('editConcertImageUrl'),
             editConcertTicketPrice: document.getElementById('editConcertTicketPrice'),
             editConcertTicketsAvailable: document.getElementById('editConcertTicketsAvailable'),
+            editConcertForhandssalg: document.getElementById('editConcertForhandssalg'),
+            editConcertPresaleFields: document.getElementById('editConcertPresaleFields'),
             editConcertSave: document.getElementById('editConcertSave'),
             editConcertCancel: document.getElementById('editConcertCancel'),
             editConcertDelete: document.getElementById('editConcertDelete')
@@ -161,6 +163,7 @@ class ConcertsApp {
         this.elements.editConcertCancel?.addEventListener('click', () => this.closeEditConcertModal());
         this.elements.editConcertSave?.addEventListener('click', () => this.saveEditConcert());
         this.elements.editConcertDelete?.addEventListener('click', () => this.deleteEditConcert());
+        this.elements.editConcertForhandssalg?.addEventListener('change', () => this.updatePresaleFields());
         this.elements.editConcertModal?.addEventListener('click', (e) => {
             if (e.target === this.elements.editConcertModal) this.closeEditConcertModal();
         });
@@ -211,7 +214,9 @@ class ConcertsApp {
             // Filter to only show upcoming concerts (include today)
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            this.concerts = concerts.filter(c => new Date(c.date) >= today);
+            // Konserter uten forhåndssalg vises bare for styret (for redigering)
+            const canEdit = isLoggedIn() && hasRole(getCurrentUserRole(), ROLES.STYRE);
+            this.concerts = concerts.filter(c => new Date(c.date) >= today && (canEdit || c.forhandssalg !== false));
 
             badgeManager.markSeen('konserter');
             this.renderConcerts();
@@ -302,8 +307,12 @@ class ConcertsApp {
         const isFewLeft = available > 0 && available <= 20;
         const isFree = concert.ticketPrice === 0;
 
+        const noPresale = concert.forhandssalg === false;
+
         let badge = '';
-        if (isSoldOut) {
+        if (noPresale) {
+            badge = '<span class="concert-card__badge concert-card__badge--nopresale">Ikke forhåndssalg</span>';
+        } else if (isSoldOut) {
             badge = '<span class="concert-card__badge concert-card__badge--soldout">Utsolgt</span>';
         } else if (isFewLeft) {
             badge = '<span class="concert-card__badge concert-card__badge--few">Få billetter</span>';
@@ -333,7 +342,7 @@ class ConcertsApp {
         const descriptionHtml = concert.description ? this.parseMarkdown(concert.description) : '';
 
         return `
-            <article class="concert-card card">
+            <article class="concert-card card${concert.imageUrl ? '' : ' concert-card--no-image'}">
                 ${imageHtml}
                 <div class="concert-card__content">
                     <div class="concert-card__header">
@@ -371,15 +380,21 @@ class ConcertsApp {
                     ` : ''}
 
                     <div class="concert-card__footer">
+                        ${noPresale ? '' : `
                         <div class="concert-card__price">
                             <span class="concert-card__price-label">Pris</span>
                             ${priceDisplay}
                         </div>
+                        `}
                         <div class="concert-card__tickets">
+                            ${noPresale ? `
+                            <span class="concert-card__availability">Ingen forhåndssalg – vises bare for styret</span>
+                            ` : `
                             <span class="concert-card__availability ${availabilityClass}">${availabilityText}</span>
                             <button class="btn btn--primary btn--book" data-concert-id="${concert.id}" ${isSoldOut ? 'disabled' : ''}>
                                 ${isSoldOut ? 'Utsolgt' : 'Bestill billetter'}
                             </button>
+                            `}
                         </div>
                     </div>
                 </div>
@@ -389,7 +404,7 @@ class ConcertsApp {
 
     openBookingModal(concertId) {
         this.selectedConcert = this.concerts.find(c => String(c.id) === String(concertId));
-        if (!this.selectedConcert) return;
+        if (!this.selectedConcert || this.selectedConcert.forhandssalg === false) return;
 
         const concert = this.selectedConcert;
         const date = new Date(concert.date);
@@ -576,6 +591,8 @@ class ConcertsApp {
         this.elements.editConcertImageUrl.value = '';
         this.elements.editConcertTicketPrice.value = '';
         this.elements.editConcertTicketsAvailable.value = '100';
+        this.elements.editConcertForhandssalg.checked = true;
+        this.updatePresaleFields();
         this.elements.editConcertDelete.hidden = true;
         this.elements.editConcertModal.hidden = false;
 
@@ -602,6 +619,8 @@ class ConcertsApp {
         this.elements.editConcertImageUrl.value = concert.imageUrl || '';
         this.elements.editConcertTicketPrice.value = concert.ticketPrice || '';
         this.elements.editConcertTicketsAvailable.value = concert.ticketsAvailable ?? '';
+        this.elements.editConcertForhandssalg.checked = concert.forhandssalg !== false;
+        this.updatePresaleFields();
         this.elements.editConcertDelete.hidden = false;
         this.elements.editConcertModal.hidden = false;
 
@@ -628,7 +647,14 @@ class ConcertsApp {
             imageUrl: this.elements.editConcertImageUrl.value.trim(),
             ticketPrice: parseInt(this.elements.editConcertTicketPrice.value) || 0,
             ticketsAvailable: parseInt(this.elements.editConcertTicketsAvailable.value) || 100,
+            forhandssalg: this.elements.editConcertForhandssalg.checked,
         };
+    }
+
+    /** Billettpris/antall er bare relevant når det er forhåndssalg */
+    updatePresaleFields() {
+        const on = this.elements.editConcertForhandssalg.checked;
+        this.elements.editConcertPresaleFields.hidden = !on;
     }
 
     async saveEditConcert() {

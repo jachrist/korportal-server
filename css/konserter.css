@@ -93,6 +93,10 @@
     background: #f59e0b;
 }
 
+.concert-card__badge--nopresale {
+    background: #64748b;
+}
+
 /* Concert Content
    ========================================================================== */
 .concert-card__content {
@@ -733,4 +737,43 @@
     .modal__body {
         padding: var(--space-lg);
     }
+}
+
+/* Forhåndssalg-bryter i redigeringsskjemaet
+   ========================================================================== */
+.form-group--checkbox .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    cursor: pointer;
+}
+
+.form-group--checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    margin: 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.form-group--checkbox .form-hint {
+    font-size: var(--font-size-xs);
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+/* Kort uten bilde: én kolonne, merkelappen over innholdet
+   ========================================================================== */
+.concert-card.concert-card--no-image {
+    grid-template-columns: 1fr;
+}
+
+.concert-card__badge-wrap {
+    padding: var(--space-lg) var(--space-xl) 0;
+}
+
+.concert-card__badge-wrap .concert-card__badge {
+    position: static;
+    display: inline-block;
 }

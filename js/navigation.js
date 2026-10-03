@@ -117,18 +117,75 @@ async function loadNavItems() {
     return cachedNavItems;
 }
 
+// ==========================================================================
+// FORHÅNDSSALG AV KONSERTBILLETTER
+// ==========================================================================
+
+/**
+ * Lenker til konsertsiden/billettsalget. Skjules i meny og hurtiglenker for
+ * roller under styre når ingen kommende konsert har forhåndssalg.
+ */
+const PRESALE_PATHS = ['/konserter.html', '/konserter'];
+
+/** @type {Promise<boolean>|null} */
+let presalePromise = null;
+
+/**
+ * Sjekker om lenken peker til konsertsiden
+ * @param {string} url
+ * @returns {boolean}
+ */
+export function isPresaleLink(url) {
+    try {
+        const path = new URL(url, window.location.origin).pathname;
+        return PRESALE_PATHS.includes(path);
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Har minst én kommende konsert forhåndssalg? Ved feil antas ja, slik at
+ * lenken ikke forsvinner pga. et nettverksproblem.
+ * @returns {Promise<boolean>}
+ */
+export function hasUpcomingPresale() {
+    if (!presalePromise) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        presalePromise = sharePointAPI.getConcerts()
+            .then(concerts => concerts.some(c => c.forhandssalg !== false && new Date(c.date) >= today))
+            .catch(() => true);
+    }
+    return presalePromise;
+}
+
+/**
+ * Skal konsertlenker vises for denne brukeren? Styre og admin ser dem alltid.
+ * @param {string} userRole
+ * @returns {Promise<boolean>}
+ */
+export async function showPresaleLinks(userRole = getCurrentUserRole()) {
+    if (hasRole(userRole, ROLES.STYRE)) return true;
+    return hasUpcomingPresale();
+}
+
 /**
  * Filtrerer navigasjonselementer basert på brukerens rolle
  * @param {string} userRole - Brukerens rolle
  * @param {Array} items - Navigasjonselementer å filtrere
+ * @param {boolean} [showPresale=true] - false skjuler lenker til konsertsiden
  * @returns {Array} Filtrerte navigasjonselementer
  */
-export function filterNavItemsByRole(userRole, items) {
+export function filterNavItemsByRole(userRole, items, showPresale = true) {
     const loggedIn = isLoggedIn();
 
     return items.filter(item => {
         // Skjul element når bruker er innlogget (f.eks. "Logg inn")
         if (item.hideWhenLoggedIn && loggedIn) return false;
+
+        // Skjul konsertsiden når ingen kommende konsert har forhåndssalg
+        if (!showPresale && isPresaleLink(item.url)) return false;
 
         // minRole: 'anonym' eller ikke satt = alle har tilgang
         const minRole = item.minRole || 'anonym';
@@ -270,6 +327,8 @@ export class MenuManager {
         this.closeBtn = document.getElementById('menuClose');
         this.menuList = document.getElementById('menuList');
         this.isOpen = false;
+        // Ukjent til konsertene er hentet: skjul konsertlenken (unntatt for styret)
+        this.showPresale = hasRole(getCurrentUserRole(), ROLES.STYRE);
     }
 
     init() {
@@ -295,7 +354,8 @@ export class MenuManager {
      */
     async loadAndBuildMenu() {
         try {
-            const items = await loadNavItems();
+            const [items, showPresale] = await Promise.all([loadNavItems(), showPresaleLinks()]);
+            this.showPresale = showPresale;
             this.buildMenu(items);
         } catch (error) {
             console.warn('[MenuManager] Feil ved lasting av navigasjon:', error.message);
@@ -323,7 +383,7 @@ export class MenuManager {
 
         const userRole = getCurrentUserRole();
         const allItems = navItems || cachedNavItems || FALLBACK_NAV_ITEMS;
-        const items = filterNavItemsByRole(userRole, allItems);
+        const items = filterNavItemsByRole(userRole, allItems, this.showPresale);
         const currentPath = window.location.pathname;
 
         let html = items.map(item => {

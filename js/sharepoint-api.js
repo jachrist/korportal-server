@@ -388,6 +388,7 @@ class SharePointAPI {
             ticketsAvailable: item.ticketsAvailable || 0,
             ticketUrl: item.ticketUrl || null,
             isPublic: item.isPublic ?? true,
+            forhandssalg: item.forhandssalg !== false,
             status: item.ticketsAvailable > 0 ? 'available' : 'soldout',
             category: item.category || null
         })).sort((a, b) => new Date(a.date) - new Date(b.date));
