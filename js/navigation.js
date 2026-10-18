@@ -187,6 +187,9 @@ export function filterNavItemsByRole(userRole, items, showPresale = true) {
         // Skjul konsertsiden når ingen kommende konsert har forhåndssalg
         if (!showPresale && isPresaleLink(item.url)) return false;
 
+        // Gjester ser alltid gjestesidene (øvelse og nedlasting)
+        if (userRole === ROLES.GJEST && isGuestPage(item.url)) return true;
+
         // minRole: 'anonym' eller ikke satt = alle har tilgang
         const minRole = item.minRole || 'anonym';
         if (minRole === 'anonym') return true;
@@ -426,7 +429,7 @@ export class MenuManager {
                 if (el.dataset.guestLogin === 'true') {
                     e.preventDefault();
                     this.close();
-                    openGuestLoginModal();
+                    openGuestLoginModal(window.location.pathname);
                     return;
                 }
                 this.close();
@@ -492,7 +495,26 @@ function escapeHtml(str) {
 // GUEST LOGIN MODAL
 // ==========================================================================
 
-async function openGuestLoginModal() {
+/**
+ * Sider gjester har tilgang til. Etter gjestepålogging sendes gjesten til
+ * en av disse (standard: øvelsessiden).
+ */
+const GUEST_PAGES = ['/ovelse.html', '/nedlasting.html'];
+
+function isGuestPage(url) {
+    try {
+        return GUEST_PAGES.includes(new URL(url, window.location.origin).pathname);
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Åpner modal for gjestepålogging (kun passord).
+ * @param {string} [redirectTo] - side å gå til etter innlogging (må være en gjesteside)
+ */
+export async function openGuestLoginModal(redirectTo) {
+    const target = GUEST_PAGES.includes(redirectTo) ? redirectTo : GUEST_PAGES[0];
     document.getElementById('guestLoginModal')?.remove();
 
     // Fetch guest config for info display
@@ -518,7 +540,7 @@ async function openGuestLoginModal() {
             <button class="guest-modal-close" id="guestModalClose" title="Lukk">&#10005;</button>
             <div class="login-header">
                 <h1>Gjestepålogging</h1>
-                <p>Skriv inn passordet du har fått for tilgang til øvefiler</p>
+                <p>Skriv inn passordet du har fått for tilgang til øvefiler og noter</p>
                 ${guestInfo}
             </div>
 
@@ -538,7 +560,7 @@ async function openGuestLoginModal() {
             </div>
 
             <div class="login-info">
-                <p>Som gjest får du tilgang til øvefiler for den aktuelle konserten.</p>
+                <p>Som gjest får du tilgang til øvelse og nedlasting av noter og øvefiler for den aktuelle konserten.</p>
             </div>
         </div>
     `;
@@ -582,7 +604,7 @@ async function openGuestLoginModal() {
             // Store guest session (not persisted across browser close)
             sessionStorage.setItem('korportal-member', JSON.stringify(result.member));
             localStorage.setItem('korportal-member', JSON.stringify(result.member));
-            window.location.href = '/ovelse.html';
+            window.location.href = target;
         } catch (err) {
             showMsg('Nettverksfeil. Prøv igjen.', true);
         } finally {

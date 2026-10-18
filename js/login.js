@@ -8,6 +8,7 @@
  */
 
 import sharePointAPI from './sharepoint-api.js';
+import { openGuestLoginModal } from './navigation.js';
 
 // ==========================================================================
 // CONFIGURATION
@@ -134,6 +135,11 @@ class LoginApp {
         this.elements.emailForm?.addEventListener('submit', (e) => this.handleEmailSubmit(e));
         this.elements.codeForm?.addEventListener('submit', (e) => this.handleCodeSubmit(e));
         this.elements.backBtn?.addEventListener('click', () => this.showEmailForm());
+        // Gjestepålogging: send gjesten tilbake til siden lenken pekte på (øvelse/nedlasting)
+        document.getElementById('guestLoginLink')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            openGuestLoginModal(new URLSearchParams(window.location.search).get('redirect'));
+        });
     }
 
     // ==========================================================================

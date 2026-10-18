@@ -5,7 +5,8 @@
  * gruppert per verk i satt rekkefølge. For hvert verk: nedlastingslenke for noten
  * (PDF) og øvefil (MP3) for valgt stemme. «Last ned alt» pakker alt i én zip.
  *
- * Tilgang: medlem og oppover (gjest/anonym omdirigeres av initPage).
+ * Tilgang: gjest og oppover. Gjester ser bare konserten (anledningen) de har
+ * fått tilgang til (`guestAnledning`); anonyme omdirigeres av initPage.
  *
  * @module Nedlasting
  * @version 3.0.0
@@ -100,8 +101,8 @@ class DownloadsApp {
     }
 
     async init() {
-        // Krev innlogging + rolle medlem eller høyere (gjest/anonym omdirigeres)
-        const pageInit = initPage({ requireAuth: true, requiredRole: 'medlem' });
+        // Krev innlogging; gjester har tilgang (begrenset til sin anledning)
+        const pageInit = initPage({ requireAuth: true, requiredRole: 'gjest' });
         if (!pageInit) return;
 
         this.cacheElements();
@@ -166,11 +167,25 @@ class DownloadsApp {
                 fetch('/api/filer/anledninger').then(r => r.json()),
                 fetch('/api/ovelse/meta').then(r => r.json())
             ]);
-            const anledninger = (anRes.body || anRes).anledninger || [];
+            let anledninger = (anRes.body || anRes).anledninger || [];
             const meta = metaRes.body || metaRes;
-            const active = meta.anledning || '';
+            let active = meta.anledning || '';
+
+            // Gjester ser bare anledningen de har fått tilgang til
+            const member = getCurrentMember();
+            const guestAnledning = member?.role === 'gjest' ? member.guestAnledning : '';
+            if (guestAnledning) {
+                anledninger = anledninger.filter(a => a === guestAnledning);
+                active = guestAnledning;
+            }
+
             this.populateAnledninger(anledninger, active);
             this.selectedAnledning = select.value || active;
+
+            // Skjul aktivitetsvelgeren når gjesten bare har ett valg
+            if (guestAnledning && anledninger.length <= 1) {
+                select.closest('.dl-activity')?.style.setProperty('display', 'none');
+            }
         } catch (err) {
             console.error('Kunne ikke laste anledninger:', err);
             select.innerHTML = '<option value="">Kunne ikke laste</option>';
