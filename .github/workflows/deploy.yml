@@ -24,8 +24,12 @@ jobs:
           chmod 600 ~/.ssh/id_deploy
           ssh-keyscan -p "${{ secrets.SSH_PORT || 22 }}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
 
+      # Kjører deploy.sh slik den er i den nye commiten (ikke den gamle kopien
+      # på serveren), så endringer i selve skriptet gjelder fra første deploy.
       - name: Kjør deploy på serveren
         run: |
           ssh -i ~/.ssh/id_deploy -p "${{ secrets.SSH_PORT || 22 }}" \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
-            'bash /opt/korportal/src/deploy/deploy.sh'
+            'cd /opt/korportal/src && git fetch -q --prune origin main &&
+             tmp="$(mktemp)" && git show origin/main:deploy/deploy.sh > "$tmp" &&
+             { DEPLOY_PREV="$(git rev-parse HEAD)" DEPLOY_REEXEC=1 bash "$tmp"; rc=$?; rm -f "$tmp"; exit $rc; }'

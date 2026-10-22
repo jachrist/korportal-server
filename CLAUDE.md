@@ -11,7 +11,7 @@ Hele losningen er selvforsynt pa egen Ubuntu-server (`server.kammerkoretutsikten
 ### Frontend
 - Ren HTML/CSS/JS (ingen rammeverk, ingen byggsteg)
 - ES modules (`type="module"`) — hver side har en hovedmodul i `js/`
-- Service Worker (`sw.js`) for offline-stotte og caching (JS/CSS bruker network-first)
+- Service Worker (`sw.js`) for offline-stotte og caching (JS/CSS/HTML bruker network-first med `cache: 'no-cache'`, sa lange Cache-Control-tider ikke gir gamle filer). `BUILD = '__BUILD__'` i `sw.js` byttes til commit-hash av `deploy/deploy.sh` ved hver deploy → nettleseren oppdager ny SW, `js/sw-register.js` viser «Ny versjon tilgjengelig» (sjekker ved lasting, hvert 30. min og nar appen kommer i forgrunnen) og gamle cacher ryddes. Ikke bump versjon manuelt
 - API-URLer konfigureres i `js/env.js` (gitignored) — se `js/env-api.js` for mal mot lokal API
 - Nokkelnavn beholder `POWER_AUTOMATE_*`-prefiks av historiske grunner — peker na pa Express-endepunkter
 
@@ -143,7 +143,8 @@ Engangs-datamigrering (kjores manuelt ved behov): `node migrate.js` (JSON → SQ
 
 Se `deploy/README.md` for fullstendig drift:
 - Automatisk: `.github/workflows/deploy.yml` kjorer `deploy/deploy.sh` over SSH ved push til `main` (og manuelt via «Run workflow»). Krever repo-secrets `SSH_HOST`/`SSH_USER`/`SSH_PRIVATE_KEY` (+ evt. `SSH_PORT`).
-- `deploy/deploy.sh`: henter siste `main`, kopierer frontend + API (inkl. `api-new/jobs/`), `npm install` kun ved dependency-endring, restarter tjenesten. Beholder `.env`, `data/`, `uploads/`, `js/env.js`.
+- `deploy/deploy.sh`: henter siste `main`, kopierer frontend + API (inkl. `api-new/jobs/`), stempler `sw.js` med commit-hash, `npm install` kun ved dependency-endring, restarter tjenesten. Beholder `.env`, `data/`, `uploads/`, `js/env.js`. Workflowen kjorer `deploy.sh` fra den nye commiten (via `git show` til tempfil), og skriptet starter seg selv pa nytt hvis det er endret ved manuell kjoring.
+- nginx (`deploy/korportal-nginx.conf`, ikke auto-deployet — kopieres manuelt til `/etc/nginx/sites-available/korportal`): `sw.js`, JS og CSS med `Cache-Control: no-cache`, bilder/fonter 30d.
 - Manuelt (samme steg): `git pull` + kopier statiske filer til `/opt/korportal/frontend/`, og `routes/`/`lib/`/`jobs/`/`server.js` til `/opt/korportal/api-new/` + `systemctl restart korportal`
 - Backup: `deploy/backup.sh` (kryptert til OneDrive via rclone, daglig cron 03:15)
 - Restaurering: `deploy/restore.sh` med GPG-passphrase fra passordhvelv
