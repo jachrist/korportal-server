@@ -3,9 +3,12 @@
  * Håndterer caching og offline-funksjonalitet
  */
 
-const CACHE_NAME = 'korportal-v45';
-const STATIC_CACHE = 'korportal-static-v40';
-const DYNAMIC_CACHE = 'korportal-dynamic-v40';
+// BUILD byttes ut med commit-hash av deploy/deploy.sh. Dermed endres sw.js
+// ved hver deploy, nettleseren oppdager en ny versjon, viser «Ny versjon
+// tilgjengelig» og rydder gamle cacher ved aktivering.
+const BUILD = '__BUILD__';
+const STATIC_CACHE = `korportal-static-${BUILD}`;
+const DYNAMIC_CACHE = `korportal-dynamic-${BUILD}`;
 
 // Filer som skal caches ved installasjon (kun filer som garantert finnes)
 const STATIC_ASSETS = [
@@ -90,12 +93,13 @@ self.addEventListener('install', (event) => {
     caches.open(STATIC_CACHE)
       .then(async (cache) => {
         console.log('[SW] Caching static assets');
-        // Cache obligatoriske filer
-        await cache.addAll(STATIC_ASSETS);
+        // Cache obligatoriske filer. cache: 'reload' går forbi nettleserens
+        // HTTP-cache, så vi ikke legger gamle filer inn i den nye versjonen.
+        await cache.addAll(STATIC_ASSETS.map(url => new Request(url, { cache: 'reload' })));
         // Prøv å cache valgfrie filer (ignorer feil)
         for (const url of OPTIONAL_ASSETS) {
           try {
-            await cache.add(url);
+            await cache.add(new Request(url, { cache: 'reload' }));
           } catch (e) {
             console.log('[SW] Optional asset not available:', url);
           }
@@ -182,7 +186,9 @@ async function cacheFirst(request) {
 // Network first strategy
 async function networkFirst(request) {
   try {
-    const response = await fetch(request);
+    // cache: 'no-cache' revaliderer alltid mot serveren (billig 304 når filen er
+    // uendret), slik at lange Cache-Control-tider i nginx ikke gir gamle JS/CSS.
+    const response = await fetch(request, { cache: 'no-cache' });
     if (response.ok) {
       const cache = await caches.open(DYNAMIC_CACHE);
       cache.put(request, response.clone());

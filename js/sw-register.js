@@ -14,6 +14,12 @@ if ('serviceWorker' in navigator) {
             // Sjekk periodisk (hvert 30. minutt)
             setInterval(() => reg.update().catch(() => {}), 30 * 60 * 1000);
 
+            // Sjekk også når appen kommer i forgrunnen igjen. En PWA på
+            // Hjem-skjermen (iOS) lastes sjelden på nytt, men gjenopptas.
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') reg.update().catch(() => {});
+            });
+
             // Hvis det allerede venter en ny versjon
             if (reg.waiting) {
                 showUpdateBanner(reg.waiting);

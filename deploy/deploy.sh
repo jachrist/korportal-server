@@ -31,16 +31,27 @@ if [ "$(id -u)" -eq 0 ]; then SUDO=""; else SUDO="sudo -n"; fi
 
 log "Henter siste $DEPLOY_BRANCH i $REPO_DIR"
 cd "$REPO_DIR"
-PREV="$(git rev-parse HEAD 2>/dev/null || echo none)"
+PREV="${DEPLOY_PREV:-$(git rev-parse HEAD 2>/dev/null || echo none)}"
 git fetch --prune origin "$DEPLOY_BRANCH"
 git reset --hard "origin/$DEPLOY_BRANCH"
 NEW="$(git rev-parse HEAD)"
+
+# Har deploy.sh selv endret seg, kjører bash fortsatt den gamle versjonen.
+# Start den oppdaterte på nytt (én gang), med samme PREV for npm-sjekken.
+if [ -z "${DEPLOY_REEXEC:-}" ] && ! git diff --quiet "$PREV" "$NEW" -- deploy/deploy.sh 2>/dev/null; then
+  log "deploy.sh er endret — kjører den oppdaterte versjonen"
+  DEPLOY_REEXEC=1 DEPLOY_PREV="$PREV" exec bash "$REPO_DIR/deploy/deploy.sh"
+fi
 log "Deployer $NEW"
 
 log "Kopierer frontend → $FRONTEND_DIR"
 # cp (uten --delete) beholder server-filer som js/env.js
 cp -r js css assets manifest.json sw.js "$FRONTEND_DIR"/
 cp -r ./*.html "$FRONTEND_DIR"/
+
+# Stempl service workeren med commit-hash, så hver deploy gir en ny sw.js.
+# Nettleseren oppdager da oppdateringen og viser «Ny versjon tilgjengelig».
+sed -i "s/__BUILD__/${NEW:0:12}/" "$FRONTEND_DIR/sw.js"
 
 log "Kopierer API → $API_DIR"
 cp -r api-new/routes api-new/lib api-new/jobs "$API_DIR"/
