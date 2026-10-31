@@ -42,6 +42,9 @@
             <option value="tutti">Tutti</option>
         </select>
         <span class="o2-topbar__title" id="programTitle">Øvelse</span>
+        <button class="o2-topbar__fullscreen-btn" id="fullscreenBtn" title="Fullskjerm – bare noten" aria-label="Fullskjerm">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+        </button>
     </header>
 
     <!-- Settings panel (slides from left) -->
@@ -81,6 +84,10 @@
                 <button class="o2-settings__item" id="offlineClearBtn" hidden>
                     <span class="o2-settings__icon">🗑️</span>
                     <span>Slett offline-filer</span>
+                </button>
+                <button class="o2-settings__item" id="fullscreenSettingsBtn">
+                    <span class="o2-settings__icon">⛶</span>
+                    <span>Fullskjerm (bare noten)</span>
                 </button>
                 <button class="o2-settings__item" id="wakeLockBtn">
                     <span class="o2-settings__icon">☀️</span>
@@ -188,6 +195,17 @@
 
     <!-- Hidden audio element -->
     <audio id="audioPlayer" preload="auto"></audio>
+
+    <!-- Fullskjerm: avslutt-knapp, trykk-tilbakemelding og hjelp -->
+    <button class="fs-exit" id="fullscreenExit" type="button" title="Avslutt fullskjerm" aria-label="Avslutt fullskjerm">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+    </button>
+    <div class="fs-feedback" id="fullscreenFeedback" aria-live="polite"></div>
+    <div class="fs-hint" id="fullscreenHint" aria-hidden="true">
+        <div class="fs-hint__zone fs-hint__zone--top">Trykk her: forrige sang</div>
+        <div class="fs-hint__zone fs-hint__zone--mid">Trykk på midten: start / stopp<br><small>Sveip til siden for å bla</small></div>
+        <div class="fs-hint__zone fs-hint__zone--bottom">Trykk her: neste sang</div>
+    </div>
 
     <!-- Initial voice selection modal -->
     <div class="welcome-modal" id="welcomeModal" hidden>
