@@ -821,6 +821,10 @@ class PracticeApp {
             this.showPdfMessage('Kunne ikke vise siden');
         } finally {
             this.isRendering = false;
+            if (this.resizePending) {
+                this.resizePending = false;
+                this.handleResize();
+            }
         }
     }
 
@@ -1244,9 +1248,14 @@ class PracticeApp {
     // RESIZE HANDLING
     // ==========================================================================
     handleResize() {
-        if (this.pdfDoc && !this.isRendering && this.currentMode !== 'audio') {
-            this.renderPage(this.currentPage);
+        if (!this.pdfDoc || this.currentMode === 'audio') return;
+        if (this.isRendering) {
+            // Størrelsen endret seg mens siden tegnes (f.eks. overgang til
+            // fullskjerm på iPad): tegn på nytt når gjeldende tegning er ferdig.
+            this.resizePending = true;
+            return;
         }
+        this.renderPage(this.currentPage);
     }
 
     // ==========================================================================
