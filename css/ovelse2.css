@@ -373,6 +373,14 @@
     cursor: pointer;
 }
 
+/* ovelse.css begrenser høyden til 100vh - 200px på brede skjermer (≥1024px).
+   Det kutter bare høyden, så noten blir fortegnet (iPad/PC). renderPage()
+   regner selv ut størrelsen som passer flaten, så begrensningen fjernes. */
+.ovelse2-body #pdfCanvas {
+    max-width: none;
+    max-height: none;
+}
+
 .o2-fullscreen #pdfCanvas {
     box-shadow: none;
 }
