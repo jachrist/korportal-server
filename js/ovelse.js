@@ -214,6 +214,7 @@ class PracticeApp {
         this.currentPage = 1;
         this.totalPages = 0;
         this.isPlaying = false;
+        this.isFullscreen = false;
 
         // PDF state
         this.pdfDoc = null;
@@ -287,6 +288,13 @@ class PracticeApp {
             pdfMessageText: document.getElementById('pdfMessageText'),
             pdfPrevPage: document.getElementById('pdfPrevPage'),
             pdfNextPage: document.getElementById('pdfNextPage'),
+
+            // Fullskjerm
+            fullscreenBtn: document.getElementById('fullscreenBtn'),
+            fullscreenSettingsBtn: document.getElementById('fullscreenSettingsBtn'),
+            fullscreenExit: document.getElementById('fullscreenExit'),
+            fullscreenFeedback: document.getElementById('fullscreenFeedback'),
+            fullscreenHint: document.getElementById('fullscreenHint'),
 
             // Audio view elements
             audioView: document.getElementById('audioView'),
@@ -394,6 +402,18 @@ class PracticeApp {
 
         // Keyboard navigation
         document.addEventListener('keydown', (e) => this.handleKeyDown(e));
+
+        // Fullskjerm
+        this.elements.fullscreenBtn?.addEventListener('click', () => this.enterFullscreen());
+        this.elements.fullscreenSettingsBtn?.addEventListener('click', () => this.enterFullscreen());
+        this.elements.fullscreenExit?.addEventListener('click', () => this.exitFullscreen());
+        this.elements.pdfViewer?.addEventListener('click', (e) => this.handleFullscreenTap(e));
+        this.elements.audioView?.addEventListener('click', (e) => this.handleFullscreenTap(e));
+        this.elements.fullscreenHint?.addEventListener('click', () => this.hideFullscreenHint());
+        document.addEventListener('fullscreenchange', () => {
+            // Nettleserens egen fullskjerm avsluttet (Esc / tilbake-knapp) → avslutt også vår modus
+            if (!document.fullscreenElement && this.isFullscreen) this.exitFullscreen();
+        });
 
         // Window resize
         window.addEventListener('resize', () => this.handleResize());
@@ -762,10 +782,10 @@ class PracticeApp {
             const renderMultiplier = Math.max(2, window.devicePixelRatio || 1);
             const baseViewport = page.getViewport({ scale: 1 });
 
-            // Calculate container size
+            // Calculate container size (fullskjerm: ingen blaknapper, bruk hele flaten)
             const container = this.elements.pdfViewer;
-            const maxWidth = container.clientWidth - 100;
-            const maxHeight = container.clientHeight - 20;
+            const maxWidth = container.clientWidth - (this.isFullscreen ? 8 : 100);
+            const maxHeight = container.clientHeight - (this.isFullscreen ? 8 : 20);
 
             // Calculate scale to fit container
             const widthFit = maxWidth / baseViewport.width;
@@ -1111,6 +1131,9 @@ class PracticeApp {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
 
         switch (e.key) {
+            case 'Escape':
+                if (this.isFullscreen) this.exitFullscreen();
+                break;
             case 'ArrowLeft':
                 e.preventDefault();
                 this.prevPage();
@@ -1132,6 +1155,89 @@ class PracticeApp {
                 this.togglePlayback();
                 break;
         }
+    }
+
+    // ==========================================================================
+    // FULLSKJERM
+    // Viser bare noten. Trykk øverst = forrige sang, nederst = neste sang,
+    // midten = start/stopp. Sveip til siden blar som før.
+    // ==========================================================================
+    enterFullscreen() {
+        if (this.isFullscreen) return;
+        this.isFullscreen = true;
+        document.body.classList.add('o2-fullscreen');
+
+        // Nettleserens egen fullskjerm der den finnes (Android/PC). iPhone har den
+        // ikke, men der skjuler appen fra Hjem-skjermen allerede nettleserlinjene.
+        const root = document.documentElement;
+        if (root.requestFullscreen && !document.fullscreenElement) {
+            root.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+        }
+
+        this.showFullscreenHint();
+        this.rerenderAfterLayout();
+    }
+
+    exitFullscreen() {
+        if (!this.isFullscreen) return;
+        this.isFullscreen = false;
+        document.body.classList.remove('o2-fullscreen');
+        this.hideFullscreenHint();
+        if (document.fullscreenElement && document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+        }
+        this.rerenderAfterLayout();
+    }
+
+    rerenderAfterLayout() {
+        // Vent til layouten har endret seg før noten tegnes i ny størrelse
+        requestAnimationFrame(() => requestAnimationFrame(() => this.handleResize()));
+    }
+
+    async handleFullscreenTap(e) {
+        if (!this.isFullscreen) return;
+        if (this.elements.fullscreenHint?.classList.contains('visible')) {
+            this.hideFullscreenHint();
+            return;
+        }
+
+        const zone = e.clientY / window.innerHeight;
+        if (zone < 0.2) {
+            if (this.currentWorkIndex <= 0) return this.showFullscreenFeedback('Første sang');
+            await this.prevWork();
+            this.showFullscreenFeedback(`⏮ ${this.data.notes[this.currentWorkIndex]?.noteTitle || ''}`);
+        } else if (zone > 0.8) {
+            if (this.currentWorkIndex >= this.data.notes.length - 1) return this.showFullscreenFeedback('Siste sang');
+            await this.nextWork();
+            this.showFullscreenFeedback(`⏭ ${this.data.notes[this.currentWorkIndex]?.noteTitle || ''}`);
+        } else {
+            if (!this.elements.audioPlayer?.src) return this.showFullscreenFeedback('Ingen øvefil');
+            const willPlay = this.elements.audioPlayer.paused;
+            this.togglePlayback();
+            this.showFullscreenFeedback(willPlay ? '▶' : '⏸');
+        }
+    }
+
+    showFullscreenFeedback(text) {
+        const el = this.elements.fullscreenFeedback;
+        if (!el) return;
+        el.textContent = text;
+        el.classList.add('visible');
+        clearTimeout(this.fullscreenFeedbackTimer);
+        this.fullscreenFeedbackTimer = setTimeout(() => el.classList.remove('visible'), 1200);
+    }
+
+    showFullscreenHint() {
+        const el = this.elements.fullscreenHint;
+        if (!el) return;
+        el.classList.add('visible');
+        clearTimeout(this.fullscreenHintTimer);
+        this.fullscreenHintTimer = setTimeout(() => this.hideFullscreenHint(), 3500);
+    }
+
+    hideFullscreenHint() {
+        clearTimeout(this.fullscreenHintTimer);
+        this.elements.fullscreenHint?.classList.remove('visible');
     }
 
     // ==========================================================================
