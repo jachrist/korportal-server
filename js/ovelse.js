@@ -1164,7 +1164,8 @@ class PracticeApp {
     // ==========================================================================
     // FULLSKJERM
     // Viser bare noten. Trykk øverst = forrige sang, nederst = neste sang,
-    // midten = start/stopp. Sveip til siden blar som før.
+    // venstre/høyre kant = forrige/neste side, midten = start/stopp.
+    // Sveip til siden blar som før.
     // ==========================================================================
     enterFullscreen() {
         if (this.isFullscreen) return;
@@ -1214,11 +1215,31 @@ class PracticeApp {
             if (this.currentWorkIndex >= this.data.notes.length - 1) return this.showFullscreenFeedback('Siste sang');
             await this.nextWork();
             this.showFullscreenFeedback(`⏭ ${this.data.notes[this.currentWorkIndex]?.noteTitle || ''}`);
+        } else if (e.clientX / window.innerWidth < 0.2) {
+            await this.turnPageWithFeedback(-1);
+        } else if (e.clientX / window.innerWidth > 0.8) {
+            await this.turnPageWithFeedback(1);
         } else {
             if (!this.elements.audioPlayer?.src) return this.showFullscreenFeedback('Ingen øvefil');
             const willPlay = this.elements.audioPlayer.paused;
             this.togglePlayback();
             this.showFullscreenFeedback(willPlay ? '▶' : '⏸');
+        }
+    }
+
+    async turnPageWithFeedback(direction) {
+        const work = this.currentWorkIndex;
+        const page = this.currentPage;
+        if (direction < 0) await this.prevPage();
+        else await this.nextPage();
+
+        if (this.currentWorkIndex !== work) {
+            // Blaingen gikk over til forrige/neste sang
+            this.showFullscreenFeedback(`${direction < 0 ? '⏮' : '⏭'} ${this.data.notes[this.currentWorkIndex]?.noteTitle || ''}`);
+        } else if (this.currentPage !== page) {
+            this.showFullscreenFeedback(`${direction < 0 ? '‹' : '›'} Side ${this.currentPage}/${this.totalPages || 1}`);
+        } else {
+            this.showFullscreenFeedback(direction < 0 ? 'Første side' : 'Siste side');
         }
     }
 

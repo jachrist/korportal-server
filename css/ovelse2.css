@@ -471,6 +471,26 @@
     border: 2px dashed rgba(255, 255, 255, 0.5);
 }
 
+.fs-hint__row {
+    display: grid;
+    grid-template-columns: 20fr 60fr 20fr;
+}
+
+.fs-hint__zone--side {
+    font-size: 0.95rem;
+    line-height: 1.3;
+    border-top: none;
+    border-bottom: none;
+}
+
+.fs-hint__zone--side:first-child {
+    border-right: none;
+}
+
+.fs-hint__zone--side:last-child {
+    border-left: none;
+}
+
 .fs-hint__zone--mid {
     background: rgba(0, 0, 0, 0.35);
     border-top: none;
