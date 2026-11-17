@@ -7,6 +7,8 @@
     flex-direction: column;
     height: 100vh;
     height: 100dvh;
+    /* --app-height = window.innerHeight, satt av inline-skript i ovelse.html */
+    height: var(--app-height, 100dvh);
     overflow: hidden;
 }
 

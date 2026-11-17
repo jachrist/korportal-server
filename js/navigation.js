@@ -309,7 +309,10 @@ export class ThemeManager {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem(this.storageKey, theme);
         if (this.themeBtn) {
-            this.themeBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+            // Knapper med eget ikon-element (f.eks. «Bytt tema» i øvesidens
+            // innstillinger) skal beholde teksten; bytt bare ikonet.
+            const icon = this.themeBtn.querySelector('.o2-settings__icon') || this.themeBtn;
+            icon.textContent = theme === 'dark' ? '🌙' : '☀️';
         }
     }
 

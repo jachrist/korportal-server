@@ -18,6 +18,19 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/ovelse.css">
     <link rel="stylesheet" href="css/ovelse2.css">
+    <script>
+        // Faktisk synlig høyde. 100vh/100dvh tar ikke hensyn til nettleserens
+        // verktøylinjer i alle nettlesere (bl.a. eldre Samsung Internet), så
+        // bunnlinjen med avspillingsknappen kunne havne bak verktøylinjen.
+        (function () {
+            function setAppHeight() {
+                document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
+            }
+            setAppHeight();
+            window.addEventListener('resize', setAppHeight);
+            window.addEventListener('orientationchange', function () { setTimeout(setAppHeight, 200); });
+        })();
+    </script>
     <script src="js/vendor/pdf.min.js"></script>
 </head>
 <body class="ovelse-body ovelse2-body">
