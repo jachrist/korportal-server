@@ -790,7 +790,10 @@ class PracticeApp {
             // Calculate scale to fit container
             const widthFit = maxWidth / baseViewport.width;
             const heightFit = maxHeight / baseViewport.height;
-            const scale = Math.max(0.55, Math.min(widthFit, heightFit));
+            // Ingen nedre grense: store sider (f.eks. skannede noter på 50–70 cm)
+            // må kunne skaleres godt under 55 % for å passe. Oppløsningen holdes
+            // skarp av renderMultiplier nedenfor.
+            const scale = Math.max(0.05, Math.min(widthFit, heightFit));
 
             const viewport = page.getViewport({ scale });
 
